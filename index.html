@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Birdsong Spectrogram Hero</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #0f172a, #020617 60%, #000 100%);
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .game-shell {
+      width: 100%;
+      max-width: 1100px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+      padding: 20px 22px 20px 22px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .title-block h1 {
+      font-size: 1.4rem;
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+
+    .title-block p {
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .meta-block {
+      text-align: right;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.2);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      color: #e0f2fe;
+      margin-bottom: 4px;
+      font-size: 0.75rem;
+      gap: 4px;
+    }
+
+    .meta-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22d3ee;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    /* Spectrogram panel */
+    .spectrogram-panel {
+      background: radial-gradient(circle at top, #020617, #020617);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 12px 12px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .spectrogram-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #9ca3af;
+      padding-bottom: 4px;
+    }
+
+    .spec-label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.7rem;
+      color: #a5b4fc;
+    }
+
+    .spec-level {
+      font-size: 0.75rem;
+      color: #6ee7b7;
+    }
+
+    .spectrogram-frame {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #020617;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.8);
+      min-height: 220px;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+
+    .spectrogram-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+
+    .spectrogram-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        to bottom,
+        rgba(15, 23, 42, 0.6),
+        transparent 20%,
+        transparent 70%,
+        rgba(15, 23, 42, 0.9)
+      );
+    }
+
+    .spectrogram-axis {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-top: 1px solid rgba(148, 163, 184, 0.2);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .spectrogram-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .play-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .play-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(129, 140, 248, 0.6);
+      background: linear-gradient(to right, #1d243c, #312e81);
+      color: #e5e7eb;
+      font-size: 0.85rem;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.8);
+    }
+
+    .play-button:hover {
+      filter: brightness(1.1);
+    }
+
+    .play-icon {
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 9px solid #e5e7eb;
+    }
+
+    .hint-label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .species-tagline {
+      font-size: 0.82rem;
+      color: #a5b4fc;
+    }
+
+    .fact-box {
+      margin-top: 6px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      font-size: 0.83rem;
+      color: #e5e7eb;
+      min-height: 40px;
+    }
+
+    .fact-box.hidden {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    .fact-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #6b7280;
+      margin-bottom: 2px;
+    }
+
+    .fact-text {
+      font-size: 0.83rem;
+    }
+
+    /* Answers panel */
+    .answers-panel {
+      background: radial-gradient(circle at top, #020617, #020617);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 12px 12px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .question-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .question-subtitle {
+      font-size: 0.83rem;
+      color: #9ca3af;
+    }
+
+    .answers-list {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.06s ease, box-shadow 0.06s ease,
+        border-color 0.12s ease, background-color 0.12s ease;
+    }
+
+    .answer-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 7px 14px rgba(15, 23, 42, 0.9);
+      border-color: rgba(129, 140, 248, 0.8);
+    }
+
+    .answer-btn.correct-choice {
+      background: radial-gradient(circle at top left, #16a34a, #052e16);
+      border-color: #22c55e;
+    }
+
+    .answer-btn.wrong-choice {
+      background: radial-gradient(circle at top left, #b45309, #451a03);
+      border-color: #f97316;
+    }
+
+    .answer-label {
+      font-weight: 500;
+    }
+
+    .answer-meta {
+      font-size: 0.75rem;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: rgba(31, 41, 55, 0.9);
+      color: #9ca3af;
+    }
+
+    .answer-meta.correct {
+      background: rgba(22, 163, 74, 0.3);
+      color: #bbf7d0;
+    }
+
+    .answer-meta.guess {
+      background: rgba(59, 130, 246, 0.2);
+      color: #bfdbfe;
+    }
+
+    .feedback-line {
+      font-size: 0.85rem;
+      min-height: 18px;
+    }
+
+    .feedback-line.correct {
+      color: #4ade80;
+    }
+
+    .feedback-line.wrong {
+      color: #fb923c;
+    }
+
+    .bottom-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+
+    .score-text strong {
+      color: #e5e7eb;
+    }
+
+    .next-btn {
+      padding: 7px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(129, 140, 248, 0.75);
+      background: linear-gradient(to right, #4338ca, #7c3aed);
+      color: #f9fafb;
+      font-size: 0.86rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .next-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .next-arrow {
+      font-size: 1rem;
+    }
+
+    @media (max-width: 840px) {
+      .main-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .meta-block {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .game-shell {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-shell">
+    <header class="game-header">
+      <div class="title-block">
+        <h1>Birdsong Spectrogram Hero</h1>
+        <p>
+          Listen to the call and study the spectrogram. Choose which species is
+          singing.
+        </p>
+      </div>
+      <div class="meta-block">
+        <div class="meta-pill">
+          <span class="meta-dot"></span>
+          Spectrogram training
+        </div>
+        <div>Mode: Multiple choice · Single caller</div>
+      </div>
+    </header>
+
+    <main class="main-layout">
+      <!-- Spectrogram panel -->
+      <section class="spectrogram-panel">
+        <div class="spectrogram-header">
+          <div>
+            <div class="spec-label">Visualizing sound</div>
+            <div class="species-tagline" id="spec-tagline">
+              Who is calling?
+            </div>
+          </div>
+          <div class="spec-level" id="spec-region">
+            Region: —
+          </div>
+        </div>
+
+        <div class="spectrogram-frame">
+          <img
+            id="spectrogram-image"
+            class="spectrogram-image"
+            src=""
+            alt="Birdsong spectrogram"
+          />
+          <div class="spectrogram-overlay"></div>
+          <div class="spectrogram-axis"></div>
+        </div>
+
+        <div class="spectrogram-footer">
+          <div class="play-controls">
+            <button id="play-btn" class="play-button" type="button">
+              <span class="play-icon"></span>
+              <span>Play call</span>
+            </button>
+            <div class="hint-label">
+              Tip: Match the pattern of notes and pitch bands.
+            </div>
+          </div>
+          <div class="feedback-line" id="feedback-line"></div>
+        </div>
+
+        <div id="fact-box" class="fact-box hidden">
+          <div class="fact-label">After the guess</div>
+          <div class="fact-text" id="fact-text">
+            Identify the singer to reveal a fun fact.
+          </div>
+        </div>
+      </section>
+
+      <!-- Answers panel -->
+      <section class="answers-panel">
+        <div class="question-text">Which bird is producing this song?</div>
+        <div class="question-subtitle">
+          Listen as many times as you like, then choose the species.
+        </div>
+
+        <div id="answers-list" class="answers-list">
+          <!-- buttons injected here -->
+        </div>
+
+        <div class="bottom-controls">
+          <div class="score-text" id="score-text">Score: <strong>0 / 0</strong></div>
+          <button id="next-btn" class="next-btn" type="button" disabled>
+            Next spectrogram <span class="next-arrow">➜</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- hidden audio element -->
+    <audio id="audio-player"></audio>
+  </div>
+
+  <script>
+    // ================================
+    // 1. Configure your species & data
+    // ================================
+
+    // List of all species names you want to appear as options.
+    // Make sure each song's "species" property is one of these.
+    const SPECIES_NAMES = [
+      "Black-capped Chickadee",
+      "American Robin",
+      "Song Sparrow",
+      "Northern Cardinal",
+      "Common Yellowthroat",
+      "Eastern Whip-poor-will"
+      // Add more species names here.
+    ];
+
+    // SONGS: this is where you customize the game.
+    // Each entry should be one spectrogram + associated audio + fact.
+    //
+    // image:  path to spectrogram image, e.g. "images/robin_spec.png"
+    // audio:  path to audio file, e.g. "audio/robin_song.mp3"
+    // region: (optional) text label, e.g. "Eastern North America"
+    // fact:   a short fun fact about the species or the call
+    const SONGS = [
+      {
+        species: "American Robin",
+        image: "images/robin_spectrogram.png",
+        audio: "audio/robin_song.mp3",
+        region: "Eastern North America",
+        fact: "American Robins often sing from high perches at dawn, giving a clear 'cheerily, cheer up' phrase."
+      },
+      {
+        species: "Song Sparrow",
+        image: "images/song_sparrow_spectrogram.png",
+        audio: "audio/song_sparrow_song.mp3",
+        region: "Fields & wetlands",
+        fact: "Song Sparrows have individualized songs; nearby males share some phrases but rarely match exactly."
+      },
+      {
+        species: "Black-capped Chickadee",
+        image: "images/chickadee_spectrogram.png",
+        audio: "audio/chickadee_song.mp3",
+        region: "Mixed forests",
+        fact: "The clear, whistled 'fee-bee' song usually marks territory and is most common in early spring."
+      },
+      {
+        species: "Northern Cardinal",
+        image: "images/cardinal_spectrogram.png",
+        audio: "audio/cardinal_song.mp3",
+        region: "Woodland edges",
+        fact: "Both male and female Northern Cardinals sing, often giving bright, slurred whistles."
+      }
+      // Add more entries as you collect spectrograms and audio.
+    ];
+
+    // ========================
+    // 2. Game state & helpers
+    // ========================
+
+    let currentSong = null;
+    let scoreCorrect = 0;
+    let scoreTotal = 0;
+    let hasAnswered = false;
+
+    const spectrogramImageEl = document.getElementById("spectrogram-image");
+    const specTaglineEl = document.getElementById("spec-tagline");
+    const specRegionEl = document.getElementById("spec-region");
+    const factBoxEl = document.getElementById("fact-box");
+    const factTextEl = document.getElementById("fact-text");
+    const feedbackLineEl = document.getElementById("feedback-line");
+    const answersListEl = document.getElementById("answers-list");
+    const scoreTextEl = document.getElementById("score-text");
+    const playBtnEl = document.getElementById("play-btn");
+    const nextBtnEl = document.getElementById("next-btn");
+    const audioPlayerEl = document.getElementById("audio-player");
+
+    function shuffleArray(arr) {
+      return arr
+        .map((value) => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map((obj) => obj.value);
+    }
+
+    function pickRandomSong() {
+      const index = Math.floor(Math.random() * SONGS.length);
+      return SONGS[index];
+    }
+
+    // Build multiple-choice list: correct species + N-1 random others.
+    function buildChoices(correctSpecies) {
+      const allNames = SPECIES_NAMES.slice();
+      const others = allNames.filter((name) => name !== correctSpecies);
+      const numOptions = Math.min(4, allNames.length); // up to 4 options
+
+      const wrongChoices = shuffleArray(others).slice(0, numOptions - 1);
+      const allChoices = shuffleArray([correctSpecies, ...wrongChoices]);
+      return allChoices;
+    }
+
+    // ======================
+    // 3. Rendering functions
+    // ======================
+
+    function renderSpectrogram(song) {
+      spectrogramImageEl.src = song.image;
+      spectrogramImageEl.alt = `Spectrogram of ${song.species} song`;
+
+      specTaglineEl.textContent = "Who is calling?";
+      specRegionEl.textContent = song.region ? `Region: ${song.region}` : "Region: —";
+
+      factTextEl.textContent =
+        "Identify the singer to reveal a fun fact.";
+      factBoxEl.classList.add("hidden");
+
+      feedbackLineEl.textContent = "";
+      feedbackLineEl.className = "feedback-line";
+
+      audioPlayerEl.src = song.audio;
+    }
+
+    function renderAnswers(song) {
+      answersListEl.innerHTML = "";
+      const choices = buildChoices(song.species);
+
+      choices.forEach((choice) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "answer-btn";
+
+        const labelSpan = document.createElement("span");
+        labelSpan.className = "answer-label";
+        labelSpan.textContent = choice;
+
+        const metaSpan = document.createElement("span");
+        metaSpan.className = "answer-meta";
+        metaSpan.textContent = "Guess";
+
+        button.appendChild(labelSpan);
+        button.appendChild(metaSpan);
+
+        button.addEventListener("click", () => handleAnswer(choice, button));
+        answersListEl.appendChild(button);
+      });
+    }
+
+    // ==================
+    // 4. Game interaction
+    // ==================
+
+    function handleAnswer(selectedSpecies, buttonEl) {
+      if (hasAnswered) return;
+      hasAnswered = true;
+      scoreTotal++;
+
+      const isCorrect = selectedSpecies === currentSong.species;
+      if (isCorrect) {
+        scoreCorrect++;
+        feedbackLineEl.textContent = "Correct! Nice ear.";
+        feedbackLineEl.classList.add("correct");
+      } else {
+        feedbackLineEl.textContent = `Not quite. This spectrogram belongs to ${currentSong.species}.`;
+        feedbackLineEl.classList.add("wrong");
+      }
+
+      // Reveal fact
+      factTextEl.textContent = currentSong.fact || "";
+      factBoxEl.classList.remove("hidden");
+
+      // Update species tagline
+      specTaglineEl.textContent = currentSong.species;
+
+      // Style buttons
+      const buttons = answersListEl.querySelectorAll(".answer-btn");
+      buttons.forEach((btn) => {
+        const label = btn.querySelector(".answer-label").textContent;
+        const meta = btn.querySelector(".answer-meta");
+
+        if (label === currentSong.species) {
+          btn.classList.add("correct-choice");
+          meta.textContent = "Answer";
+          meta.classList.add("correct");
+        }
+
+        if (btn === buttonEl && !isCorrect) {
+          btn.classList.add("wrong-choice");
+          meta.textContent = "Your guess";
+          meta.classList.add("guess");
+        }
+
+        btn.disabled = true;
+      });
+
+      // Update score
+      scoreTextEl.innerHTML = `Score: <strong>${scoreCorrect} / ${scoreTotal}</strong>`;
+
+      nextBtnEl.disabled = false;
+    }
+
+    function loadNewRound() {
+      hasAnswered = false;
+      nextBtnEl.disabled = true;
+
+      currentSong = pickRandomSong();
+      renderSpectrogram(currentSong);
+      renderAnswers(currentSong);
+    }
+
+    // ================
+    // 5. Event wiring
+    // ================
+
+    playBtnEl.addEventListener("click", () => {
+      // Restart audio from the beginning
+      audioPlayerEl.currentTime = 0;
+      audioPlayerEl.play().catch(() => {
+        // Do nothing if autoplay blocked
+      });
+    });
+
+    nextBtnEl.addEventListener("click", () => {
+      loadNewRound();
+    });
+
+    // Kick off the first round
+    loadNewRound();
+  </script>
+</body>
+</html>
