@@ -151,7 +151,31 @@
       color: #a5b4fc;
     }
 
+    /* Axes + spectrogram layout */
+
+    .spectrogram-with-axes {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: 1fr auto;
+      column-gap: 8px;
+      row-gap: 4px;
+      align-items: center;
+    }
+
+    .axis-y-outside {
+      grid-row: 1 / 2;
+      grid-column: 1 / 2;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      font-size: 0.78rem;
+      color: #e5e7eb;
+      text-align: center;
+    }
+
     .spectrogram-frame {
+      grid-row: 1 / 2;
+      grid-column: 2 / 3;
       position: relative;
       border-radius: 12px;
       overflow: hidden;
@@ -162,6 +186,15 @@
       display: flex;
       align-items: stretch;
       justify-content: stretch;
+    }
+
+    .axis-x-outside {
+      grid-row: 2 / 3;
+      grid-column: 2 / 3;
+      font-size: 0.78rem;
+      color: #e5e7eb;
+      text-align: center;
+      padding-top: 2px;
     }
 
     .spectrogram-image {
@@ -184,30 +217,8 @@
       );
     }
 
-    .axis-x,
-    .axis-y,
     .amp-box {
       position: absolute;
-      font-size: 0.78rem;
-      color: #e5e7eb;
-      pointer-events: none;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-    }
-
-    .axis-x {
-      bottom: 4px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    .axis-y {
-      left: 6px;
-      top: 50%;
-      transform: translateY(-50%) rotate(-90deg);
-      transform-origin: center;
-    }
-
-    .amp-box {
       top: 6px;
       right: 6px;
       padding: 2px 6px;
@@ -215,6 +226,8 @@
       background: rgba(15, 23, 42, 0.85);
       border: 1px solid rgba(148, 163, 184, 0.8);
       font-size: 0.75rem;
+      color: #e5e7eb;
+      pointer-events: none;
     }
 
     .spectrogram-footer {
@@ -378,7 +391,32 @@
       border-color: #f97316;
     }
 
-    .answer-label { font-weight: 500; }
+    .answer-main {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .answer-icon {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .answer-icon svg {
+      width: 34px;
+      height: 34px;
+      display: block;
+    }
+
+    .answer-label {
+      font-weight: 500;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
 
     .answer-meta {
       font-size: 0.75rem;
@@ -386,6 +424,7 @@
       border-radius: 999px;
       background: rgba(31, 41, 55, 0.9);
       color: #9ca3af;
+      flex: 0 0 auto;
     }
 
     .answer-meta.correct {
@@ -547,18 +586,19 @@
           <div class="spec-level" id="spec-region">Region: —</div>
         </div>
 
-        <div class="spectrogram-frame">
-          <img
-            id="spectrogram-image"
-            class="spectrogram-image"
-            src=""
-            alt="Insect sound spectrogram"
-          />
-          <div class="spectrogram-overlay"></div>
-
-          <div class="axis-x">Time (seconds)</div>
-          <div class="axis-y">Frequency (kHz)</div>
-          <div class="amp-box">Amplitude (brightness)</div>
+        <div class="spectrogram-with-axes">
+          <div class="axis-y-outside">Frequency (kHz)</div>
+          <div class="spectrogram-frame">
+            <img
+              id="spectrogram-image"
+              class="spectrogram-image"
+              src=""
+              alt="Insect sound spectrogram"
+            />
+            <div class="spectrogram-overlay"></div>
+            <div class="amp-box">Amplitude (brightness)</div>
+          </div>
+          <div class="axis-x-outside">Time (seconds)</div>
         </div>
 
         <div class="spectrogram-footer">
@@ -629,6 +669,94 @@
   </div>
 
   <script>
+    // ---- Simple SVG cartoons for each group ----
+    const INSECT_ICONS = {
+      cricket: `
+        <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <!-- abdomen and thorax -->
+            <ellipse cx="34" cy="18" rx="10" ry="6" fill="none"/>
+            <path d="M24 18 L16 17" />
+            <!-- head -->
+            <circle cx="14" cy="17" r="2.5" />
+            <!-- antennae -->
+            <path d="M13 15 L6 9" />
+            <path d="M15 15 L8 7" />
+            <!-- hind leg -->
+            <path d="M36 20 L42 10 L50 6" />
+            <path d="M40 22 L48 24" />
+            <!-- mid/forelegs -->
+            <path d="M28 20 L30 26" />
+            <path d="M22 19 L20 25" />
+            <!-- wing outline over abdomen -->
+            <path d="M26 13 L40 14 L44 18 L30 20 Z" />
+          </g>
+        </svg>
+      `,
+      katydid: `
+        <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <!-- leaf-like body -->
+            <path d="M18 18 L36 10 L50 16 L32 22 Z" />
+            <!-- head -->
+            <circle cx="16" cy="18" r="2.3" />
+            <!-- antennae (very long) -->
+            <path d="M15 16 L4 6" />
+            <path d="M17 16 L6 4" />
+            <!-- hind leg -->
+            <path d="M36 19 L42 9 L54 5" />
+            <path d="M40 21 L50 25" />
+            <!-- mid/forelegs -->
+            <path d="M24 19 L22 26" />
+            <path d="M20 18 L18 24" />
+            <!-- wing veins hint -->
+            <path d="M22 17 L40 14" />
+          </g>
+        </svg>
+      `,
+      cicada: `
+        <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <!-- head and thorax -->
+            <ellipse cx="24" cy="16" rx="4" ry="4" />
+            <ellipse cx="30" cy="16" rx="5" ry="4" />
+            <!-- abdomen -->
+            <path d="M35 13 L44 16 L35 19 Z" />
+            <!-- eyes -->
+            <circle cx="22" cy="14.5" r="0.9" />
+            <circle cx="26" cy="14.5" r="0.9" />
+            <!-- forewings -->
+            <path d="M30 14 L48 10 L54 12 L36 17 Z" />
+            <path d="M30 18 L48 22 L54 20 L36 17 Z" />
+            <!-- legs -->
+            <path d="M25 20 L22 25" />
+            <path d="M29 20 L30 26" />
+            <path d="M33 17 L38 24" />
+          </g>
+        </svg>
+      `,
+      grasshopper: `
+        <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <!-- thorax and abdomen -->
+            <rect x="22" y="15" width="14" height="5" rx="1.5" />
+            <path d="M36 16 L48 15 L52 18 L40 20 Z" />
+            <!-- head -->
+            <circle cx="20" cy="17" r="2.3" />
+            <!-- shorter antennae -->
+            <path d="M19 15 L13 11" />
+            <path d="M21 15 L15 9" />
+            <!-- big hind leg -->
+            <path d="M38 20 L42 10 L52 7" />
+            <path d="M40 21.5 L49 25" />
+            <!-- fore/mid legs -->
+            <path d="M26 20 L25 26" />
+            <path d="M30 20 L29 26" />
+          </g>
+        </svg>
+      `
+    };
+
     // ---- 1. Data: common names, facts, credits ----
 
     const SONGS = [
@@ -641,7 +769,8 @@
         region: "North America",
         fact: "Four-spotted tree crickets high pitched trills from up in the trees. They amplify their songs by building tools called baffles out of leaves.",
         photoCredit: "Megan Ralph",
-        audioCredit: "Daniel Parker"
+        audioCredit: "Daniel Parker",
+        iconType: "cricket"
       },
       {
         commonName: "Swamp Cicada",
@@ -652,7 +781,8 @@
         region: "Eastern U.S.",
         fact: "Swamp cicadas produce loud songs by vibrating a thin membrane of an organ on their abdomen called a tymbal. Their songs are so loud that they actually turn down their hearing when they sing to avoid going deaf!",
         photoCredit: "\"Alie\" Kratzer",
-        audioCredit: "David Marshall"
+        audioCredit: "David Marshall",
+        iconType: "cicada"
       },
       {
         commonName: "Common True Katydid",
@@ -663,7 +793,8 @@
         region: "Eastern U.S. forests",
         fact: "Common true katydids produce rhythmic songs by rubbing their wings together. Unlike crickets who are righties, katydids are all lefties and rub their left wing over their right wings.",
         photoCredit: "Judy Gallagher",
-        audioCredit: "Francisco Rivas Fuenzalida"
+        audioCredit: "Francisco Rivas Fuenzalida",
+        iconType: "katydid"
       },
       {
         commonName: "Meadow Grasshopper",
@@ -674,7 +805,8 @@
         region: "European grasslands",
         fact: "Male meadow grasshoppers create their percussive songs by rubbing their hind legs against hard forewings. Most grasshoppers don't actually sing, but some of the few species that do can be very easy to find.",
         photoCredit: "Gilles San Martin",
-        audioCredit: "Baudewijn Ode"
+        audioCredit: "Baudewijn Ode",
+        iconType: "grasshopper"
       }
     ];
 
@@ -821,15 +953,26 @@
         btn.dataset.commonName = songObj.commonName;
         btn.dataset.scientificName = songObj.species;
 
+        const main = document.createElement("span");
+        main.className = "answer-main";
+
+        const iconSpan = document.createElement("span");
+        iconSpan.className = "answer-icon";
+        const iconSvg = INSECT_ICONS[songObj.iconType] || "";
+        iconSpan.innerHTML = iconSvg;
+
         const label = document.createElement("span");
         label.className = "answer-label";
         label.textContent = sciNamesOn ? songObj.species : songObj.commonName;
+
+        main.appendChild(iconSpan);
+        main.appendChild(label);
 
         const meta = document.createElement("span");
         meta.className = "answer-meta";
         meta.textContent = "Guess";
 
-        btn.appendChild(label);
+        btn.appendChild(main);
         btn.appendChild(meta);
 
         // Clicking still passes the common name internally
