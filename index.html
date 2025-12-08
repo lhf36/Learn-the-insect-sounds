@@ -106,14 +106,13 @@
       color: #bbf7d0;
     }
 
-  .main-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  gap: 18px;
-  margin-top: 6px;
-  align-items: start;  
-}
-
+    .main-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 6px;
+      align-items: start; /* prevent right box from stretching full height */
+    }
 
     /* Spectrogram side */
 
@@ -353,17 +352,15 @@
 
     /* Answer side */
 
-  .answers-panel {
-  background: radial-gradient(circle at top, #020617, #020617);
-  border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-self: start;   /* 👈 this works too */
-}
-
+    .answers-panel {
+      background: radial-gradient(circle at top, #020617, #020617);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-self: start;
     }
 
     .question-text {
@@ -643,7 +640,7 @@
   </div>
 
   <script>
-    // ---- 1. Data for the four species ----
+    // ---- 1. Data: 8 species ----
     const SONGS = [
       {
         commonName: "Four-spotted Tree Cricket",
@@ -688,6 +685,51 @@
         fact: "Male meadow grasshoppers create their percussive songs by rubbing their hind legs against hard forewings. Most grasshoppers don't actually sing, but some of the few species that do can be very easy to find.",
         photoCredit: "Gilles San Martin",
         audioCredit: "Baudewijn Ode"
+      },
+      // ---- New species ----
+      {
+        commonName: "Field Cricket",
+        species: "Gryllus campestris",
+        image: "images/Field Cricket spectogram.jpeg",
+        audio: "audio/XC910555 - Field Cricket - Gryllus campestris_Cedric_Mroczko.mp3",
+        photo: "images/European Field Cricket_Gilles_San_Martin.jpeg",
+        region: "European grasslands",
+        fact: "Field crickets dig simple burrows and sing from the entrance. Populations of European field crickets have rapidly declined due to habitat loss. Once they disappear from an area they rarely recover. They are now the most endangered cricket in Britain and conservation efforts are underway to reintroduce them to places they have gone extinct across Europe.",
+        photoCredit: "Gilles San Martin",
+        audioCredit: "Cedric Mroczko"
+      },
+      {
+        commonName: "European Mole Cricket",
+        species: "Gryllotalpa gryllotalpa",
+        image: "images/Mole Cricket Spectrogram.jpeg",
+        audio: "audio/XC894246 - European mole cricket - Gryllotalpa gryllotalpa_Cedric_Mroczko.mp3",
+        photo: "images/Gryllotalpa gryllotalpa_Grzegorz_Grzejszczak.jpeg",
+        region: "Europe",
+        fact: "Mole crickets are powerful diggers that build resonating burrows. These underground chambers act like acoustic amplifiers, greatly boosting the volume of their songs and showing how insects can use constructed spaces to enhance communication.",
+        photoCredit: "Grzegorz Grzejszczak",
+        audioCredit: "Cedric Mroczko"
+      },
+      {
+        commonName: "13-year Cicada",
+        species: "Magicicada neotredecim",
+        image: "images/13 year cicada spectrogram.jpeg",
+        audio: "audio/11.US.IL.DAS.Magicicada_neotredecim_David_Marshall.mp3",
+        photo: "images/13 year cicada_Kirill_Levchenko.jpeg",
+        region: "Midwestern U.S.",
+        fact: "Periodical cicadas spend 13 years underground feeding on tree roots before emerging in synchronized, spectacular numbers. Their unusual life cycle helps them avoid predators and overwhelm ecosystems with sheer abundance.",
+        photoCredit: "Kirill Levchenko",
+        audioCredit: "David Marshall"
+      },
+      {
+        commonName: "Sword-bearing Conehead",
+        species: "Neoconocephalus ensiger",
+        image: "images/Cone Head Katydid Spectrogram.jpeg",
+        audio: "audio/XC859446 - Swordbearer - Neoconocephalus_Molly_Jacobson ensiger.mp3",
+        photo: "images/Cone Head_Marlo_Perdicas.jpeg",
+        region: "Eastern North America",
+        fact: "Conehead katydids get their name from the pointed facial cone above their mouthparts. Females have a long, sword-like ovipositor used to insert eggs into plant stems, which is the origin of the “sword-bearing” name.",
+        photoCredit: "Marlo Perdicas",
+        audioCredit: "Molly Jacobson"
       }
     ];
 
@@ -743,10 +785,10 @@
       return playlist[playlistIndex++];
     }
 
+    // pick 4 options (1 correct + 3 decoys) from all 8 species
     function buildChoices(correctName) {
       const others = ALL_COMMON_NAMES.filter(n => n !== correctName);
-      const numOptions = Math.min(4, ALL_COMMON_NAMES.length);
-      const wrong = shuffleArray(others).slice(0, numOptions - 1);
+      const wrong = shuffleArray(others).slice(0, 3);
       return shuffleArray([correctName, ...wrong]);
     }
 
