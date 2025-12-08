@@ -351,14 +351,17 @@
 
     /* Answer side */
 
-    .answers-panel {
-      background: radial-gradient(circle at top, #020617, #020617);
-      border-radius: 16px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+  .answers-panel {
+  background: radial-gradient(circle at top, #020617, #020617);
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-self: start;   /* 👈 this works too */
+}
+
     }
 
     .question-text {
