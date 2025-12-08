@@ -489,14 +489,11 @@
     // List of all species names you want to appear as options.
     // Make sure each song's "species" property is one of these.
     const SPECIES_NAMES = [
-      "Black-capped Chickadee",
-      "American Robin",
-      "Song Sparrow",
-      "Northern Cardinal",
-      "Common Yellowthroat",
-      "Eastern Whip-poor-will"
-      // Add more species names here.
-    ];
+  "Oecanthus quadripunctatus",
+  "Neotibicen tibicen",
+  "Pterophylla camellifolia",
+  "Pseudochorthippus parallelus"
+];
 
     // SONGS: this is where you customize the game.
     // Each entry should be one spectrogram + associated audio + fact.
@@ -505,36 +502,38 @@
     // audio:  path to audio file, e.g. "audio/robin_song.mp3"
     // region: (optional) text label, e.g. "Eastern North America"
     // fact:   a short fun fact about the species or the call
-    const SONGS = [
-      {
-        species: "American Robin",
-        image: "images/robin_spectrogram.png",
-        audio: "audio/robin_song.mp3",
-        region: "Eastern North America",
-        fact: "American Robins often sing from high perches at dawn, giving a clear 'cheerily, cheer up' phrase."
-      },
-      {
-        species: "Song Sparrow",
-        image: "images/song_sparrow_spectrogram.png",
-        audio: "audio/song_sparrow_song.mp3",
-        region: "Fields & wetlands",
-        fact: "Song Sparrows have individualized songs; nearby males share some phrases but rarely match exactly."
-      },
-      {
-        species: "Black-capped Chickadee",
-        image: "images/chickadee_spectrogram.png",
-        audio: "audio/chickadee_song.mp3",
-        region: "Mixed forests",
-        fact: "The clear, whistled 'fee-bee' song usually marks territory and is most common in early spring."
-      },
-      {
-        species: "Northern Cardinal",
-        image: "images/cardinal_spectrogram.png",
-        audio: "audio/cardinal_song.mp3",
-        region: "Woodland edges",
-        fact: "Both male and female Northern Cardinals sing, often giving bright, slurred whistles."
-      }
-      // Add more entries as you collect spectrograms and audio.
+   const SONGS = [
+  {
+    species: "Oecanthus quadripunctatus",
+    image: "images/Four Spotted Tree Cricket_Spectogram_XC861325.jpeg",
+    audio: "audio/XC861325 - Four-spotted tree cricket - Oecanthus quadripunctatus_Daniel_Parker.wav",
+    region: "North America",
+    fact: "Four-spotted tree crickets produce long, pure-tone trilling calls that rise with temperature."
+  },
+
+  {
+    species: "Neotibicen tibicen",
+    image: "images/Neotibicen_tibicen_Spectrogram.jpeg",
+    audio: "audio/Neotibicen_tibicen_australis_filtered_David_Marshall.mp3",
+    region: "Eastern U.S.",
+    fact: "Swamp cicadas produce loud, resonant buzzes created by rapidly vibrating their tymbals."
+  },
+
+  {
+    species: "Pterophylla camellifolia",
+    image: "images/Pterophylla camellifolia Common True Katydid spectrogram.jpeg",
+    audio: "audio/XC1033657 - Pterophylla camellifolia_Francisco_Rivas_Fuenzalida.wav",
+    region: "Eastern U.S. forests",
+    fact: "Common True Katydids produce rhythmic, explosive calls using heavily modified stridulatory files."
+  },
+
+  {
+    species: "Pseudochorthippus parallelus",
+    image: "images/Meadow Grasshopper Spectrogram.jpeg",
+    audio: "audio/XC446417 - Meadow Grasshopper - Pseudochorthippus parallelus_Baudewijn_Odé .mp3",
+    region: "Europe & grasslands",
+    fact: "Male meadow grasshoppers produce rapid bursts of clicks by rubbing hind legs against forewings."
+  }
     ];
 
     // ========================
