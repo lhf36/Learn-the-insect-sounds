@@ -78,6 +78,22 @@
       border-radius: 999px;
       background: #22d3ee;
     }
+    .photo-box {
+  margin-top: 10px;
+  padding: 8px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.insect-photo {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 10px;
+  display: block;
+  margin: 0 auto;
+}
 
     .main-layout {
       display: grid;
@@ -454,6 +470,10 @@
           <div class="fact-text" id="fact-text">
             Identify the singer to reveal a fun fact.
           </div>
+          <div id="photo-box" class="photo-box hidden">
+          <img id="insect-photo" class="insect-photo" src="" alt="Insect photo">
+          </div>
+
         </div>
       </section>
 
@@ -482,59 +502,56 @@
   </div>
 
   <script>
-    // ================================
-    // 1. Configure your species & data
-    // ================================
-
-    // List of all species names you want to appear as options.
-    // Make sure each song's "species" property is one of these.
-    const SPECIES_NAMES = [
-  "Four Spotted Tree Cricket",
+   
+   const SPECIES_NAMES = [
+  "Four-spotted Tree Cricket",
   "Swamp Cicada",
   "Common True Katydid",
   "Meadow Grasshopper"
 ];
 
-    // SONGS: this is where you customize the game.
-    // Each entry should be one spectrogram + associated audio + fact.
-    //
-    // image:  path to spectrogram image, e.g. "images/robin_spec.png"
-    // audio:  path to audio file, e.g. "audio/robin_song.mp3"
-    // region: (optional) text label, e.g. "Eastern North America"
-    // fact:   a short fun fact about the species or the call
-   const SONGS = [
+const SONGS = [
   {
-    species: "Four Spotted Tree Cricket",
-    image: "images/Four Spotted Tree Cricket_Spectogram_XC861325.jpeg",
+    commonName: "Four-spotted Tree Cricket",
+    species: "Oecanthus quadripunctatus",
+    image: "images/Four_Spotted_Tree_Cricket_Spectrogram.jpeg",
     audio: "audio/XC861325 - Four-spotted tree cricket - Oecanthus quadripunctatus_Daniel_Parker.wav",
+    photo: "images/Four_Spotted_Tree_Cricket_Photo.jpg",
     region: "North America",
-    fact: "Four-spotted tree crickets produce long trilling calls by rubbing their wings together high up in the trees. They build tools called baffles out of leaves to amplify their songs. "
+    fact: "Four-spotted tree crickets produce pure-tone trills that speed up as the temperature rises."
   },
 
   {
-    species: "Swamp Cicada",
+    commonName: "Swamp Cicada",
+    species: "Neotibicen tibicen",
     image: "images/Neotibicen_tibicen_Spectrogram.jpeg",
     audio: "audio/Neotibicen_tibicen_australis_filtered_David_Marshall.mp3",
+    photo: "images/Neotibicen_tibicen_Photo.jpeg",
     region: "Eastern U.S.",
-    fact: "Swamp cicadas produce loud songs by rapidly vibrating the membrane of a sound producing organ in their abdomen called a tymbal."
+    fact: "Swamp cicadas produce loud, resonant buzzes using rapidly vibrating tymbals."
   },
 
   {
-    species: "Common True Katydid",
-    image: "images/Pterophylla camellifolia Common True Katydid spectrogram.jpeg",
+    commonName: "Common True Katydid",
+    species: "Pterophylla camellifolia",
+    image: "images/Pterophylla_camellifolia_Spectrogram.jpeg",
     audio: "audio/XC1033657 - Pterophylla camellifolia_Francisco_Rivas_Fuenzalida.wav",
+    photo: "images/Pterophylla_camellifolia_Photo.jpg",
     region: "Eastern U.S. forests",
-    fact: "Common True Katydids produce their rhythmic calls by rubbing their wings together. Unlike crickets, katydids rub their left wing over their right wing.
+    fact: "Common True Katydids produce explosive, rhythmic calls using heavily serrated wing files."
   },
 
   {
-    species: "Meadow Grasshopper",
-    image: "images/Meadow Grasshopper Spectrogram.jpeg",
+    commonName: "Meadow Grasshopper",
+    species: "Pseudochorthippus parallelus",
+    image: "images/Meadow_Grasshopper_Spectrogram.jpeg",
     audio: "audio/XC446417 - Meadow Grasshopper - Pseudochorthippus parallelus_Baudewijn_Odé .mp3",
-    region: "Europe & grasslands",
-    fact: "Male meadow grasshoppers make their raspy songs by rubbing their hind legs against their hard forewings."
+    photo: "images/Meadow_Grasshopper_Photo.jpg",
+    region: "European grasslands",
+    fact: "Male meadow grasshoppers create rapid bursts of clicks by rubbing hind legs against forewings."
   }
-    ];
+];
+
 
     // ========================
     // 2. Game state & helpers
@@ -635,22 +652,26 @@
       hasAnswered = true;
       scoreTotal++;
 
-      const isCorrect = selectedSpecies === currentSong.species;
+      const isCorrect = selectedSpecies === currentSong.commonName;
       if (isCorrect) {
         scoreCorrect++;
         feedbackLineEl.textContent = "Correct! Nice ear.";
         feedbackLineEl.classList.add("correct");
       } else {
-        feedbackLineEl.textContent = `Not quite. This spectrogram belongs to ${currentSong.species}.`;
+        feedbackLineEl.textContent = `Not quite. This spectrogram belongs to ${currentSong.commonName}.`;
         feedbackLineEl.classList.add("wrong");
       }
 
       // Reveal fact
       factTextEl.textContent = currentSong.fact || "";
       factBoxEl.classList.remove("hidden");
+      // Show the species photo
+document.getElementById("insect-photo").src = currentSong.photo;
+document.getElementById("photo-box").classList.remove("hidden");
+
 
       // Update species tagline
-      specTaglineEl.textContent = currentSong.species;
+      specTaglineEl.textContent = currentSong.commonName;
 
       // Style buttons
       const buttons = answersListEl.querySelectorAll(".answer-btn");
@@ -658,7 +679,7 @@
         const label = btn.querySelector(".answer-label").textContent;
         const meta = btn.querySelector(".answer-meta");
 
-        if (label === currentSong.species) {
+        if (label === currentSong.commonName) {
           btn.classList.add("correct-choice");
           meta.textContent = "Answer";
           meta.classList.add("correct");
@@ -686,6 +707,8 @@
       currentSong = pickRandomSong();
       renderSpectrogram(currentSong);
       renderAnswers(currentSong);
+      document.getElementById("photo-box").classList.add("hidden");
+
     }
 
     // ================
