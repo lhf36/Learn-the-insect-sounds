@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Insect Song Spectrogram Hero</title>
+  <title>Insect Song Learning Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -246,6 +246,12 @@
       margin: 0 auto;
     }
 
+    .credits {
+      margin-top: 4px;
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
     .hidden { display: none; }
 
     /* Answer side */
@@ -378,7 +384,7 @@
   <div class="game-shell">
     <header class="game-header">
       <div class="title-block">
-        <h1>Insect Song Spectrogram Hero</h1>
+        <h1>Insect Song Learning Game</h1>
         <p>Listen to the call and study the spectrogram. Choose which insect is calling.</p>
       </div>
       <div class="meta-block">
@@ -426,6 +432,7 @@
 
         <div id="photo-box" class="photo-box hidden">
           <img id="insect-photo" class="insect-photo" src="" alt="Insect photo">
+          <div id="credits" class="credits"></div>
         </div>
       </section>
 
@@ -449,7 +456,7 @@
   </div>
 
   <script>
-    // ---- 1. Data: common names + files ----
+    // ---- 1. Data: common names, facts, credits ----
 
     const SONGS = [
       {
@@ -459,7 +466,9 @@
         audio: "audio/XC861325 - Four-spotted tree cricket - Oecanthus quadripunctatus_Daniel_Parker.wav",
         photo: "images/Four Spotted Tree Cricket_Photo 100453434, no rights reserved, uploaded by Megan Ralph.jpg",
         region: "North America",
-        fact: "Four-spotted tree crickets produce pure-tone trills that speed up as the temperature rises."
+        fact: "Four-spotted tree crickets give high-pitched trills from up in the trees. They amplify their songs by building tools called baffles out of leaves.",
+        photoCredit: "Megan Ralph",
+        audioCredit: "Daniel Parker"
       },
       {
         commonName: "Swamp Cicada",
@@ -468,7 +477,9 @@
         audio: "audio/Neotibicen_tibicen_australis_filtered_David_Marshall.mp3",
         photo: "images/Neotibicen tibicen_\"Alie\" Kratzer_Swamp Cicada.jpeg",
         region: "Eastern U.S.",
-        fact: "Swamp cicadas produce loud, resonant buzzes using rapidly vibrating tymbals on the abdomen."
+        fact: "Swamp cicadas produce loud songs by vibrating a thin membrane of an organ on their abdomen called a tymbal. Their songs are so loud that they actually turn down their hearing when they sing to avoid going deaf!",
+        photoCredit: "\"Alie\" Kratzer",
+        audioCredit: "David Marshall"
       },
       {
         commonName: "Common True Katydid",
@@ -477,7 +488,9 @@
         audio: "audio/XC1033657 - Pterophylla camellifolia_Francisco_Rivas_Fuenzalida.wav",
         photo: "images/Pterophylla camellifolia  Common true Katydid_Judy Gallagher_Image.jpg",
         region: "Eastern U.S. forests",
-        fact: "Common True Katydids produce explosive, rhythmic bouts by stridulating their highly modified forewings."
+        fact: "Common true katydids produce rhythmic songs by rubbing their wings together. Unlike crickets who are righties, katydids are all lefties and rub their left wing over their right wings.",
+        photoCredit: "Judy Gallagher",
+        audioCredit: "Francisco Rivas Fuenzalida"
       },
       {
         commonName: "Meadow Grasshopper",
@@ -486,19 +499,24 @@
         audio: "audio/XC446417 - Meadow Grasshopper - Pseudochorthippus parallelus_Baudewijn_Ode .mp3",
         photo: "images/Meadow Grasshopper_Gilles_San_Martin.jpg",
         region: "European grasslands",
-        fact: "Male meadow grasshoppers create rapid bursts of clicks by rubbing their hind legs against the forewings."
+        fact: "Male meadow grasshoppers create their percussive songs by rubbing their hind legs against hard forewings. Most grasshoppers don't actually sing, but some of the few species that do can be very easy to find.",
+        photoCredit: "Gilles San Martin",
+        audioCredit: "Baudewijn Ode"
       }
     ];
 
-    // All possible choices = all common names
     const ALL_COMMON_NAMES = SONGS.map(s => s.commonName);
 
     // ---- 2. State ----
 
-    let currentSong = null;
     let scoreCorrect = 0;
     let scoreTotal = 0;
     let hasAnswered = false;
+
+    // playlist to ensure each species appears once per cycle
+    let playlist = [];
+    let playlistIndex = 0;
+    let currentSong = null;
 
     const spectrogramImageEl = document.getElementById("spectrogram-image");
     const specTaglineEl = document.getElementById("spec-tagline");
@@ -512,6 +530,7 @@
     const audioPlayerEl = document.getElementById("audio-player");
     const photoBoxEl = document.getElementById("photo-box");
     const insectPhotoEl = document.getElementById("insect-photo");
+    const creditsEl = document.getElementById("credits");
 
     // ---- 3. Helpers ----
 
@@ -522,9 +541,16 @@
         .map(x => x.v);
     }
 
-    function pickRandomSong() {
-      const i = Math.floor(Math.random() * SONGS.length);
-      return SONGS[i];
+    function initPlaylist() {
+      playlist = shuffleArray(SONGS.slice());
+      playlistIndex = 0;
+    }
+
+    function getNextSong() {
+      if (playlist.length === 0 || playlistIndex >= playlist.length) {
+        initPlaylist();
+      }
+      return playlist[playlistIndex++];
     }
 
     function buildChoices(correctName) {
@@ -549,6 +575,7 @@
 
       insectPhotoEl.src = "";
       photoBoxEl.classList.add("hidden");
+      creditsEl.textContent = "";
 
       audioPlayerEl.src = song.audio;
     }
@@ -601,6 +628,7 @@
 
       insectPhotoEl.src = currentSong.photo;
       photoBoxEl.classList.remove("hidden");
+      creditsEl.textContent = `Photo: ${currentSong.photoCredit} · Audio: ${currentSong.audioCredit}`;
 
       const buttons = answersListEl.querySelectorAll(".answer-btn");
       buttons.forEach(btn => {
@@ -627,7 +655,7 @@
     function loadNewRound() {
       hasAnswered = false;
       nextBtnEl.disabled = true;
-      currentSong = pickRandomSong();
+      currentSong = getNextSong();
       renderSpectrogram(currentSong);
       renderAnswers(currentSong);
     }
@@ -641,6 +669,8 @@
 
     nextBtnEl.addEventListener("click", loadNewRound);
 
+    // Kick off
+    initPlaylist();
     loadNewRound();
   </script>
 </body>
