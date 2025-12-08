@@ -160,6 +160,8 @@
       box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.8);
       min-height: 220px;
       display: flex;
+      align-items: stretch;
+      justify-content: stretch;
     }
 
     .spectrogram-image {
@@ -182,26 +184,37 @@
       );
     }
 
-    .legend-box {
-      margin-top: 6px;
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(75, 85, 99, 0.8);
+    .axis-x,
+    .axis-y,
+    .amp-box {
+      position: absolute;
       font-size: 0.78rem;
-      color: #d1d5db;
+      color: #e5e7eb;
+      pointer-events: none;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
 
-    .legend-title {
+    .axis-x {
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .axis-y {
+      left: 6px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      transform-origin: center;
+    }
+
+    .amp-box {
+      top: 6px;
+      right: 6px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.8);
       font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: #9ca3af;
-      margin-bottom: 2px;
-    }
-
-    .legend-box p {
-      margin-top: 1px;
     }
 
     .spectrogram-footer {
@@ -542,13 +555,10 @@
             alt="Insect sound spectrogram"
           />
           <div class="spectrogram-overlay"></div>
-        </div>
 
-        <div class="legend-box">
-          <div class="legend-title">Spectrogram axes</div>
-          <p><strong>X-axis:</strong> time (seconds)</p>
-          <p><strong>Y-axis:</strong> frequency (kilohertz, kHz)</p>
-          <p><strong>Color / brightness:</strong> loudness (amplitude) of the sound.</p>
+          <div class="axis-x">Time (seconds)</div>
+          <div class="axis-y">Frequency (kHz)</div>
+          <div class="amp-box">Amplitude (brightness)</div>
         </div>
 
         <div class="spectrogram-footer">
@@ -862,7 +872,6 @@
 
       const buttons = answersListEl.querySelectorAll(".answer-btn");
       buttons.forEach(btn => {
-        const label = btn.querySelector(".answer-label").textContent;
         const meta = btn.querySelector(".answer-meta");
 
         if (btn.dataset.commonName === currentSong.commonName) {
