@@ -378,93 +378,63 @@
       gap: 7px;
     }
 
-  .answer-btn {
-  width: 100%;
-  padding: 9px 11px;
-  border-radius: 999px;
-  border: 1px solid rgba(55, 65, 81, 0.9);
-  background: rgba(15, 23, 42, 0.9);
-  color: #e5e7eb;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: transform 0.06s ease, box-shadow 0.06s ease,
-    border-color 0.12s ease, background-color 0.12s ease;
-  gap: 8px;
-}
-
-.answer-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 7px 14px rgba(15, 23, 42, 0.9);
-  border-color: rgba(129, 140, 248, 0.8);
-}
-
-.answer-btn.correct-choice {
-  background: radial-gradient(circle at top left, #16a34a, #052e16);
-  border-color: #22c55e;
-}
-
-.answer-btn.wrong-choice {
-  background: radial-gradient(circle at top left, #b45309, #451a03);
-  border-color: #f97316;
-}
-
-/* label on the left, takes remaining space */
-.answer-label {
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1 1 auto;
-}
-
-/* Guess / Answer / Your guess pinned to the right */
-.answer-meta {
-  font-size: 0.75rem;
-  padding: 2px 9px;
-  border-radius: 999px;
-  background: rgba(31, 41, 55, 0.9);
-  color: #9ca3af;
-  flex: 0 0 auto;
-}
-
-.answer-meta.correct {
-  background: rgba(22, 163, 74, 0.3);
-  color: #bbf7d0;
-}
-
-.answer-meta.guess {
-  background: rgba(59, 130, 246, 0.2);
-  color: #bfdbfe;
-}
-
-    .answer-icon {
-      flex: 0 0 auto;
-      margin-left: auto;
-      display: inline-flex;
+    .answer-btn {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      display: flex;
       align-items: center;
-      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.06s ease, box-shadow 0.06s ease,
+        border-color 0.12s ease, background-color 0.12s ease;
+      gap: 8px;
     }
 
-    .answer-icon svg {
-      width: 36px;
-      height: 36px;
-      display: block;
+    .answer-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 7px 14px rgba(15, 23, 42, 0.9);
+      border-color: rgba(129, 140, 248, 0.8);
     }
 
-    /* Neutral silhouette: subtle gradient */
-    .answer-icon svg .silhouette {
-      fill: url(#neutralGradient);
+    .answer-btn.correct-choice {
+      background: radial-gradient(circle at top left, #16a34a, #052e16);
+      border-color: #22c55e;
     }
 
-    /* Tint on correct / wrong */
-    .answer-icon.tint-correct svg .silhouette {
-      fill: #4ade80 !important;
+    .answer-btn.wrong-choice {
+      background: radial-gradient(circle at top left, #b45309, #451a03);
+      border-color: #f97316;
     }
 
-    .answer-icon.tint-wrong svg .silhouette {
-      fill: #fb923c !important;
+    .answer-label {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1 1 auto;
+    }
+
+    .answer-meta {
+      font-size: 0.75rem;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: rgba(31, 41, 55, 0.9);
+      color: #9ca3af;
+      flex: 0 0 auto;
+    }
+
+    .answer-meta.correct {
+      background: rgba(22, 163, 74, 0.3);
+      color: #bbf7d0;
+    }
+
+    .answer-meta.guess {
+      background: rgba(59, 130, 246, 0.2);
+      color: #bfdbfe;
     }
 
     .bottom-controls {
@@ -668,117 +638,7 @@
   </div>
 
   <script>
-    // Neutral gradient definition injected into each SVG via class "silhouette"
-    // We'll just reference a shared gradient id in each SVG.
-
-    const INSECT_ICONS = {
-      cricket: `
-        <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="neutralGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#f1f5f9" />
-              <stop offset="100%" stop-color="#e2e8f0" />
-            </linearGradient>
-          </defs>
-          <g class="silhouette" fill="url(#neutralGradient)" stroke="none">
-            <!-- body -->
-            <path d="M20 16c0-3 4-5 9-5 5 0 9 2 9 5s-4 5-9 5c-5 0-9-2-9-5z"/>
-            <!-- head -->
-            <path d="M17 15.5c0-1.7 1.4-3 3.2-3 1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.8 0-3.2-1.3-3.2-3z"/>
-            <!-- antennae -->
-            <path d="M18 14 L8 6 L7 7.5 L17 15z"/>
-            <path d="M19 13.5 L9 4.5 L8.2 6.4 L18.1 15z"/>
-            <!-- hind leg femur -->
-            <path d="M32 19 L39 9 L48 6 L41 12z"/>
-            <!-- hind leg tibia -->
-            <path d="M39 9 L50 13 L51 15 L41 12z"/>
-            <!-- mid leg -->
-            <path d="M27 19 L30 26 L28 27 L25 20z"/>
-            <!-- fore leg -->
-            <path d="M22 18.5 L22.5 25.5 L20.5 26 L20 19z"/>
-            <!-- wing over body (tree cricket-style) -->
-            <path d="M22 13 L34 12 L40 14 L30 19z" opacity="0.85"/>
-          </g>
-        </svg>
-      `,
-      katydid: `
-        <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="neutralGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#f1f5f9" />
-              <stop offset="100%" stop-color="#e2e8f0" />
-            </linearGradient>
-          </defs>
-          <g class="silhouette" fill="url(#neutralGradient)" stroke="none">
-            <!-- leaf-like tegmina -->
-            <path d="M18 18 L36 9.5 C40 8 48 11 50 16 C48 20 41 22 32 22.5 L18 19z"/>
-            <!-- head -->
-            <path d="M16 18c0-1.5 1.3-2.8 2.8-2.8 1.6 0 2.9 1.3 2.9 2.8 0 1.6-1.3 2.9-2.9 2.9A2.86 2.86 0 0 1 16 18z"/>
-            <!-- antennae (very long) -->
-            <path d="M17 16 L6 6 L5 7.5 L16 17z"/>
-            <path d="M18.5 15.5 L7 4.5 L6.2 6.3 L17.4 17z"/>
-            <!-- hind leg -->
-            <path d="M36 19 L42 9 L54 6 L46 12z"/>
-            <path d="M40 21.5 L50 25 L49 26.5 L39 22.5z"/>
-            <!-- mid forelegs -->
-            <path d="M24 19 L22 25.5 L20 25 L22 18.5z"/>
-            <path d="M20 18 L18 24 L16 23.5 L18.2 17.5z"/>
-          </g>
-        </svg>
-      `,
-      cicada: `
-        <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="neutralGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#f1f5f9" />
-              <stop offset="100%" stop-color="#e2e8f0" />
-            </linearGradient>
-          </defs>
-          <g class="silhouette" fill="url(#neutralGradient)" stroke="none">
-            <!-- head+thorax -->
-            <path d="M22 14 C22 11.5 24 10 26.5 10 H30c2.5 0 4.5 1.5 4.5 4v3c0 2.5-2 4-4.5 4h-3.5C24 21 22 19.5 22 17z"/>
-            <!-- abdomen -->
-            <path d="M31 13 L39 15.5 C41.5 16.2 43 17.3 43 18.3c0 1.1-1.5 2.2-4 2.9L31 23z"/>
-            <!-- closed forewings -->
-            <path d="M30 13.5 L45 11 L52 14 L38 17z" opacity="0.9"/>
-            <path d="M30 18.5 L45 21.5 L52 19 L38 17z" opacity="0.85"/>
-            <!-- legs simplified -->
-            <path d="M25 20 L22 25 L20.5 24.5 L23 19z"/>
-            <path d="M29 20 L30 26 L28.2 26.5 L27 20.2z"/>
-            <path d="M33 18 L38 24 L36.8 25 L32 18.8z"/>
-          </g>
-        </svg>
-      `,
-      grasshopper: `
-        <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="neutralGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#f1f5f9" />
-              <stop offset="100%" stop-color="#e2e8f0" />
-            </linearGradient>
-          </defs>
-          <g class="silhouette" fill="url(#neutralGradient)" stroke="none">
-            <!-- thorax and abdomen (short-winged) -->
-            <path d="M24 15h10c3 0 5 1.3 6 3l2 3H26c-3 0-6-2-6-4.5 0-1.4 1.2-1.5 4-1.5z"/>
-            <!-- head -->
-            <path d="M21 16c0-1.6 1.3-2.9 3-2.9 1.7 0 3 1.3 3 2.9 0 1.6-1.3 2.9-3 2.9-1.7 0-3-1.3-3-2.9z"/>
-            <!-- short antennae -->
-            <path d="M22 14.5 L17 10.5 L16 11.7 L21 15.5z"/>
-            <path d="M23.5 14.2 L18 9 L17.3 10.8 L22.6 15.4z"/>
-            <!-- big hind femur -->
-            <path d="M34 19 L40 9 L50 7.5 L42 13z"/>
-            <!-- hind tibia -->
-            <path d="M40 9 L51 13.5 L51.5 15.5 L41.5 11.8z"/>
-            <!-- mid and fore legs -->
-            <path d="M28 19.5 L27 26 L25 26 L26 19z"/>
-            <path d="M24 19 L22.5 24.5 L20.8 24 L22.4 18.5z"/>
-          </g>
-        </svg>
-      `
-    };
-
-    // ---- 1. Data: common names, facts, credits ----
-
+    // ---- 1. Data for the four species ----
     const SONGS = [
       {
         commonName: "Four-spotted Tree Cricket",
@@ -789,8 +649,7 @@
         region: "North America",
         fact: "Four-spotted tree crickets high pitched trills from up in the trees. They amplify their songs by building tools called baffles out of leaves.",
         photoCredit: "Megan Ralph",
-        audioCredit: "Daniel Parker",
-        iconType: "cricket"
+        audioCredit: "Daniel Parker"
       },
       {
         commonName: "Swamp Cicada",
@@ -801,8 +660,7 @@
         region: "Eastern U.S.",
         fact: "Swamp cicadas produce loud songs by vibrating a thin membrane of an organ on their abdomen called a tymbal. Their songs are so loud that they actually turn down their hearing when they sing to avoid going deaf!",
         photoCredit: "\"Alie\" Kratzer",
-        audioCredit: "David Marshall",
-        iconType: "cicada"
+        audioCredit: "David Marshall"
       },
       {
         commonName: "Common True Katydid",
@@ -813,8 +671,7 @@
         region: "Eastern U.S. forests",
         fact: "Common true katydids produce rhythmic songs by rubbing their wings together. Unlike crickets who are righties, katydids are all lefties and rub their left wing over their right wings.",
         photoCredit: "Judy Gallagher",
-        audioCredit: "Francisco Rivas Fuenzalida",
-        iconType: "katydid"
+        audioCredit: "Francisco Rivas Fuenzalida"
       },
       {
         commonName: "Meadow Grasshopper",
@@ -825,15 +682,13 @@
         region: "European grasslands",
         fact: "Male meadow grasshoppers create their percussive songs by rubbing their hind legs against hard forewings. Most grasshoppers don't actually sing, but some of the few species that do can be very easy to find.",
         photoCredit: "Gilles San Martin",
-        audioCredit: "Baudewijn Ode",
-        iconType: "grasshopper"
+        audioCredit: "Baudewijn Ode"
       }
     ];
 
     const ALL_COMMON_NAMES = SONGS.map(s => s.commonName);
 
     // ---- 2. State ----
-
     let scoreCorrect = 0;
     let scoreTotal = 0;
     let hasAnswered = false;
@@ -860,11 +715,10 @@
     const sciToggleBtn = document.getElementById("sci-toggle");
     const winMarkEl = document.getElementById("win-mark");
 
-    // for ding sound
+    // for success chime
     let audioCtx = null;
 
     // ---- 3. Helpers ----
-
     function shuffleArray(arr) {
       return arr
         .map(v => ({ v, r: Math.random() }))
@@ -925,51 +779,47 @@
       }, 800);
     }
 
-  function playDing() {
-  try {
-    if (!audioCtx) {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return;
-      audioCtx = new Ctx();
+    // Two-tone soft chime (A5 → E6)
+    function playDing() {
+      try {
+        if (!audioCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return;
+          audioCtx = new Ctx();
+        }
+
+        const ctx = audioCtx;
+        const now = ctx.currentTime;
+
+        // DING 1 — A5
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = "sine";
+        osc1.frequency.setValueAtTime(880, now);  // A5
+        gain1.gain.setValueAtTime(0.0001, now);
+        gain1.gain.exponentialRampToValueAtTime(0.3, now + 0.02);
+        gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.3);
+
+        // DING 2 — E6, softer, slightly delayed
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = "sine";
+        osc2.frequency.setValueAtTime(1320, now + 0.04); // E6
+        gain2.gain.setValueAtTime(0.0001, now + 0.04);
+        gain2.gain.exponentialRampToValueAtTime(0.15, now + 0.06);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.04);
+        osc2.stop(now + 0.3);
+      } catch (e) {
+        // ignore audio failures
+      }
     }
-
-    const ctx = audioCtx;
-    const now = ctx.currentTime;
-
-    // DING 1 — soft A5
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = "sine";
-    osc1.frequency.setValueAtTime(880, now);  // A5
-
-    gain1.gain.setValueAtTime(0.0001, now);
-    gain1.gain.exponentialRampToValueAtTime(0.3, now + 0.02);
-    gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
-
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.start(now);
-    osc1.stop(now + 0.3);
-
-    // DING 2 — higher, softer, slight delay (harmonic  E6)
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = "sine";
-    osc2.frequency.setValueAtTime(1320, now + 0.04);
-
-    gain2.gain.setValueAtTime(0.0001, now + 0.04);
-    gain2.gain.exponentialRampToValueAtTime(0.15, now + 0.06);
-    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
-
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.start(now + 0.04);
-    osc2.stop(now + 0.3);
-
-  } catch (e) {
-    /* silently fail if browser blocks audio */
-  }
-}
 
     function playFromStart() {
       audioPlayerEl.currentTime = 0;
@@ -985,7 +835,6 @@
     }
 
     // ---- 4. Rendering ----
-
     function renderSpectrogram(song) {
       spectrogramImageEl.src = song.image;
       spectrogramImageEl.alt = `Spectrogram of ${song.commonName} call`;
@@ -1003,53 +852,43 @@
 
       audioPlayerEl.src = song.audio;
 
-      // tagline resets at the start of each round
       specTaglineEl.textContent = "Who is calling?";
       winMarkEl.classList.remove("win-mark-visible");
     }
 
     function renderAnswers(song) {
-  answersListEl.innerHTML = "";
-  const choices = buildChoices(song.commonName);
+      answersListEl.innerHTML = "";
+      const choices = buildChoices(song.commonName);
 
-  choices.forEach(commonName => {
-    const songObj = SONGS.find(s => s.commonName === commonName);
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "answer-btn";
-    btn.setAttribute("aria-label", `Guess: ${commonName}`);
+      choices.forEach(commonName => {
+        const songObj = SONGS.find(s => s.commonName === commonName);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "answer-btn";
+        btn.setAttribute("aria-label", `Guess: ${commonName}`);
 
-    btn.dataset.commonName = songObj.commonName;
-    btn.dataset.scientificName = songObj.species;
+        btn.dataset.commonName = songObj.commonName;
+        btn.dataset.scientificName = songObj.species;
 
-    // Label on the left
-    const label = document.createElement("span");
-    label.className = "answer-label";
-    label.textContent = sciNamesOn ? songObj.species : songObj.commonName;
+        const label = document.createElement("span");
+        label.className = "answer-label";
+        label.textContent = sciNamesOn ? songObj.species : songObj.commonName;
 
-    // Guess chip on the right
-    const meta = document.createElement("span");
-    meta.className = "answer-meta";
-    meta.textContent = "Guess";
+        const meta = document.createElement("span");
+        meta.className = "answer-meta";
+        meta.textContent = "Guess";
 
-    btn.appendChild(label);
-    btn.appendChild(meta);
+        btn.appendChild(label);
+        btn.appendChild(meta);
 
-    btn.addEventListener("click", () =>
-      handleAnswer(songObj.commonName, btn)
-    );
-    answersListEl.appendChild(btn);
-  });
-}
-
-        // Clicking still passes the common name internally
-        btn.addEventListener("click", () => handleAnswer(songObj.commonName, btn));
+        btn.addEventListener("click", () =>
+          handleAnswer(songObj.commonName, btn)
+        );
         answersListEl.appendChild(btn);
       });
     }
 
     // ---- 5. Interaction ----
-
     function handleAnswer(selectedName, buttonEl) {
       if (hasAnswered) return;
       hasAnswered = true;
@@ -1079,7 +918,6 @@
       const buttons = answersListEl.querySelectorAll(".answer-btn");
       buttons.forEach(btn => {
         const meta = btn.querySelector(".answer-meta");
-        const iconSpan = btn.querySelector(".answer-icon");
 
         if (btn.dataset.commonName === currentSong.commonName) {
           btn.classList.add("correct-choice");
@@ -1087,13 +925,11 @@
             meta.textContent = "Answer";
             meta.classList.add("correct");
           }
-        
         }
         if (btn === buttonEl && !correct && meta) {
           btn.classList.add("wrong-choice");
           meta.textContent = "Your guess";
           meta.classList.add("guess");
-         
         }
         btn.disabled = true;
       });
@@ -1111,7 +947,6 @@
     }
 
     // ---- 6. Events ----
-
     playBtnEl.addEventListener("click", playFromStart);
     nextBtnEl.addEventListener("click", loadNewRound);
 
@@ -1133,7 +968,7 @@
       }
     });
 
-    // Kick off
+    // ---- 7. Kickoff ----
     initPlaylist();
     updateSciToggleUI();
     loadNewRound();
