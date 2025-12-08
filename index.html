@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Learn Common Insect Songs</title>
+  <title>Insect Song Learning Game </title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -78,22 +78,6 @@
       border-radius: 999px;
       background: #22d3ee;
     }
-    .photo-box {
-  margin-top: 10px;
-  padding: 8px;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  border-radius: 10px;
-  text-align: center;
-}
-
-.insect-photo {
-  width: 100%;
-  max-width: 480px;
-  border-radius: 10px;
-  display: block;
-  margin: 0 auto;
-}
 
     .main-layout {
       display: grid;
@@ -101,12 +85,13 @@
       gap: 18px;
     }
 
-    /* Spectrogram panel */
+    /* Spectrogram + fact panel */
+
     .spectrogram-panel {
       background: radial-gradient(circle at top, #020617, #020617);
       border-radius: 16px;
       border: 1px solid rgba(148, 163, 184, 0.4);
-      padding: 12px 12px 10px 12px;
+      padding: 12px 12px 12px 12px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -168,14 +153,6 @@
       );
     }
 
-    .spectrogram-axis {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      border-top: 1px solid rgba(148, 163, 184, 0.2);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-    }
-
     .spectrogram-footer {
       display: flex;
       justify-content: space-between;
@@ -229,19 +206,13 @@
     }
 
     .fact-box {
-      margin-top: 6px;
+      margin-top: 8px;
       padding: 8px 10px;
       border-radius: 10px;
       background: rgba(15, 23, 42, 0.9);
       border: 1px solid rgba(148, 163, 184, 0.35);
       font-size: 0.83rem;
       color: #e5e7eb;
-      min-height: 40px;
-    }
-
-    .fact-box.hidden {
-      opacity: 0;
-      transform: translateY(4px);
     }
 
     .fact-label {
@@ -256,7 +227,42 @@
       font-size: 0.83rem;
     }
 
+    .photo-box {
+      margin-top: 8px;
+      padding: 8px;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      text-align: center;
+    }
+
+    .insect-photo {
+      width: 100%;
+      max-width: 450px;
+      border-radius: 10px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .feedback-line {
+      font-size: 0.85rem;
+      min-height: 18px;
+    }
+
+    .feedback-line.correct {
+      color: #4ade80;
+    }
+
+    .feedback-line.wrong {
+      color: #fb923c;
+    }
+
+    .hidden {
+      display: none;
+    }
+
     /* Answers panel */
+
     .answers-panel {
       background: radial-gradient(circle at top, #020617, #020617);
       border-radius: 16px;
@@ -338,19 +344,6 @@
       color: #bfdbfe;
     }
 
-    .feedback-line {
-      font-size: 0.85rem;
-      min-height: 18px;
-    }
-
-    .feedback-line.correct {
-      color: #4ade80;
-    }
-
-    .feedback-line.wrong {
-      color: #fb923c;
-    }
-
     .bottom-controls {
       display: flex;
       justify-content: space-between;
@@ -411,10 +404,9 @@
   <div class="game-shell">
     <header class="game-header">
       <div class="title-block">
-        <h1>Learn Common Insect Songs</h1>
+        <h1>Insect Song Learning Game</h1>
         <p>
-          Listen to the call and study the spectrogram. Choose which species is
-          singing.
+          Listen to the call and study the spectrogram. Choose which insect is calling.
         </p>
       </div>
       <div class="meta-block">
@@ -427,7 +419,7 @@
     </header>
 
     <main class="main-layout">
-      <!-- Spectrogram panel -->
+      <!-- Spectrogram + fact + photo -->
       <section class="spectrogram-panel">
         <div class="spectrogram-header">
           <div>
@@ -446,10 +438,9 @@
             id="spectrogram-image"
             class="spectrogram-image"
             src=""
-            alt="Insect spectrogram"
+            alt="Insect song spectrogram"
           />
           <div class="spectrogram-overlay"></div>
-          <div class="spectrogram-axis"></div>
         </div>
 
         <div class="spectrogram-footer">
@@ -459,29 +450,29 @@
               <span>Play call</span>
             </button>
             <div class="hint-label">
-              Tip: Match the pattern of notes and pitch bands.
+              Tip: Match the band of energy and rhythm of pulses.
             </div>
           </div>
           <div class="feedback-line" id="feedback-line"></div>
         </div>
 
-        <div id="fact-box" class="fact-box hidden">
+        <div id="fact-box" class="fact-box">
           <div class="fact-label">After the guess</div>
           <div class="fact-text" id="fact-text">
-            Identify the singer to reveal a fun fact.
+            Identify the caller to reveal a fun fact.
           </div>
-          <div id="photo-box" class="photo-box hidden">
-          <img id="insect-photo" class="insect-photo" src="" alt="Insect photo">
-          </div>
+        </div>
 
+        <div id="photo-box" class="photo-box hidden">
+          <img id="insect-photo" class="insect-photo" src="" alt="Insect photo" />
         </div>
       </section>
 
-      <!-- Answers panel -->
+      <!-- Answers -->
       <section class="answers-panel">
-        <div class="question-text">Which insect is producing this song?</div>
+        <div class="question-text">Which insect is producing this sound?</div>
         <div class="question-subtitle">
-          Listen as many times as you like, then choose the species.
+          Listen as many times as you like, then choose the common name.
         </div>
 
         <div id="answers-list" class="answers-list">
@@ -489,7 +480,9 @@
         </div>
 
         <div class="bottom-controls">
-          <div class="score-text" id="score-text">Score: <strong>0 / 0</strong></div>
+          <div class="score-text" id="score-text">
+            Score: <strong>0 / 0</strong>
+          </div>
           <button id="next-btn" class="next-btn" type="button" disabled>
             Next spectrogram <span class="next-arrow">➜</span>
           </button>
@@ -502,56 +495,60 @@
   </div>
 
   <script>
-   
-   const SPECIES_NAMES = [
-  "Four-spotted Tree Cricket",
-  "Swamp Cicada",
-  "Common True Katydid",
-  "Meadow Grasshopper"
-];
+    // ================================
+    // 1. Configure species & files
+    // ================================
 
-const SONGS = [
-  {
-    commonName: "Four-spotted Tree Cricket",
-    species: "Oecanthus quadripunctatus",
-    image: "images/Four_Spotted_Tree_Cricket_Spectrogram.jpeg",
-    audio: "audio/XC861325 - Four-spotted tree cricket - Oecanthus quadripunctatus_Daniel_Parker.wav",
-    photo: "images/Four_Spotted_Tree_Cricket_Photo.jpg",
-    region: "North America",
-    fact: "Four-spotted tree crickets produce pure-tone trills that speed up as the temperature rises."
-  },
+    // These are the common names that will appear as answer choices.
+    const SPECIES_NAMES = [
+      "Four-spotted Tree Cricket",
+      "Swamp Cicada",
+      "Common True Katydid",
+      "Meadow Grasshopper"
+    ];
 
-  {
-    commonName: "Swamp Cicada",
-    species: "Neotibicen tibicen",
-    image: "images/Neotibicen_tibicen_Spectrogram.jpeg",
-    audio: "audio/Neotibicen_tibicen_australis_filtered_David_Marshall.mp3",
-    photo: "images/Neotibicen_tibicen_Photo.jpeg",
-    region: "Eastern U.S.",
-    fact: "Swamp cicadas produce loud, resonant buzzes using rapidly vibrating tymbals."
-  },
+    // IMPORTANT:
+    // Make sure your /images and /audio folders in GitHub
+    // use these exact filenames (case + underscores).
 
-  {
-    commonName: "Common True Katydid",
-    species: "Pterophylla camellifolia",
-    image: "images/Pterophylla_camellifolia_Spectrogram.jpeg",
-    audio: "audio/XC1033657 - Pterophylla camellifolia_Francisco_Rivas_Fuenzalida.wav",
-    photo: "images/Pterophylla_camellifolia_Photo.jpg",
-    region: "Eastern U.S. forests",
-    fact: "Common True Katydids produce explosive, rhythmic calls using heavily serrated wing files."
-  },
-
-  {
-    commonName: "Meadow Grasshopper",
-    species: "Pseudochorthippus parallelus",
-    image: "images/Meadow_Grasshopper_Spectrogram.jpeg",
-    audio: "audio/XC446417 - Meadow Grasshopper - Pseudochorthippus parallelus_Baudewijn_Odé .mp3",
-    photo: "images/Meadow_Grasshopper_Photo.jpg",
-    region: "European grasslands",
-    fact: "Male meadow grasshoppers create rapid bursts of clicks by rubbing hind legs against forewings."
-  }
-];
-
+    const SONGS = [
+      {
+        commonName: "Four-spotted Tree Cricket",
+        species: "Oecanthus quadripunctatus",
+        image: "images/Four_Spotted_Tree_Cricket_Spectrogram.jpeg",
+        audio: "audio/XC861325_-_Four-spotted_tree_cricket_Oecanthus_quadripunctatus_Daniel_Parker.wav",
+        photo: "images/Four_Spotted_Tree_Cricket_Photo.jpg",
+        region: "North America",
+        fact: "Four-spotted tree crickets produce high pitched trills from up in the trees. They amplify their songs by building tools called baffles out of leaves."
+      },
+      {
+        commonName: "Swamp Cicada",
+        species: "Neotibicen tibicen",
+        image: "images/Neotibicen_tibicen_Spectrogram.jpeg",
+        audio: "audio/Neotibicen_tibicen_australis_filtered_David_Marshall.mp3",
+        photo: "images/Neotibicen_tibicen_Photo.jpeg",
+        region: "Eastern U.S.",
+        fact: "Swamp cicadas produce loud songs by vibrating a thin membrane in their tymbal - a sound producting organ in their abdomens."
+      },
+      {
+        commonName: "Common True Katydid",
+        species: "Pterophylla camellifolia",
+        image: "images/Pterophylla_camellifolia_Spectrogram.jpeg",
+        audio: "audio/XC1033657_-_Pterophylla_camellifolia_Francisco_Rivas_Fuenzalida.wav",
+        photo: "images/Pterophylla_camellifolia_Photo.jpg",
+        region: "Eastern U.S. forests",
+        fact: "Common True Katydids produce rhythmic songs by rubbing their wings together. Unlike crickets who are all righties, katydids are lefties, rubbing their left wing over their right wing."
+      },
+      {
+        commonName: "Meadow Grasshopper",
+        species: "Pseudochorthippus parallelus",
+        image: "images/Meadow_Grasshopper_Spectrogram.jpeg",
+        audio: "audio/XC446417_-_Meadow_Grasshopper_Pseudochorthippus_parallelus_Baudewijn_Ode.mp3",
+        photo: "images/Meadow_Grasshopper_Photo.jpg",
+        region: "European grasslands",
+        fact: "Male meadow grasshoppers create percussive songs by rubbing their hind legs against hard forewings. Most grasshoppers don't actually sing, but many of the species which do are pretty common."
+      }
+    ];
 
     // ========================
     // 2. Game state & helpers
@@ -573,6 +570,8 @@ const SONGS = [
     const playBtnEl = document.getElementById("play-btn");
     const nextBtnEl = document.getElementById("next-btn");
     const audioPlayerEl = document.getElementById("audio-player");
+    const photoBoxEl = document.getElementById("photo-box");
+    const insectPhotoEl = document.getElementById("insect-photo");
 
     function shuffleArray(arr) {
       return arr
@@ -586,15 +585,13 @@ const SONGS = [
       return SONGS[index];
     }
 
-    // Build multiple-choice list: correct species + N-1 random others.
-    function buildChoices(correctSpecies) {
+    function buildChoices(correctCommonName) {
       const allNames = SPECIES_NAMES.slice();
-      const others = allNames.filter((name) => name !== correctSpecies);
-      const numOptions = Math.min(4, allNames.length); // up to 4 options
+      const others = allNames.filter((name) => name !== correctCommonName);
+      const numOptions = Math.min(4, allNames.length);
 
       const wrongChoices = shuffleArray(others).slice(0, numOptions - 1);
-      const allChoices = shuffleArray([correctSpecies, ...wrongChoices]);
-      return allChoices;
+      return shuffleArray([correctCommonName, ...wrongChoices]);
     }
 
     // ======================
@@ -603,24 +600,24 @@ const SONGS = [
 
     function renderSpectrogram(song) {
       spectrogramImageEl.src = song.image;
-      spectrogramImageEl.alt = `Spectrogram of ${song.species} song`;
+      spectrogramImageEl.alt = `Spectrogram of ${song.commonName} call`;
 
       specTaglineEl.textContent = "Who is calling?";
       specRegionEl.textContent = song.region ? `Region: ${song.region}` : "Region: —";
 
-      factTextEl.textContent =
-        "Identify the singer to reveal a fun fact.";
-      factBoxEl.classList.add("hidden");
-
+      factTextEl.textContent = "Identify the caller to reveal a fun fact.";
       feedbackLineEl.textContent = "";
       feedbackLineEl.className = "feedback-line";
+
+      insectPhotoEl.src = "";
+      photoBoxEl.classList.add("hidden");
 
       audioPlayerEl.src = song.audio;
     }
 
     function renderAnswers(song) {
       answersListEl.innerHTML = "";
-      const choices = buildChoices(song.species);
+      const choices = buildChoices(song.commonName);
 
       choices.forEach((choice) => {
         const button = document.createElement("button");
@@ -647,33 +644,29 @@ const SONGS = [
     // 4. Game interaction
     // ==================
 
-    function handleAnswer(selectedSpecies, buttonEl) {
+    function handleAnswer(selectedCommonName, buttonEl) {
       if (hasAnswered) return;
       hasAnswered = true;
       scoreTotal++;
 
-      const isCorrect = selectedSpecies === currentSong.commonName;
+      const isCorrect = selectedCommonName === currentSong.commonName;
+
       if (isCorrect) {
         scoreCorrect++;
-        feedbackLineEl.textContent = "Correct! Nice ear.";
+        feedbackLineEl.textContent = "Correct! Nice listening.";
         feedbackLineEl.classList.add("correct");
       } else {
         feedbackLineEl.textContent = `Not quite. This spectrogram belongs to ${currentSong.commonName}.`;
         feedbackLineEl.classList.add("wrong");
       }
 
-      // Reveal fact
-      factTextEl.textContent = currentSong.fact || "";
-      factBoxEl.classList.remove("hidden");
-      // Show the species photo
-document.getElementById("insect-photo").src = currentSong.photo;
-document.getElementById("photo-box").classList.remove("hidden");
-
-
-      // Update species tagline
+      // reveal common name + fact + photo
       specTaglineEl.textContent = currentSong.commonName;
+      factTextEl.textContent = currentSong.fact || "";
+      insectPhotoEl.src = currentSong.photo;
+      photoBoxEl.classList.remove("hidden");
 
-      // Style buttons
+      // style answer buttons
       const buttons = answersListEl.querySelectorAll(".answer-btn");
       buttons.forEach((btn) => {
         const label = btn.querySelector(".answer-label").textContent;
@@ -694,9 +687,8 @@ document.getElementById("photo-box").classList.remove("hidden");
         btn.disabled = true;
       });
 
-      // Update score
+      // update score text
       scoreTextEl.innerHTML = `Score: <strong>${scoreCorrect} / ${scoreTotal}</strong>`;
-
       nextBtnEl.disabled = false;
     }
 
@@ -707,8 +699,6 @@ document.getElementById("photo-box").classList.remove("hidden");
       currentSong = pickRandomSong();
       renderSpectrogram(currentSong);
       renderAnswers(currentSong);
-      document.getElementById("photo-box").classList.add("hidden");
-
     }
 
     // ================
@@ -716,18 +706,15 @@ document.getElementById("photo-box").classList.remove("hidden");
     // ================
 
     playBtnEl.addEventListener("click", () => {
-      // Restart audio from the beginning
       audioPlayerEl.currentTime = 0;
-      audioPlayerEl.play().catch(() => {
-        // Do nothing if autoplay blocked
-      });
+      audioPlayerEl.play().catch(() => {});
     });
 
     nextBtnEl.addEventListener("click", () => {
       loadNewRound();
     });
 
-    // Kick off the first round
+    // Kick off first round
     loadNewRound();
   </script>
 </body>
