@@ -53,16 +53,14 @@
       color: #9ca3af;
     }
 
-    .how-to {
-      margin-top: 6px;
-      font-size: 0.85rem;
-      color: #d1d5db;
-    }
-
     .meta-block {
       text-align: right;
       font-size: 0.8rem;
       color: #9ca3af;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
     }
 
     .meta-pill {
@@ -73,9 +71,9 @@
       background: rgba(15, 118, 110, 0.2);
       border: 1px solid rgba(34, 211, 238, 0.3);
       color: #e0f2fe;
-      margin-bottom: 4px;
       font-size: 0.75rem;
       gap: 4px;
+      white-space: nowrap;
     }
 
     .meta-dot {
@@ -83,6 +81,29 @@
       height: 7px;
       border-radius: 999px;
       background: #22d3ee;
+    }
+
+    .mode-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .mode-pill.mode-off {
+      background: rgba(185, 28, 28, 0.2);
+      border-color: rgba(248, 113, 113, 0.5);
+      color: #fecaca;
+    }
+
+    .mode-pill.mode-on {
+      background: rgba(22, 163, 74, 0.2);
+      border-color: rgba(74, 222, 128, 0.7);
+      color: #bbf7d0;
     }
 
     .main-layout {
@@ -161,15 +182,26 @@
       );
     }
 
-    .playhead {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: rgba(248, 250, 252, 0.9);
-      pointer-events: none;
-      transform: translateX(0%);
-      z-index: 2;
+    .legend-box {
+      margin-top: 6px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(75, 85, 99, 0.8);
+      font-size: 0.78rem;
+      color: #d1d5db;
+    }
+
+    .legend-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #9ca3af;
+      margin-bottom: 2px;
+    }
+
+    .legend-box p {
+      margin-top: 1px;
     }
 
     .spectrogram-footer {
@@ -292,19 +324,6 @@
     .question-subtitle {
       font-size: 0.83rem;
       color: #9ca3af;
-    }
-
-    .toggle-row {
-      margin-top: 4px;
-      font-size: 0.8rem;
-      color: #9ca3af;
-    }
-
-    .toggle-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
     }
 
     .answers-list {
@@ -455,14 +474,14 @@
     .answer-btn:focus-visible,
     .play-button:focus-visible,
     .next-btn:focus-visible,
-    input[type="checkbox"]:focus-visible {
+    .mode-pill:focus-visible {
       outline: 2px solid #e5e7eb;
       outline-offset: 2px;
     }
 
     @media (max-width: 840px) {
       .main-layout { grid-template-columns: minmax(0, 1fr); }
-      .meta-block { display: none; }
+      .meta-block { align-items: flex-start; }
     }
 
     @media (max-width: 600px) {
@@ -487,16 +506,20 @@
       <div class="title-block">
         <h1>Insect Song Learning Game</h1>
         <p>Match insect calls to spectrograms and species.</p>
-        <p class="how-to">
-          How to play: press <strong>Play call</strong>, watch the spectrogram and moving bar, then choose the insect's common name. After you guess, you'll see a photo, a fun fact, and credits.
-        </p>
       </div>
       <div class="meta-block">
         <div class="meta-pill">
           <span class="meta-dot"></span>
           Spectrogram training
         </div>
-        <div>Mode: Multiple choice · Single caller</div>
+        <button
+          id="sci-toggle"
+          type="button"
+          class="mode-pill mode-off"
+          aria-pressed="false"
+        >
+          Show scientific names: OFF
+        </button>
       </div>
     </header>
 
@@ -512,18 +535,36 @@
         </div>
 
         <div class="spectrogram-frame">
-          <img id="spectrogram-image" class="spectrogram-image" src="" alt="Insect sound spectrogram">
-          <div id="playhead" class="playhead"></div>
+          <img
+            id="spectrogram-image"
+            class="spectrogram-image"
+            src=""
+            alt="Insect sound spectrogram"
+          />
           <div class="spectrogram-overlay"></div>
+        </div>
+
+        <div class="legend-box">
+          <div class="legend-title">Spectrogram axes</div>
+          <p><strong>X-axis:</strong> time (seconds)</p>
+          <p><strong>Y-axis:</strong> frequency (kilohertz, kHz)</p>
+          <p><strong>Color / brightness:</strong> loudness (amplitude) of the sound.</p>
         </div>
 
         <div class="spectrogram-footer">
           <div class="play-controls">
-            <button id="play-btn" class="play-button" type="button" aria-label="Play or replay the current insect call">
+            <button
+              id="play-btn"
+              class="play-button"
+              type="button"
+              aria-label="Play or replay the current insect call"
+            >
               <span class="play-icon"></span>
               <span>Play call</span>
             </button>
-            <div class="hint-label">Tip: match the band of energy and the rhythm of pulses.</div>
+            <div class="hint-label">
+              Tip: match the band of energy and the rhythm of pulses.
+            </div>
           </div>
           <div class="feedback-line" id="feedback-line"></div>
         </div>
@@ -536,7 +577,7 @@
         </div>
 
         <div id="photo-box" class="photo-box hidden">
-          <img id="insect-photo" class="insect-photo" src="" alt="Insect photo">
+          <img id="insect-photo" class="insect-photo" src="" alt="Insect photo" />
           <div id="credits" class="credits"></div>
         </div>
       </section>
@@ -544,13 +585,8 @@
       <!-- Answers -->
       <section class="answers-panel">
         <div class="question-text">Which insect is producing this sound?</div>
-        <div class="question-subtitle">Listen as many times as you like, then choose the common name.</div>
-
-        <div class="toggle-row">
-          <label class="toggle-label">
-            <input type="checkbox" id="toggle-sci">
-            Show scientific names after guessing
-          </label>
+        <div class="question-subtitle">
+          Listen as many times as you like, then choose the common name.
         </div>
 
         <div id="answers-list" class="answers-list"></div>
@@ -561,7 +597,9 @@
         </div>
 
         <div class="bottom-controls">
-          <div class="score-text" id="score-text">Score: <strong>0 / 0</strong></div>
+          <div class="score-text" id="score-text">
+            Score: <strong>0 / 0</strong>
+          </div>
           <button id="next-btn" class="next-btn" type="button" disabled>
             Next spectrogram <span class="next-arrow">➜</span>
           </button>
@@ -572,7 +610,8 @@
     <footer class="game-footer">
       <div>Created by Lucas Fink, Cornell University.</div>
       <div>
-        Contact: <a href="mailto:lhf36@cornell.edu">lhf36@cornell.edu</a>
+        Contact:
+        <a href="mailto:lhf36@cornell.edu">lhf36@cornell.edu</a>
       </div>
     </footer>
 
@@ -636,6 +675,7 @@
     let scoreCorrect = 0;
     let scoreTotal = 0;
     let hasAnswered = false;
+    let sciNamesOn = false;
 
     // playlist to ensure each species appears once per cycle
     let playlist = [];
@@ -655,9 +695,8 @@
     const photoBoxEl = document.getElementById("photo-box");
     const insectPhotoEl = document.getElementById("insect-photo");
     const creditsEl = document.getElementById("credits");
-    const sciToggleEl = document.getElementById("toggle-sci");
     const statsListEl = document.getElementById("stats-list");
-    const playheadEl = document.getElementById("playhead");
+    const sciToggleBtn = document.getElementById("sci-toggle");
 
     // track per-species stats
     const stats = {};
@@ -693,19 +732,6 @@
       return shuffleArray([correctName, ...wrong]);
     }
 
-    function updateTagline() {
-      if (!currentSong) return;
-      if (!hasAnswered) {
-        specTaglineEl.textContent = "Who is calling?";
-      } else {
-        if (sciToggleEl.checked) {
-          specTaglineEl.textContent = `${currentSong.commonName} (${currentSong.species})`;
-        } else {
-          specTaglineEl.textContent = currentSong.commonName;
-        }
-      }
-    }
-
     function renderStats() {
       statsListEl.innerHTML = "";
       SONGS.forEach(song => {
@@ -718,6 +744,33 @@
         li.appendChild(left);
         li.appendChild(right);
         statsListEl.appendChild(li);
+      });
+    }
+
+    function updateSciToggleUI() {
+      if (sciNamesOn) {
+        sciToggleBtn.classList.add("mode-on");
+        sciToggleBtn.classList.remove("mode-off");
+        sciToggleBtn.textContent = "Show scientific names: ON";
+        sciToggleBtn.setAttribute("aria-pressed", "true");
+      } else {
+        sciToggleBtn.classList.add("mode-off");
+        sciToggleBtn.classList.remove("mode-on");
+        sciToggleBtn.textContent = "Show scientific names: OFF";
+        sciToggleBtn.setAttribute("aria-pressed", "false");
+      }
+    }
+
+    function applySciToggleToButtons() {
+      const buttons = answersListEl.querySelectorAll(".answer-btn");
+      buttons.forEach(btn => {
+        const labelSpan = btn.querySelector(".answer-label");
+        if (!labelSpan) return;
+        if (sciNamesOn) {
+          labelSpan.textContent = btn.dataset.scientificName;
+        } else {
+          labelSpan.textContent = btn.dataset.commonName;
+        }
       });
     }
 
@@ -739,24 +792,28 @@
       creditsEl.textContent = "";
 
       audioPlayerEl.src = song.audio;
-      playheadEl.style.transform = "translateX(0%)";
 
-      updateTagline();
+      // tagline resets at the start of each round
+      specTaglineEl.textContent = "Who is calling?";
     }
 
     function renderAnswers(song) {
       answersListEl.innerHTML = "";
       const choices = buildChoices(song.commonName);
 
-      choices.forEach(choice => {
+      choices.forEach(commonName => {
+        const songObj = SONGS.find(s => s.commonName === commonName);
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "answer-btn";
-        btn.setAttribute("aria-label", `Guess: ${choice}`);
+        btn.setAttribute("aria-label", `Guess: ${commonName}`);
+
+        btn.dataset.commonName = songObj.commonName;
+        btn.dataset.scientificName = songObj.species;
 
         const label = document.createElement("span");
         label.className = "answer-label";
-        label.textContent = choice;
+        label.textContent = sciNamesOn ? songObj.species : songObj.commonName;
 
         const meta = document.createElement("span");
         meta.className = "answer-meta";
@@ -765,7 +822,8 @@
         btn.appendChild(label);
         btn.appendChild(meta);
 
-        btn.addEventListener("click", () => handleAnswer(choice, btn));
+        // Clicking still passes the common name internally
+        btn.addEventListener("click", () => handleAnswer(songObj.commonName, btn));
         answersListEl.appendChild(btn);
       });
     }
@@ -794,7 +852,7 @@
         feedbackLineEl.classList.add("wrong");
       }
 
-      updateTagline();
+      specTaglineEl.textContent = currentSong.commonName;
       factTextEl.textContent = currentSong.fact || "";
 
       insectPhotoEl.src = currentSong.photo;
@@ -807,12 +865,14 @@
         const label = btn.querySelector(".answer-label").textContent;
         const meta = btn.querySelector(".answer-meta");
 
-        if (label === currentSong.commonName) {
+        if (btn.dataset.commonName === currentSong.commonName) {
           btn.classList.add("correct-choice");
-          meta.textContent = "Answer";
-          meta.classList.add("correct");
+          if (meta) {
+            meta.textContent = "Answer";
+            meta.classList.add("correct");
+          }
         }
-        if (btn === buttonEl && !correct) {
+        if (btn === buttonEl && !correct && meta) {
           btn.classList.add("wrong-choice");
           meta.textContent = "Your guess";
           meta.classList.add("guess");
@@ -841,19 +901,16 @@
 
     nextBtnEl.addEventListener("click", loadNewRound);
 
-    sciToggleEl.addEventListener("change", updateTagline);
-
-    audioPlayerEl.addEventListener("timeupdate", () => {
-      const d = audioPlayerEl.duration;
-      if (!d || !isFinite(d)) return;
-      const frac = audioPlayerEl.currentTime / d;
-      const pct = Math.max(0, Math.min(frac * 100, 100));
-      playheadEl.style.transform = `translateX(${pct}%)`;
+    sciToggleBtn.addEventListener("click", () => {
+      sciNamesOn = !sciNamesOn;
+      updateSciToggleUI();
+      applySciToggleToButtons();
     });
 
     // Kick off
     initPlaylist();
     renderStats();
+    updateSciToggleUI();
     loadNewRound();
   </script>
 </body>
