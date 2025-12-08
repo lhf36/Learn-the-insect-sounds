@@ -32,6 +32,8 @@
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
       padding: 20px 22px;
       border: 1px solid rgba(148, 163, 184, 0.25);
+      position: relative;
+      overflow: hidden;
     }
 
     .game-header {
@@ -111,7 +113,7 @@
       grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
       gap: 18px;
       margin-top: 6px;
-      align-items: start; /* prevent right box from stretching full height */
+      align-items: start;
     }
 
     /* Spectrogram side */
@@ -495,11 +497,92 @@
       text-decoration: underline;
     }
 
+    /* End-of-game overlay */
+
+    .end-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .end-overlay.hidden {
+      display: none;
+    }
+
+    .end-overlay-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(220, 38, 38, 0.45); /* default red-ish */
+      pointer-events: none;
+      transition: background 0.25s ease;
+    }
+
+    .end-overlay.tint-bad .end-overlay-backdrop {
+      background: rgba(220, 38, 38, 0.6); /* red */
+    }
+
+    .end-overlay.tint-mid .end-overlay-backdrop {
+      background: rgba(234, 179, 8, 0.6); /* yellow */
+    }
+
+    .end-overlay.tint-good .end-overlay-backdrop {
+      background: rgba(34, 197, 94, 0.55); /* green */
+    }
+
+    .end-overlay-panel {
+      position: relative;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 16px;
+      padding: 20px 24px;
+      border: 1px solid rgba(248, 250, 252, 0.2);
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
+    }
+
+    .end-title {
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+    }
+
+    .end-score-text {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: #e5e7eb;
+    }
+
+    .end-message {
+      font-size: 1rem;
+      margin-bottom: 14px;
+      color: #f9fafb;
+    }
+
+    .play-again-btn {
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 197, 94, 0.7);
+      background: linear-gradient(to right, #16a34a, #22c55e);
+      color: #f9fafb;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(22, 163, 74, 0.4);
+    }
+
+    .play-again-btn:hover {
+      filter: brightness(1.05);
+    }
+
     /* Focus styles for accessibility */
     .answer-btn:focus-visible,
     .play-button:focus-visible,
     .next-btn:focus-visible,
-    .mode-pill:focus-visible {
+    .mode-pill:focus-visible,
+    .play-again-btn:focus-visible {
       outline: 2px solid #e5e7eb;
       outline-offset: 2px;
     }
@@ -512,6 +595,7 @@
     @media (max-width: 600px) {
       .game-shell { padding: 14px; }
       .question-text { font-size: 1rem; }
+      .end-title { font-size: 1.5rem; }
     }
 
     @media (max-width: 480px) {
@@ -619,7 +703,7 @@
 
         <div class="bottom-controls">
           <div class="score-text" id="score-text">
-            Score: <strong>0 / 0</strong>
+            Score this game: <strong>0</strong> of 5
           </div>
           <button id="next-btn" class="next-btn" type="button" disabled>
             Next spectrogram <span class="next-arrow">➜</span>
@@ -637,9 +721,26 @@
     </footer>
 
     <audio id="audio-player"></audio>
+
+    <!-- End-of-game overlay -->
+    <div id="end-overlay" class="end-overlay hidden">
+      <div class="end-overlay-backdrop"></div>
+      <div class="end-overlay-panel">
+        <h2 id="end-title" class="end-title">Game complete!</h2>
+        <p id="end-score-text" class="end-score-text">You scored 5 / 5.</p>
+        <p id="end-message" class="end-message">
+          Master of insect sounds! You must be an insect sound biologist!
+        </p>
+        <button id="play-again-btn" class="play-again-btn" type="button">
+          Play again
+        </button>
+      </div>
+    </div>
   </div>
 
   <script>
+    const TOTAL_ROUNDS = 5;
+
     // ---- 1. Data: 8 species ----
     const SONGS = [
       {
@@ -721,7 +822,7 @@
         audioCredit: "David Marshall"
       },
       {
-        commonName: "Sword-bearing Conehead Katydid",
+        commonName: "Sword-bearing Conehead",
         species: "Neoconocephalus ensiger",
         image: "images/Cone Head Katydid Spectrogram.jpeg",
         audio: "audio/XC859446 - Swordbearer - Neoconocephalus_Molly_Jacobson ensiger.mp3",
@@ -741,9 +842,8 @@
     let hasAnswered = false;
     let sciNamesOn = false;
 
-    // playlist to ensure each species appears once per cycle
-    let playlist = [];
-    let playlistIndex = 0;
+    let sessionSongs = [];
+    let sessionIndex = 0;
     let currentSong = null;
 
     const spectrogramImageEl = document.getElementById("spectrogram-image");
@@ -762,7 +862,13 @@
     const sciToggleBtn = document.getElementById("sci-toggle");
     const winMarkEl = document.getElementById("win-mark");
 
-    // for success chime
+    const endOverlayEl = document.getElementById("end-overlay");
+    const endTitleEl = document.getElementById("end-title");
+    const endScoreTextEl = document.getElementById("end-score-text");
+    const endMessageEl = document.getElementById("end-message");
+    const playAgainBtnEl = document.getElementById("play-again-btn");
+
+    // for success & end chimes
     let audioCtx = null;
 
     // ---- 3. Helpers ----
@@ -773,16 +879,27 @@
         .map(x => x.v);
     }
 
-    function initPlaylist() {
-      playlist = shuffleArray(SONGS.slice());
-      playlistIndex = 0;
+    function startNewGame() {
+      // pick 5 random species from the full set
+      sessionSongs = shuffleArray(SONGS.slice()).slice(0, TOTAL_ROUNDS);
+      sessionIndex = 0;
+      scoreCorrect = 0;
+      scoreTotal = 0;
+      hasAnswered = false;
+
+      scoreTextEl.innerHTML = `Score this game: <strong>0</strong> of ${TOTAL_ROUNDS}`;
+      audioPlayerEl.pause();
+      audioPlayerEl.currentTime = 0;
+      nextBtnEl.disabled = true;
+      renderRound();
     }
 
-    function getNextSong() {
-      if (playlist.length === 0 || playlistIndex >= playlist.length) {
-        initPlaylist();
-      }
-      return playlist[playlistIndex++];
+    function renderRound() {
+      hasAnswered = false;
+      nextBtnEl.disabled = true;
+      currentSong = sessionSongs[sessionIndex];
+      renderSpectrogram(currentSong);
+      renderAnswers(currentSong);
     }
 
     // pick 4 options (1 correct + 3 decoys) from all 8 species
@@ -826,7 +943,7 @@
       }, 800);
     }
 
-    // Two-tone soft chime (A5 → E6)
+    // Two-tone soft chime (A5 → E6) on correct answer
     function playDing() {
       try {
         if (!audioCtx) {
@@ -865,6 +982,37 @@
         osc2.stop(now + 0.3);
       } catch (e) {
         // ignore audio failures
+      }
+    }
+
+    // Triumphant end-of-game sound (short arpeggio)
+    function playTriumph() {
+      try {
+        if (!audioCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return;
+          audioCtx = new Ctx();
+        }
+        const ctx = audioCtx;
+        const now = ctx.currentTime;
+
+        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+        notes.forEach((freq, i) => {
+          const start = now + i * 0.08;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(0.35, start + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.32);
+        });
+      } catch (e) {
+        // ignore
       }
     }
 
@@ -935,7 +1083,58 @@
       });
     }
 
-    // ---- 5. Interaction ----
+    // ---- 5. End-of-game overlay ----
+    function showEndOverlay() {
+      // choose tint and message based on scoreCorrect
+      let tintClass = "tint-bad";
+      let message = "";
+      const finalScore = scoreCorrect;
+
+      switch (finalScore) {
+        case 0:
+          message = "You need to clean your ears. Play again...";
+          tintClass = "tint-bad";
+          break;
+        case 1:
+          message = "You need to learn to listen. Play again...";
+          tintClass = "tint-bad";
+          break;
+        case 2:
+          message = "Almost half way there!";
+          tintClass = "tint-mid";
+          break;
+        case 3:
+          message = "Pretty good! Your chance of finding a mate is more than 50%!";
+          tintClass = "tint-mid";
+          break;
+        case 4:
+          message = "Impressive ears!";
+          tintClass = "tint-good";
+          break;
+        case 5:
+        default:
+          message = "Master of insect sounds! You must be an insect sound biologist!";
+          tintClass = "tint-good";
+          break;
+      }
+
+      // reset tint classes
+      endOverlayEl.classList.remove("tint-bad", "tint-mid", "tint-good");
+      endOverlayEl.classList.add(tintClass);
+
+      endTitleEl.textContent = "Game complete!";
+      endScoreTextEl.textContent = `You scored ${finalScore} / ${TOTAL_ROUNDS}.`;
+      endMessageEl.textContent = message;
+
+      endOverlayEl.classList.remove("hidden");
+      playTriumph();
+    }
+
+    function hideEndOverlay() {
+      endOverlayEl.classList.add("hidden");
+    }
+
+    // ---- 6. Interaction ----
     function handleAnswer(selectedName, buttonEl) {
       if (hasAnswered) return;
       hasAnswered = true;
@@ -981,26 +1180,39 @@
         btn.disabled = true;
       });
 
-      scoreTextEl.innerHTML = `Score: <strong>${scoreCorrect} / ${scoreTotal}</strong>`;
-      nextBtnEl.disabled = false;
+      scoreTextEl.innerHTML = `Score this game: <strong>${scoreCorrect}</strong> of ${TOTAL_ROUNDS}`;
+
+      if (scoreTotal >= TOTAL_ROUNDS) {
+        // end of game
+        nextBtnEl.disabled = true;
+        showEndOverlay();
+      } else {
+        nextBtnEl.disabled = false;
+      }
     }
 
-    function loadNewRound() {
-      hasAnswered = false;
-      nextBtnEl.disabled = true;
-      currentSong = getNextSong();
-      renderSpectrogram(currentSong);
-      renderAnswers(currentSong);
+    function goToNextRound() {
+      if (hasAnswered && scoreTotal < TOTAL_ROUNDS) {
+        sessionIndex++;
+        if (sessionIndex < sessionSongs.length) {
+          renderRound();
+        }
+      }
     }
 
-    // ---- 6. Events ----
+    // ---- 7. Events ----
     playBtnEl.addEventListener("click", playFromStart);
-    nextBtnEl.addEventListener("click", loadNewRound);
+    nextBtnEl.addEventListener("click", goToNextRound);
 
     sciToggleBtn.addEventListener("click", () => {
       sciNamesOn = !sciNamesOn;
       updateSciToggleUI();
       applySciToggleToButtons();
+    });
+
+    playAgainBtnEl.addEventListener("click", () => {
+      hideEndOverlay();
+      startNewGame();
     });
 
     // Spacebar play/pause
@@ -1015,10 +1227,9 @@
       }
     });
 
-    // ---- 7. Kickoff ----
-    initPlaylist();
+    // ---- 8. Kickoff ----
     updateSciToggleUI();
-    loadNewRound();
+    startNewGame();
   </script>
 </body>
 </html>
