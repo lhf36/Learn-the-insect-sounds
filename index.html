@@ -116,7 +116,7 @@
       align-items: start;
     }
 
-    /* Spectrogram side */
+    /* Spectrogram / left panel */
 
     .spectrogram-panel {
       background: radial-gradient(circle at top, #020617, #020617);
@@ -173,7 +173,7 @@
       color: #6ee7b7;
     }
 
-    /* Axes + spectrogram layout */
+    /* Axes + big image */
 
     .spectrogram-with-axes {
       display: grid;
@@ -232,10 +232,10 @@
       pointer-events: none;
       background: linear-gradient(
         to bottom,
-        rgba(15, 23, 42, 0.6),
+        rgba(15, 23, 42, 0.4),
         transparent 20%,
         transparent 70%,
-        rgba(15, 23, 42, 0.9)
+        rgba(15, 23, 42, 0.85)
       );
     }
 
@@ -352,7 +352,7 @@
 
     .hidden { display: none; }
 
-    /* Answer side */
+    /* Right / answers */
 
     .answers-panel {
       background: radial-gradient(circle at top, #020617, #020617);
@@ -497,6 +497,161 @@
       text-decoration: underline;
     }
 
+    /* Start screen */
+
+    .start-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .start-overlay.hidden {
+      display: none;
+    }
+
+    .start-backdrop {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(16, 185, 129, 0.18), rgba(15, 23, 42, 0.95));
+      pointer-events: none;
+    }
+
+    .start-card {
+      position: relative;
+      z-index: 1001;
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 18px;
+      padding: 22px;
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      max-width: 460px;
+      text-align: center;
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .start-title {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .start-subtitle {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-bottom: 14px;
+    }
+
+    .big-play-icon {
+      margin: 0 auto 12px;
+      width: 0;
+      height: 0;
+      border-top: 18px solid transparent;
+      border-bottom: 18px solid transparent;
+      border-left: 30px solid #22c55e;
+      filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.7));
+    }
+
+    .mode-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .mode-select-btn {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.95);
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .mode-select-btn span:first-child {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .small-play-icon {
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 10px solid #22c55e;
+    }
+
+    .mode-tagline {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    /* Hint overlay */
+
+    .hint-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1100;
+    }
+
+    .hint-overlay.hidden {
+      display: none;
+    }
+
+    .hint-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+    }
+
+    .hint-panel {
+      position: relative;
+      z-index: 1101;
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 14px;
+      padding: 16px 18px;
+      border: 1px solid rgba(251, 191, 36, 0.7);
+      max-width: 420px;
+      text-align: left;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.7);
+    }
+
+    .hint-title {
+      font-size: 1rem;
+      margin-bottom: 4px;
+      color: #facc15;
+    }
+
+    .hint-text {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    .hint-close-btn {
+      margin-top: 4px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(251, 191, 36, 0.8);
+      background: linear-gradient(to right, #f59e0b, #facc15);
+      color: #0f172a;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .hint-close-btn:hover {
+      filter: brightness(1.05);
+    }
+
     /* End-of-game overlay */
 
     .end-overlay {
@@ -505,7 +660,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 999;
+      z-index: 1200;
     }
 
     .end-overlay.hidden {
@@ -534,7 +689,7 @@
 
     .end-overlay-panel {
       position: relative;
-      z-index: 1000;
+      z-index: 1201;
       background: rgba(15, 23, 42, 0.96);
       border-radius: 16px;
       padding: 20px 24px;
@@ -577,12 +732,15 @@
       filter: brightness(1.05);
     }
 
-    /* Focus styles for accessibility */
+    /* Focus styles */
+
     .answer-btn:focus-visible,
     .play-button:focus-visible,
     .next-btn:focus-visible,
     .mode-pill:focus-visible,
-    .play-again-btn:focus-visible {
+    .mode-select-btn:focus-visible,
+    .play-again-btn:focus-visible,
+    .hint-close-btn:focus-visible {
       outline: 2px solid #e5e7eb;
       outline-offset: 2px;
     }
@@ -614,12 +772,12 @@
     <header class="game-header">
       <div class="title-block">
         <h1>Insect Song Learning Game</h1>
-        <p>Match insect calls to spectrograms and species.</p>
+        <p>Match insect calls, images, or facts to the right species.</p>
       </div>
       <div class="meta-block">
         <div class="meta-pill">
           <span class="meta-dot"></span>
-          Spectrogram training
+          <span id="mode-label">Mode: —</span>
         </div>
         <button
           id="sci-toggle"
@@ -633,11 +791,11 @@
     </header>
 
     <main class="main-layout">
-      <!-- Spectrogram + fact + photo -->
+      <!-- Left panel -->
       <section class="spectrogram-panel">
         <div class="spectrogram-header">
           <div>
-            <div class="spec-label">Visualizing sound</div>
+            <div class="spec-label" id="spec-label">Visualizing sound</div>
             <div class="species-tagline-wrapper">
               <span class="species-tagline" id="spec-tagline">Who is calling?</span>
               <span id="win-mark" class="win-mark">✓</span>
@@ -646,19 +804,19 @@
           <div class="spec-level" id="spec-region">Region: —</div>
         </div>
 
-        <div class="spectrogram-with-axes">
-          <div class="axis-y-outside">Frequency (kHz)</div>
+        <div id="spec-axes-wrapper" class="spectrogram-with-axes">
+          <div id="axis-y" class="axis-y-outside">Frequency (kHz)</div>
           <div class="spectrogram-frame">
             <img
               id="spectrogram-image"
               class="spectrogram-image"
               src=""
-              alt="Insect sound spectrogram"
+              alt="Insect visual"
             />
             <div class="spectrogram-overlay"></div>
-            <div class="amp-box">Amplitude (brightness)</div>
+            <div id="amp-box" class="amp-box">Amplitude (brightness)</div>
           </div>
-          <div class="axis-x-outside">Time (seconds)</div>
+          <div id="axis-x" class="axis-x-outside">Time (seconds)</div>
         </div>
 
         <div class="spectrogram-footer">
@@ -670,9 +828,9 @@
               aria-label="Play or replay the current insect call"
             >
               <span class="play-icon"></span>
-              <span>Play call</span>
+              <span id="play-btn-label">Play call</span>
             </button>
-            <div class="hint-label">
+            <div class="hint-label" id="mode-hint-text">
               Tip: match the band of energy and the rhythm of pulses.
             </div>
           </div>
@@ -680,7 +838,7 @@
         </div>
 
         <div id="fact-box" class="fact-box">
-          <div class="fact-label">After the guess</div>
+          <div class="fact-label" id="fact-label">After the guess</div>
           <div class="fact-text" id="fact-text">
             Identify the caller to reveal a fun fact.
           </div>
@@ -692,10 +850,12 @@
         </div>
       </section>
 
-      <!-- Answers -->
+      <!-- Right panel -->
       <section class="answers-panel">
-        <div class="question-text">Which insect is producing this sound?</div>
-        <div class="question-subtitle">
+        <div id="question-text" class="question-text">
+          Which insect is producing this sound?
+        </div>
+        <div id="question-subtitle" class="question-subtitle">
           Listen as many times as you like, then choose the common name.
         </div>
 
@@ -722,6 +882,53 @@
 
     <audio id="audio-player"></audio>
 
+    <!-- Start overlay -->
+    <div id="start-overlay" class="start-overlay">
+      <div class="start-backdrop"></div>
+      <div class="start-card">
+        <div class="big-play-icon"></div>
+        <h2 class="start-title">Insect Song Learning Game</h2>
+        <p class="start-subtitle">
+          Click to start, then choose how you want to train: spectrograms, images, or facts.
+        </p>
+        <div class="mode-buttons">
+          <button type="button" class="mode-select-btn" id="start-spectro-btn">
+            <span>
+              <span class="small-play-icon"></span>
+              Spectrogram training
+            </span>
+            <span class="mode-tagline">Listen & read sound pictures</span>
+          </button>
+          <button type="button" class="mode-select-btn" id="start-image-btn">
+            <span>
+              <span class="small-play-icon"></span>
+              Image recognition
+            </span>
+            <span class="mode-tagline">Identify insects by appearance</span>
+          </button>
+          <button type="button" class="mode-select-btn" id="start-facts-btn">
+            <span>
+              <span class="small-play-icon"></span>
+              Fact knowledge
+            </span>
+            <span class="mode-tagline">Match species to descriptions</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hint overlay -->
+    <div id="hint-overlay" class="hint-overlay hidden">
+      <div class="hint-backdrop"></div>
+      <div class="hint-panel">
+        <h3 class="hint-title">Hint</h3>
+        <p id="hint-text" class="hint-text"></p>
+        <button id="hint-close-btn" class="hint-close-btn" type="button">
+          Got it – keep guessing
+        </button>
+      </div>
+    </div>
+
     <!-- End-of-game overlay -->
     <div id="end-overlay" class="end-overlay hidden">
       <div class="end-overlay-backdrop"></div>
@@ -741,7 +948,10 @@
   <script>
     const TOTAL_ROUNDS = 5;
 
-    // ---- 1. Data: 8 species ----
+    // Modes: "spectrogram", "image", "facts"
+    let currentMode = null;
+
+    // ---- Species data ----
     const SONGS = [
       {
         commonName: "Four-spotted Tree Cricket",
@@ -787,7 +997,6 @@
         photoCredit: "Gilles San Martin",
         audioCredit: "Baudewijn Ode"
       },
-      // ---- New species ----
       {
         commonName: "European Field Cricket",
         species: "Gryllus campestris",
@@ -836,31 +1045,56 @@
 
     const ALL_COMMON_NAMES = SONGS.map(s => s.commonName);
 
-    // ---- 2. State ----
-    let scoreCorrect = 0;
-    let scoreTotal = 0;
-    let hasAnswered = false;
-    let sciNamesOn = false;
+    // ---- State ----
+    let scoreCorrect = 0;   // number of questions answered correctly on first try
+    let scoreTotal = 0;     // number of rounds completed in this game (0–5)
+    let hasAnswered = false;  // round finished
+    let hadWrongGuess = false; // did this round have a wrong guess before final correct?
 
     let sessionSongs = [];
     let sessionIndex = 0;
     let currentSong = null;
 
+    // DOM elements
     const spectrogramImageEl = document.getElementById("spectrogram-image");
     const specTaglineEl = document.getElementById("spec-tagline");
     const specRegionEl = document.getElementById("spec-region");
+    const specLabelEl = document.getElementById("spec-label");
+    const axisXEl = document.getElementById("axis-x");
+    const axisYEl = document.getElementById("axis-y");
+    const ampBoxEl = document.getElementById("amp-box");
+    const specAxesWrapperEl = document.getElementById("spec-axes-wrapper");
+
+    const factBoxEl = document.getElementById("fact-box");
+    const factLabelEl = document.getElementById("fact-label");
     const factTextEl = document.getElementById("fact-text");
     const feedbackLineEl = document.getElementById("feedback-line");
-    const answersListEl = document.getElementById("answers-list");
-    const scoreTextEl = document.getElementById("score-text");
-    const playBtnEl = document.getElementById("play-btn");
-    const nextBtnEl = document.getElementById("next-btn");
-    const audioPlayerEl = document.getElementById("audio-player");
     const photoBoxEl = document.getElementById("photo-box");
     const insectPhotoEl = document.getElementById("insect-photo");
     const creditsEl = document.getElementById("credits");
+
+    const answersListEl = document.getElementById("answers-list");
+    const scoreTextEl = document.getElementById("score-text");
+    const playBtnEl = document.getElementById("play-btn");
+    const playBtnLabelEl = document.getElementById("play-btn-label");
+    const nextBtnEl = document.getElementById("next-btn");
+    const audioPlayerEl = document.getElementById("audio-player");
     const sciToggleBtn = document.getElementById("sci-toggle");
     const winMarkEl = document.getElementById("win-mark");
+    const modeHintTextEl = document.getElementById("mode-hint-text");
+    const questionTextEl = document.getElementById("question-text");
+    const questionSubtitleEl = document.getElementById("question-subtitle");
+    const modeLabelEl = document.getElementById("mode-label");
+
+    // Start + hint + end overlays
+    const startOverlayEl = document.getElementById("start-overlay");
+    const startSpectroBtn = document.getElementById("start-spectro-btn");
+    const startImageBtn = document.getElementById("start-image-btn");
+    const startFactsBtn = document.getElementById("start-facts-btn");
+
+    const hintOverlayEl = document.getElementById("hint-overlay");
+    const hintTextEl = document.getElementById("hint-text");
+    const hintCloseBtnEl = document.getElementById("hint-close-btn");
 
     const endOverlayEl = document.getElementById("end-overlay");
     const endTitleEl = document.getElementById("end-title");
@@ -868,10 +1102,10 @@
     const endMessageEl = document.getElementById("end-message");
     const playAgainBtnEl = document.getElementById("play-again-btn");
 
-    // for success & end chimes
+    let sciNamesOn = false;
     let audioCtx = null;
 
-    // ---- 3. Helpers ----
+    // ---- Helpers ----
     function shuffleArray(arr) {
       return arr
         .map(v => ({ v, r: Math.random() }))
@@ -879,34 +1113,194 @@
         .map(x => x.v);
     }
 
+    function redactFact(song) {
+      // Simple redaction: remove occurrences of common name, genus, and generic group words
+      let text = song.fact;
+      const targets = [];
+
+      targets.push(song.commonName);
+      const genus = song.species.split(" ")[0];
+      if (genus) targets.push(genus);
+
+      const groupWords = ["cricket", "crickets", "cicada", "cicadas", "grasshopper", "grasshoppers", "katydid", "katydids"];
+      groupWords.forEach(w => targets.push(w, w[0].toUpperCase() + w.slice(1)));
+
+      targets.forEach(t => {
+        if (!t) return;
+        const re = new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
+        text = text.replace(re, "••••••");
+      });
+
+      return text;
+    }
+
+    function getHintText(song) {
+      if (currentMode === "facts") {
+        // Use region as extra hint
+        return `This species is found in: ${song.region}.`;
+      }
+      // For spectrogram & image, use first sentence of fact
+      const fact = song.fact || "";
+      const idx = fact.indexOf(".");
+      if (idx !== -1) {
+        return fact.slice(0, idx + 1);
+      }
+      return fact || "Listen or look closely for another clue.";
+    }
+
+    function updateModeUI() {
+      if (currentMode === "spectrogram") {
+        modeLabelEl.textContent = "Mode: Spectrogram training";
+        specLabelEl.textContent = "Visualizing sound";
+        axisYEl.textContent = "Frequency (kHz)";
+        axisXEl.textContent = "Time (seconds)";
+        ampBoxEl.style.display = "";
+        specAxesWrapperEl.classList.remove("hidden");
+        playBtnEl.disabled = false;
+        playBtnLabelEl.textContent = "Play call";
+        modeHintTextEl.textContent =
+          "Tip: match the band of energy and the rhythm of pulses.";
+        questionTextEl.textContent = "Which insect is producing this sound?";
+        questionSubtitleEl.textContent =
+          "Listen as many times as you like, then choose the common name.";
+        factLabelEl.textContent = "After the guess";
+      } else if (currentMode === "image") {
+        modeLabelEl.textContent = "Mode: Image recognition";
+        specLabelEl.textContent = "Insect image";
+        axisYEl.textContent = "";
+        axisXEl.textContent = "";
+        ampBoxEl.style.display = "none";
+        specAxesWrapperEl.classList.remove("hidden");
+        playBtnEl.disabled = false;
+        playBtnLabelEl.textContent = "Play call (optional)";
+        modeHintTextEl.textContent =
+          "Tip: look at body shape, wings, and posture.";
+        questionTextEl.textContent = "Which insect is shown here?";
+        questionSubtitleEl.textContent =
+          "Look closely at the insect's appearance, then choose its name.";
+        factLabelEl.textContent = "After the guess";
+      } else if (currentMode === "facts") {
+        modeLabelEl.textContent = "Mode: Fact knowledge";
+        specLabelEl.textContent = "Fact training";
+        axisYEl.textContent = "";
+        axisXEl.textContent = "";
+        ampBoxEl.style.display = "none";
+        // We keep the frame but no image needed; fact box becomes main stimulus
+        specAxesWrapperEl.classList.add("hidden");
+        playBtnEl.disabled = false; // optional: allow listening too
+        playBtnLabelEl.textContent = "Play call (optional)";
+        modeHintTextEl.textContent =
+          "Tip: read the description carefully before you choose.";
+        questionTextEl.textContent = "Which insect fits this description?";
+        questionSubtitleEl.textContent =
+          "Read the description, then choose the species.";
+        factLabelEl.textContent = "Description";
+      }
+    }
+
     function startNewGame() {
-      // pick 5 random species from the full set
+      if (!currentMode) return;
+      // pick 5 random species
       sessionSongs = shuffleArray(SONGS.slice()).slice(0, TOTAL_ROUNDS);
       sessionIndex = 0;
       scoreCorrect = 0;
       scoreTotal = 0;
       hasAnswered = false;
+      hadWrongGuess = false;
 
-      scoreTextEl.innerHTML = `Score this game: <strong>0</strong> of ${TOTAL_ROUNDS}`;
       audioPlayerEl.pause();
       audioPlayerEl.currentTime = 0;
       nextBtnEl.disabled = true;
+
+      scoreTextEl.innerHTML = `Score this game: <strong>0</strong> of ${TOTAL_ROUNDS}`;
+      updateModeUI();
       renderRound();
     }
 
     function renderRound() {
       hasAnswered = false;
+      hadWrongGuess = false;
       nextBtnEl.disabled = true;
+
       currentSong = sessionSongs[sessionIndex];
-      renderSpectrogram(currentSong);
+      renderForMode(currentSong);
       renderAnswers(currentSong);
     }
 
-    // pick 4 options (1 correct + 3 decoys) from all 8 species
+    function renderForMode(song) {
+      feedbackLineEl.textContent = "";
+      feedbackLineEl.className = "feedback-line";
+
+      insectPhotoEl.src = "";
+      insectPhotoEl.alt = "";
+      photoBoxEl.classList.add("hidden");
+      creditsEl.textContent = "";
+
+      specRegionEl.textContent = song.region ? `Region: ${song.region}` : "Region: —";
+      winMarkEl.classList.remove("win-mark-visible");
+
+      if (currentMode === "spectrogram") {
+        specAxesWrapperEl.classList.remove("hidden");
+        spectrogramImageEl.src = song.image;
+        spectrogramImageEl.alt = `Spectrogram of ${song.commonName} call`;
+        audioPlayerEl.src = song.audio;
+        specTaglineEl.textContent = "Who is calling?";
+        factLabelEl.textContent = "After the guess";
+        factTextEl.textContent = "Identify the caller to reveal a fun fact.";
+      } else if (currentMode === "image") {
+        specAxesWrapperEl.classList.remove("hidden");
+        spectrogramImageEl.src = song.photo;
+        spectrogramImageEl.alt = `Photo of ${song.commonName}`;
+        audioPlayerEl.src = song.audio;
+        specTaglineEl.textContent = "Who is this insect?";
+        factLabelEl.textContent = "After the guess";
+        factTextEl.textContent = "Identify the insect to reveal a fun fact.";
+      } else if (currentMode === "facts") {
+        specAxesWrapperEl.classList.add("hidden");
+        spectrogramImageEl.src = "";
+        audioPlayerEl.src = song.audio;
+        specTaglineEl.textContent = "Which insect fits this description?";
+        factLabelEl.textContent = "Description";
+        factTextEl.textContent = redactFact(song);
+      }
+    }
+
     function buildChoices(correctName) {
       const others = ALL_COMMON_NAMES.filter(n => n !== correctName);
       const wrong = shuffleArray(others).slice(0, 3);
       return shuffleArray([correctName, ...wrong]);
+    }
+
+    function renderAnswers(song) {
+      answersListEl.innerHTML = "";
+      const choices = buildChoices(song.commonName);
+
+      choices.forEach(commonName => {
+        const songObj = SONGS.find(s => s.commonName === commonName);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "answer-btn";
+        btn.setAttribute("aria-label", `Guess: ${commonName}`);
+
+        btn.dataset.commonName = songObj.commonName;
+        btn.dataset.scientificName = songObj.species;
+
+        const label = document.createElement("span");
+        label.className = "answer-label";
+        label.textContent = sciNamesOn ? songObj.species : songObj.commonName;
+
+        const meta = document.createElement("span");
+        meta.className = "answer-meta";
+        meta.textContent = "Guess";
+
+        btn.appendChild(label);
+        btn.appendChild(meta);
+
+        btn.addEventListener("click", () =>
+          handleAnswer(songObj.commonName, btn)
+        );
+        answersListEl.appendChild(btn);
+      });
     }
 
     function updateSciToggleUI() {
@@ -943,7 +1337,7 @@
       }, 800);
     }
 
-    // Two-tone soft chime (A5 → E6) on correct answer
+    // Small correct chime
     function playDing() {
       try {
         if (!audioCtx) {
@@ -955,11 +1349,10 @@
         const ctx = audioCtx;
         const now = ctx.currentTime;
 
-        // DING 1 — A5
         const osc1 = ctx.createOscillator();
         const gain1 = ctx.createGain();
         osc1.type = "sine";
-        osc1.frequency.setValueAtTime(880, now);  // A5
+        osc1.frequency.setValueAtTime(880, now);
         gain1.gain.setValueAtTime(0.0001, now);
         gain1.gain.exponentialRampToValueAtTime(0.3, now + 0.02);
         gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
@@ -968,11 +1361,10 @@
         osc1.start(now);
         osc1.stop(now + 0.3);
 
-        // DING 2 — E6, softer, slightly delayed
         const osc2 = ctx.createOscillator();
         const gain2 = ctx.createGain();
         osc2.type = "sine";
-        osc2.frequency.setValueAtTime(1320, now + 0.04); // E6
+        osc2.frequency.setValueAtTime(1320, now + 0.04);
         gain2.gain.setValueAtTime(0.0001, now + 0.04);
         gain2.gain.exponentialRampToValueAtTime(0.15, now + 0.06);
         gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
@@ -980,12 +1372,10 @@
         gain2.connect(ctx.destination);
         osc2.start(now + 0.04);
         osc2.stop(now + 0.3);
-      } catch (e) {
-        // ignore audio failures
-      }
+      } catch (e) {}
     }
 
-    // Triumphant end-of-game sound (short arpeggio)
+    // Triumphant game-end sound
     function playTriumph() {
       try {
         if (!audioCtx) {
@@ -1011,12 +1401,11 @@
           osc.start(start);
           osc.stop(start + 0.32);
         });
-      } catch (e) {
-        // ignore
-      }
+      } catch (e) {}
     }
 
     function playFromStart() {
+      if (!currentSong) return;
       audioPlayerEl.currentTime = 0;
       audioPlayerEl.play().catch(() => {});
     }
@@ -1029,63 +1418,17 @@
       }
     }
 
-    // ---- 4. Rendering ----
-    function renderSpectrogram(song) {
-      spectrogramImageEl.src = song.image;
-      spectrogramImageEl.alt = `Spectrogram of ${song.commonName} call`;
-
-      specRegionEl.textContent = song.region ? `Region: ${song.region}` : "Region: —";
-
-      factTextEl.textContent = "Identify the caller to reveal a fun fact.";
-      feedbackLineEl.textContent = "";
-      feedbackLineEl.className = "feedback-line";
-
-      insectPhotoEl.src = "";
-      insectPhotoEl.alt = "";
-      photoBoxEl.classList.add("hidden");
-      creditsEl.textContent = "";
-
-      audioPlayerEl.src = song.audio;
-
-      specTaglineEl.textContent = "Who is calling?";
-      winMarkEl.classList.remove("win-mark-visible");
+    // ---- Hint & end overlays ----
+    function showHintOverlay(song) {
+      hintTextEl.textContent = getHintText(song);
+      hintOverlayEl.classList.remove("hidden");
     }
 
-    function renderAnswers(song) {
-      answersListEl.innerHTML = "";
-      const choices = buildChoices(song.commonName);
-
-      choices.forEach(commonName => {
-        const songObj = SONGS.find(s => s.commonName === commonName);
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "answer-btn";
-        btn.setAttribute("aria-label", `Guess: ${commonName}`);
-
-        btn.dataset.commonName = songObj.commonName;
-        btn.dataset.scientificName = songObj.species;
-
-        const label = document.createElement("span");
-        label.className = "answer-label";
-        label.textContent = sciNamesOn ? songObj.species : songObj.commonName;
-
-        const meta = document.createElement("span");
-        meta.className = "answer-meta";
-        meta.textContent = "Guess";
-
-        btn.appendChild(label);
-        btn.appendChild(meta);
-
-        btn.addEventListener("click", () =>
-          handleAnswer(songObj.commonName, btn)
-        );
-        answersListEl.appendChild(btn);
-      });
+    function hideHintOverlay() {
+      hintOverlayEl.classList.add("hidden");
     }
 
-    // ---- 5. End-of-game overlay ----
     function showEndOverlay() {
-      // choose tint and message based on scoreCorrect
       let tintClass = "tint-bad";
       let message = "";
       const finalScore = scoreCorrect;
@@ -1118,7 +1461,6 @@
           break;
       }
 
-      // reset tint classes
       endOverlayEl.classList.remove("tint-bad", "tint-mid", "tint-good");
       endOverlayEl.classList.add(tintClass);
 
@@ -1134,27 +1476,51 @@
       endOverlayEl.classList.add("hidden");
     }
 
-    // ---- 6. Interaction ----
+    // ---- Interaction ----
     function handleAnswer(selectedName, buttonEl) {
       if (hasAnswered) return;
+
+      const correct = selectedName === currentSong.commonName;
+      const meta = buttonEl.querySelector(".answer-meta");
+
+      if (!correct) {
+        // First wrong guess: show hint, mark that round had a wrong guess
+        if (!hadWrongGuess) {
+          hadWrongGuess = true;
+          if (meta) {
+            meta.textContent = "Try again";
+            meta.classList.add("guess");
+          }
+          buttonEl.classList.add("wrong-choice");
+          showHintOverlay(currentSong);
+        }
+        return;
+      }
+
+      // Correct guess: finalize this round
       hasAnswered = true;
       scoreTotal++;
 
-      const correct = selectedName === currentSong.commonName;
-
-      if (correct) {
+      if (!hadWrongGuess) {
         scoreCorrect++;
         feedbackLineEl.textContent = "Correct! Nice listening.";
         feedbackLineEl.classList.add("correct");
         playDing();
-        showWinMark();
       } else {
-        feedbackLineEl.textContent = `Not quite. This spectrogram belongs to ${currentSong.commonName}.`;
-        feedbackLineEl.classList.add("wrong");
+        feedbackLineEl.textContent = "That's it! Now you've found the right insect.";
+        feedbackLineEl.classList.add("correct");
       }
 
       specTaglineEl.textContent = currentSong.commonName;
-      factTextEl.textContent = currentSong.fact || "";
+
+      // Fact display depends on mode
+      if (currentMode === "facts") {
+        factLabelEl.textContent = "Fun fact";
+        factTextEl.textContent = currentSong.fact || "";
+      } else {
+        factLabelEl.textContent = "Fun fact";
+        factTextEl.textContent = currentSong.fact || "";
+      }
 
       insectPhotoEl.src = currentSong.photo;
       insectPhotoEl.alt = `Photo of ${currentSong.commonName}`;
@@ -1163,27 +1529,23 @@
 
       const buttons = answersListEl.querySelectorAll(".answer-btn");
       buttons.forEach(btn => {
-        const meta = btn.querySelector(".answer-meta");
-
+        const m = btn.querySelector(".answer-meta");
         if (btn.dataset.commonName === currentSong.commonName) {
           btn.classList.add("correct-choice");
-          if (meta) {
-            meta.textContent = "Answer";
-            meta.classList.add("correct");
+          if (m) {
+            m.textContent = "Answer";
+            m.classList.add("correct");
           }
-        }
-        if (btn === buttonEl && !correct && meta) {
-          btn.classList.add("wrong-choice");
-          meta.textContent = "Your guess";
-          meta.classList.add("guess");
         }
         btn.disabled = true;
       });
 
-      scoreTextEl.innerHTML = `Score this game: <strong>${scoreCorrect}</strong> of ${TOTAL_ROUNDS}`;
+      showWinMark();
+
+      scoreTextEl.innerHTML =
+        `Score this game: <strong>${scoreCorrect}</strong> of ${TOTAL_ROUNDS}`;
 
       if (scoreTotal >= TOTAL_ROUNDS) {
-        // end of game
         nextBtnEl.disabled = true;
         showEndOverlay();
       } else {
@@ -1192,15 +1554,16 @@
     }
 
     function goToNextRound() {
-      if (hasAnswered && scoreTotal < TOTAL_ROUNDS) {
-        sessionIndex++;
-        if (sessionIndex < sessionSongs.length) {
-          renderRound();
-        }
+      if (!hasAnswered) return;
+      if (scoreTotal >= TOTAL_ROUNDS) return;
+
+      sessionIndex++;
+      if (sessionIndex < sessionSongs.length) {
+        renderRound();
       }
     }
 
-    // ---- 7. Events ----
+    // ---- Events ----
     playBtnEl.addEventListener("click", playFromStart);
     nextBtnEl.addEventListener("click", goToNextRound);
 
@@ -1210,12 +1573,28 @@
       applySciToggleToButtons();
     });
 
+    // Start screen mode buttons
+    function selectMode(mode) {
+      currentMode = mode;
+      startOverlayEl.classList.add("hidden");
+      hideEndOverlay();
+      startNewGame();
+    }
+
+    startSpectroBtn.addEventListener("click", () => selectMode("spectrogram"));
+    startImageBtn.addEventListener("click", () => selectMode("image"));
+    startFactsBtn.addEventListener("click", () => selectMode("facts"));
+
+    // Hint close
+    hintCloseBtnEl.addEventListener("click", hideHintOverlay);
+
+    // Play again (same mode)
     playAgainBtnEl.addEventListener("click", () => {
       hideEndOverlay();
       startNewGame();
     });
 
-    // Spacebar play/pause
+    // Spacebar play/pause audio (any mode)
     document.addEventListener("keydown", (e) => {
       if (e.code === "Space" || e.key === " ") {
         const tag = (e.target && e.target.tagName || "").toLowerCase();
@@ -1227,9 +1606,9 @@
       }
     });
 
-    // ---- 8. Kickoff ----
+    // ---- Init ----
     updateSciToggleUI();
-    startNewGame();
+    // game waits at start screen until a mode is chosen
   </script>
 </body>
 </html>
