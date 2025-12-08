@@ -141,14 +141,33 @@
       color: #a5b4fc;
     }
 
-    .spec-level {
-      font-size: 0.75rem;
-      color: #6ee7b7;
+    .species-tagline-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .species-tagline {
       font-size: 0.82rem;
       color: #a5b4fc;
+    }
+
+    .win-mark {
+      font-size: 1rem;
+      color: #4ade80;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .win-mark-visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .spec-level {
+      font-size: 0.75rem;
+      color: #6ee7b7;
     }
 
     /* Axes + spectrogram layout */
@@ -368,11 +387,11 @@
       color: #e5e7eb;
       font-size: 0.9rem;
       display: flex;
-      justify-content: space-between;
       align-items: center;
       cursor: pointer;
       transition: transform 0.06s ease, box-shadow 0.06s ease,
         border-color 0.12s ease, background-color 0.12s ease;
+      gap: 8px;
     }
 
     .answer-btn:hover {
@@ -391,31 +410,19 @@
       border-color: #f97316;
     }
 
-    .answer-main {
+    .answer-text-group {
       display: flex;
       align-items: center;
       gap: 8px;
       min-width: 0;
-    }
-
-    .answer-icon {
-      flex: 0 0 auto;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .answer-icon svg {
-      width: 34px;
-      height: 34px;
-      display: block;
+      flex: 1 1 auto;
     }
 
     .answer-label {
       font-weight: 500;
       white-space: nowrap;
-      text-overflow: ellipsis;
       overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .answer-meta {
@@ -437,33 +444,32 @@
       color: #bfdbfe;
     }
 
-    .stats-box {
-      margin-top: 8px;
-      padding-top: 6px;
-      border-top: 1px solid rgba(55, 65, 81, 0.8);
-      font-size: 0.78rem;
-      color: #9ca3af;
+    .answer-icon {
+      flex: 0 0 auto;
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .stats-title {
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      font-size: 0.72rem;
-      color: #6b7280;
-      margin-bottom: 3px;
+    .answer-icon svg {
+      width: 36px;
+      height: 36px;
+      display: block;
     }
 
-    .stats-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
+    /* Neutral silhouette: subtle gradient */
+    .answer-icon svg .silhouette {
+      fill: url(#neutralGradient);
     }
 
-    .stats-list li {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 2px;
+    /* Tint on correct / wrong */
+    .answer-icon.tint-correct svg .silhouette {
+      fill: #4ade80 !important;
+    }
+
+    .answer-icon.tint-wrong svg .silhouette {
+      fill: #fb923c !important;
     }
 
     .bottom-controls {
@@ -581,7 +587,10 @@
         <div class="spectrogram-header">
           <div>
             <div class="spec-label">Visualizing sound</div>
-            <div class="species-tagline" id="spec-tagline">Who is calling?</div>
+            <div class="species-tagline-wrapper">
+              <span class="species-tagline" id="spec-tagline">Who is calling?</span>
+              <span id="win-mark" class="win-mark">✓</span>
+            </div>
           </div>
           <div class="spec-level" id="spec-region">Region: —</div>
         </div>
@@ -641,11 +650,6 @@
 
         <div id="answers-list" class="answers-list"></div>
 
-        <div id="stats-box" class="stats-box">
-          <div class="stats-title">Your progress</div>
-          <ul id="stats-list" class="stats-list"></ul>
-        </div>
-
         <div class="bottom-controls">
           <div class="score-text" id="score-text">
             Score: <strong>0 / 0</strong>
@@ -669,89 +673,110 @@
   </div>
 
   <script>
-    // ---- Simple SVG cartoons for each group ----
+    // Neutral gradient definition injected into each SVG via class "silhouette"
+    // We'll just reference a shared gradient id in each SVG.
+
     const INSECT_ICONS = {
       cricket: `
         <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
-          <g fill="none" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <!-- abdomen and thorax -->
-            <ellipse cx="34" cy="18" rx="10" ry="6" fill="none"/>
-            <path d="M24 18 L16 17" />
+          <defs>
+            <linearGradient id="neutralGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f1f5f9" />
+              <stop offset="100%" stop-color="#e2e8f0" />
+            </linearGradient>
+          </defs>
+          <g class="silhouette" fill="url(#neutralGradient)" stroke="none">
+            <!-- body -->
+            <path d="M20 16c0-3 4-5 9-5 5 0 9 2 9 5s-4 5-9 5c-5 0-9-2-9-5z"/>
             <!-- head -->
-            <circle cx="14" cy="17" r="2.5" />
+            <path d="M17 15.5c0-1.7 1.4-3 3.2-3 1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.8 0-3.2-1.3-3.2-3z"/>
             <!-- antennae -->
-            <path d="M13 15 L6 9" />
-            <path d="M15 15 L8 7" />
-            <!-- hind leg -->
-            <path d="M36 20 L42 10 L50 6" />
-            <path d="M40 22 L48 24" />
-            <!-- mid/forelegs -->
-            <path d="M28 20 L30 26" />
-            <path d="M22 19 L20 25" />
-            <!-- wing outline over abdomen -->
-            <path d="M26 13 L40 14 L44 18 L30 20 Z" />
+            <path d="M18 14 L8 6 L7 7.5 L17 15z"/>
+            <path d="M19 13.5 L9 4.5 L8.2 6.4 L18.1 15z"/>
+            <!-- hind leg femur -->
+            <path d="M32 19 L39 9 L48 6 L41 12z"/>
+            <!-- hind leg tibia -->
+            <path d="M39 9 L50 13 L51 15 L41 12z"/>
+            <!-- mid leg -->
+            <path d="M27 19 L30 26 L28 27 L25 20z"/>
+            <!-- fore leg -->
+            <path d="M22 18.5 L22.5 25.5 L20.5 26 L20 19z"/>
+            <!-- wing over body (tree cricket-style) -->
+            <path d="M22 13 L34 12 L40 14 L30 19z" opacity="0.85"/>
           </g>
         </svg>
       `,
       katydid: `
         <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
-          <g fill="none" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <!-- leaf-like body -->
-            <path d="M18 18 L36 10 L50 16 L32 22 Z" />
+          <defs>
+            <linearGradient id="neutralGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f1f5f9" />
+              <stop offset="100%" stop-color="#e2e8f0" />
+            </linearGradient>
+          </defs>
+          <g class="silhouette" fill="url(#neutralGradient)" stroke="none">
+            <!-- leaf-like tegmina -->
+            <path d="M18 18 L36 9.5 C40 8 48 11 50 16 C48 20 41 22 32 22.5 L18 19z"/>
             <!-- head -->
-            <circle cx="16" cy="18" r="2.3" />
+            <path d="M16 18c0-1.5 1.3-2.8 2.8-2.8 1.6 0 2.9 1.3 2.9 2.8 0 1.6-1.3 2.9-2.9 2.9A2.86 2.86 0 0 1 16 18z"/>
             <!-- antennae (very long) -->
-            <path d="M15 16 L4 6" />
-            <path d="M17 16 L6 4" />
+            <path d="M17 16 L6 6 L5 7.5 L16 17z"/>
+            <path d="M18.5 15.5 L7 4.5 L6.2 6.3 L17.4 17z"/>
             <!-- hind leg -->
-            <path d="M36 19 L42 9 L54 5" />
-            <path d="M40 21 L50 25" />
-            <!-- mid/forelegs -->
-            <path d="M24 19 L22 26" />
-            <path d="M20 18 L18 24" />
-            <!-- wing veins hint -->
-            <path d="M22 17 L40 14" />
+            <path d="M36 19 L42 9 L54 6 L46 12z"/>
+            <path d="M40 21.5 L50 25 L49 26.5 L39 22.5z"/>
+            <!-- mid forelegs -->
+            <path d="M24 19 L22 25.5 L20 25 L22 18.5z"/>
+            <path d="M20 18 L18 24 L16 23.5 L18.2 17.5z"/>
           </g>
         </svg>
       `,
       cicada: `
         <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
-          <g fill="none" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <!-- head and thorax -->
-            <ellipse cx="24" cy="16" rx="4" ry="4" />
-            <ellipse cx="30" cy="16" rx="5" ry="4" />
+          <defs>
+            <linearGradient id="neutralGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f1f5f9" />
+              <stop offset="100%" stop-color="#e2e8f0" />
+            </linearGradient>
+          </defs>
+          <g class="silhouette" fill="url(#neutralGradient)" stroke="none">
+            <!-- head+thorax -->
+            <path d="M22 14 C22 11.5 24 10 26.5 10 H30c2.5 0 4.5 1.5 4.5 4v3c0 2.5-2 4-4.5 4h-3.5C24 21 22 19.5 22 17z"/>
             <!-- abdomen -->
-            <path d="M35 13 L44 16 L35 19 Z" />
-            <!-- eyes -->
-            <circle cx="22" cy="14.5" r="0.9" />
-            <circle cx="26" cy="14.5" r="0.9" />
-            <!-- forewings -->
-            <path d="M30 14 L48 10 L54 12 L36 17 Z" />
-            <path d="M30 18 L48 22 L54 20 L36 17 Z" />
-            <!-- legs -->
-            <path d="M25 20 L22 25" />
-            <path d="M29 20 L30 26" />
-            <path d="M33 17 L38 24" />
+            <path d="M31 13 L39 15.5 C41.5 16.2 43 17.3 43 18.3c0 1.1-1.5 2.2-4 2.9L31 23z"/>
+            <!-- closed forewings -->
+            <path d="M30 13.5 L45 11 L52 14 L38 17z" opacity="0.9"/>
+            <path d="M30 18.5 L45 21.5 L52 19 L38 17z" opacity="0.85"/>
+            <!-- legs simplified -->
+            <path d="M25 20 L22 25 L20.5 24.5 L23 19z"/>
+            <path d="M29 20 L30 26 L28.2 26.5 L27 20.2z"/>
+            <path d="M33 18 L38 24 L36.8 25 L32 18.8z"/>
           </g>
         </svg>
       `,
       grasshopper: `
         <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
-          <g fill="none" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <!-- thorax and abdomen -->
-            <rect x="22" y="15" width="14" height="5" rx="1.5" />
-            <path d="M36 16 L48 15 L52 18 L40 20 Z" />
+          <defs>
+            <linearGradient id="neutralGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f1f5f9" />
+              <stop offset="100%" stop-color="#e2e8f0" />
+            </linearGradient>
+          </defs>
+          <g class="silhouette" fill="url(#neutralGradient)" stroke="none">
+            <!-- thorax and abdomen (short-winged) -->
+            <path d="M24 15h10c3 0 5 1.3 6 3l2 3H26c-3 0-6-2-6-4.5 0-1.4 1.2-1.5 4-1.5z"/>
             <!-- head -->
-            <circle cx="20" cy="17" r="2.3" />
-            <!-- shorter antennae -->
-            <path d="M19 15 L13 11" />
-            <path d="M21 15 L15 9" />
-            <!-- big hind leg -->
-            <path d="M38 20 L42 10 L52 7" />
-            <path d="M40 21.5 L49 25" />
-            <!-- fore/mid legs -->
-            <path d="M26 20 L25 26" />
-            <path d="M30 20 L29 26" />
+            <path d="M21 16c0-1.6 1.3-2.9 3-2.9 1.7 0 3 1.3 3 2.9 0 1.6-1.3 2.9-3 2.9-1.7 0-3-1.3-3-2.9z"/>
+            <!-- short antennae -->
+            <path d="M22 14.5 L17 10.5 L16 11.7 L21 15.5z"/>
+            <path d="M23.5 14.2 L18 9 L17.3 10.8 L22.6 15.4z"/>
+            <!-- big hind femur -->
+            <path d="M34 19 L40 9 L50 7.5 L42 13z"/>
+            <!-- hind tibia -->
+            <path d="M40 9 L51 13.5 L51.5 15.5 L41.5 11.8z"/>
+            <!-- mid and fore legs -->
+            <path d="M28 19.5 L27 26 L25 26 L26 19z"/>
+            <path d="M24 19 L22.5 24.5 L20.8 24 L22.4 18.5z"/>
           </g>
         </svg>
       `
@@ -837,14 +862,11 @@
     const photoBoxEl = document.getElementById("photo-box");
     const insectPhotoEl = document.getElementById("insect-photo");
     const creditsEl = document.getElementById("credits");
-    const statsListEl = document.getElementById("stats-list");
     const sciToggleBtn = document.getElementById("sci-toggle");
+    const winMarkEl = document.getElementById("win-mark");
 
-    // track per-species stats
-    const stats = {};
-    SONGS.forEach(s => {
-      stats[s.commonName] = { correct: 0, total: 0 };
-    });
+    // for ding sound
+    let audioCtx = null;
 
     // ---- 3. Helpers ----
 
@@ -874,21 +896,6 @@
       return shuffleArray([correctName, ...wrong]);
     }
 
-    function renderStats() {
-      statsListEl.innerHTML = "";
-      SONGS.forEach(song => {
-        const s = stats[song.commonName];
-        const li = document.createElement("li");
-        const left = document.createElement("span");
-        left.textContent = song.commonName;
-        const right = document.createElement("span");
-        right.textContent = `${s.correct} / ${s.total} correct`;
-        li.appendChild(left);
-        li.appendChild(right);
-        statsListEl.appendChild(li);
-      });
-    }
-
     function updateSciToggleUI() {
       if (sciNamesOn) {
         sciToggleBtn.classList.add("mode-on");
@@ -916,6 +923,53 @@
       });
     }
 
+    function showWinMark() {
+      winMarkEl.classList.add("win-mark-visible");
+      setTimeout(() => {
+        winMarkEl.classList.remove("win-mark-visible");
+      }, 800);
+    }
+
+    function playDing() {
+      try {
+        if (!audioCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return;
+          audioCtx = new Ctx();
+        }
+        const ctx = audioCtx;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, now); // A5-ish
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.2, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } catch (e) {
+        // fail silently if audio context isn't allowed
+      }
+    }
+
+    function playFromStart() {
+      audioPlayerEl.currentTime = 0;
+      audioPlayerEl.play().catch(() => {});
+    }
+
+    function togglePlayPause() {
+      if (audioPlayerEl.paused) {
+        audioPlayerEl.play().catch(() => {});
+      } else {
+        audioPlayerEl.pause();
+      }
+    }
+
     // ---- 4. Rendering ----
 
     function renderSpectrogram(song) {
@@ -937,6 +991,7 @@
 
       // tagline resets at the start of each round
       specTaglineEl.textContent = "Who is calling?";
+      winMarkEl.classList.remove("win-mark-visible");
     }
 
     function renderAnswers(song) {
@@ -953,27 +1008,26 @@
         btn.dataset.commonName = songObj.commonName;
         btn.dataset.scientificName = songObj.species;
 
-        const main = document.createElement("span");
-        main.className = "answer-main";
-
-        const iconSpan = document.createElement("span");
-        iconSpan.className = "answer-icon";
-        const iconSvg = INSECT_ICONS[songObj.iconType] || "";
-        iconSpan.innerHTML = iconSvg;
+        const textGroup = document.createElement("span");
+        textGroup.className = "answer-text-group";
 
         const label = document.createElement("span");
         label.className = "answer-label";
         label.textContent = sciNamesOn ? songObj.species : songObj.commonName;
 
-        main.appendChild(iconSpan);
-        main.appendChild(label);
-
         const meta = document.createElement("span");
         meta.className = "answer-meta";
         meta.textContent = "Guess";
 
-        btn.appendChild(main);
-        btn.appendChild(meta);
+        textGroup.appendChild(label);
+        textGroup.appendChild(meta);
+
+        const iconSpan = document.createElement("span");
+        iconSpan.className = "answer-icon";
+        iconSpan.innerHTML = INSECT_ICONS[songObj.iconType] || "";
+
+        btn.appendChild(textGroup);
+        btn.appendChild(iconSpan);
 
         // Clicking still passes the common name internally
         btn.addEventListener("click", () => handleAnswer(songObj.commonName, btn));
@@ -990,16 +1044,12 @@
 
       const correct = selectedName === currentSong.commonName;
 
-      // update per-species stats
-      const st = stats[currentSong.commonName];
-      st.total += 1;
-      if (correct) st.correct += 1;
-      renderStats();
-
       if (correct) {
         scoreCorrect++;
         feedbackLineEl.textContent = "Correct! Nice listening.";
         feedbackLineEl.classList.add("correct");
+        playDing();
+        showWinMark();
       } else {
         feedbackLineEl.textContent = `Not quite. This spectrogram belongs to ${currentSong.commonName}.`;
         feedbackLineEl.classList.add("wrong");
@@ -1016,6 +1066,7 @@
       const buttons = answersListEl.querySelectorAll(".answer-btn");
       buttons.forEach(btn => {
         const meta = btn.querySelector(".answer-meta");
+        const iconSpan = btn.querySelector(".answer-icon");
 
         if (btn.dataset.commonName === currentSong.commonName) {
           btn.classList.add("correct-choice");
@@ -1023,11 +1074,17 @@
             meta.textContent = "Answer";
             meta.classList.add("correct");
           }
+          if (iconSpan) {
+            iconSpan.classList.add("tint-correct");
+          }
         }
         if (btn === buttonEl && !correct && meta) {
           btn.classList.add("wrong-choice");
           meta.textContent = "Your guess";
           meta.classList.add("guess");
+          if (iconSpan) {
+            iconSpan.classList.add("tint-wrong");
+          }
         }
         btn.disabled = true;
       });
@@ -1046,11 +1103,7 @@
 
     // ---- 6. Events ----
 
-    playBtnEl.addEventListener("click", () => {
-      audioPlayerEl.currentTime = 0;
-      audioPlayerEl.play().catch(() => {});
-    });
-
+    playBtnEl.addEventListener("click", playFromStart);
     nextBtnEl.addEventListener("click", loadNewRound);
 
     sciToggleBtn.addEventListener("click", () => {
@@ -1059,9 +1112,20 @@
       applySciToggleToButtons();
     });
 
+    // Spacebar play/pause
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space" || e.key === " ") {
+        const tag = (e.target && e.target.tagName || "").toLowerCase();
+        if (tag === "input" || tag === "textarea" || e.target.isContentEditable) {
+          return;
+        }
+        e.preventDefault();
+        togglePlayPause();
+      }
+    });
+
     // Kick off
     initPlaylist();
-    renderStats();
     updateSciToggleUI();
     loadNewRound();
   </script>
