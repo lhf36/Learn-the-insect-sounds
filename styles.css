@@ -223,12 +223,20 @@ body {
 
 .axis-y-outside,
 .axis-x-outside {
-  font-size: 0.7rem;   
+  grid-row: 2 / 3;
+  grid-column: 2 / 3;
+  font-size: 0.7rem;
   color: #e5e7eb;
+  text-align: center;
   margin: 0;
   padding: 0;
-  line-height: 1;        
-  font-weight: 400;
+
+  /* This forces perfect centering */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 }
 
 /* Y axis rotation */
@@ -272,12 +280,16 @@ body {
   position: absolute;
   top: 6px;
   right: 6px;
+
   padding: 2px 6px;
   border-radius: 6px;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(148, 163, 184, 0.8);
-  font-size: 0.75rem;
+
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.7);
+
+  font-size: 0.7rem;
   color: #e5e7eb;
+
   pointer-events: none;
 }
 
