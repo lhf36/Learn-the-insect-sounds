@@ -1,0 +1,963 @@
+/* styles.css
+   Visual styling for the Insect Song Learning Game
+*/
+
+/* Reset-ish */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #0f172a, #020617 60%, #000 100%);
+  color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* Outer shell */
+
+.game-shell {
+  width: 100%;
+  max-width: 1100px;
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+  padding: 20px 22px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header */
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.title-block h1 {
+  font-size: 1.4rem;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+}
+
+.title-block p {
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.meta-block {
+  text-align: right;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.pill-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.2);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  color: #e0f2fe;
+  font-size: 0.75rem;
+  gap: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.meta-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #22d3ee;
+}
+
+.mode-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  background: rgba(31, 41, 55, 0.8);
+  color: #e5e7eb;
+  gap: 4px;
+}
+
+.mode-pill.mode-off {
+  background: rgba(185, 28, 28, 0.2);
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #fecaca;
+}
+
+.mode-pill.mode-on {
+  background: rgba(22, 163, 74, 0.2);
+  border-color: rgba(74, 222, 128, 0.7);
+  color: #bbf7d0;
+}
+
+/* Layout */
+
+.main-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 6px;
+  align-items: start;
+}
+
+/* Left panel: spectrogram / image / fact area */
+
+.spectrogram-panel {
+  background: radial-gradient(circle at top, #020617, #020617);
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spectrogram-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  padding-bottom: 4px;
+}
+
+.spec-label {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.7rem;
+  color: #a5b4fc;
+}
+
+.species-tagline-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.species-tagline {
+  font-size: 0.82rem;
+  color: #a5b4fc;
+}
+
+.win-mark {
+  font-size: 1rem;
+  color: #4ade80;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.win-mark-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.spec-level {
+  font-size: 0.75rem;
+  color: #6ee7b7;
+}
+
+/* Spectrogram and axes layout */
+
+.spectrogram-with-axes {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  column-gap: 8px;
+  row-gap: 4px;
+  align-items: center;
+}
+
+.axis-y-outside {
+  grid-row: 1 / 2;
+  grid-column: 1 / 2;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: 0.78rem;
+  color: #e5e7eb;
+  text-align: center;
+}
+
+.spectrogram-frame {
+  grid-row: 1 / 2;
+  grid-column: 2 / 3;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.8);
+  min-height: 220px;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.axis-x-outside {
+  grid-row: 2 / 3;
+  grid-column: 2 / 3;
+  font-size: 0.78rem;
+  color: #e5e7eb;
+  text-align: center;
+  padding-top: 2px;
+}
+
+.spectrogram-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain; /* show full spectrogram including any axes baked into image */
+  background: #000;
+}
+
+.spectrogram-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0.4),
+    transparent 20%,
+    transparent 70%,
+    rgba(15, 23, 42, 0.85)
+  );
+}
+
+.amp-box {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.8);
+  font-size: 0.75rem;
+  color: #e5e7eb;
+  pointer-events: none;
+}
+
+/* Under-spectrogram controls and fact area */
+
+.spectrogram-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.play-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.play-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(129, 140, 248, 0.6);
+  background: linear-gradient(to right, #1d243c, #312e81);
+  color: #e5e7eb;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.8);
+}
+
+.play-button:hover {
+  filter: brightness(1.1);
+}
+
+.play-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+  box-shadow: none;
+}
+
+.play-icon {
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 9px solid #e5e7eb;
+}
+
+.hint-label {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.feedback-line {
+  font-size: 0.85rem;
+  min-height: 18px;
+}
+
+.feedback-line.correct {
+  color: #4ade80;
+}
+
+.feedback-line.wrong {
+  color: #fb923c;
+}
+
+/* Fact box */
+
+.fact-box {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  font-size: 0.83rem;
+  color: #e5e7eb;
+}
+
+.fact-box.fact-mode {
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.97);
+  border-color: rgba(244, 244, 245, 0.45);
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.5),
+    0 10px 24px rgba(0, 0, 0, 0.6);
+}
+
+.fact-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #6b7280;
+  margin-bottom: 2px;
+}
+
+.fact-box.fact-mode .fact-label {
+  font-size: 0.8rem;
+  color: #e5e7eb;
+}
+
+.fact-text {
+  font-size: 0.83rem;
+  line-height: 1.4;
+}
+
+.fact-box.fact-mode .fact-text {
+  font-size: 1.02rem;
+  line-height: 1.6;
+}
+
+/* Photo + credits */
+
+.photo-box {
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  text-align: center;
+}
+
+.insect-photo {
+  width: 100%;
+  max-width: 450px;
+  border-radius: 10px;
+  display: block;
+  margin: 0 auto 4px;
+}
+
+.credits {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.credits span {
+  margin-right: 8px;
+}
+
+/* Right panel: answers / controls */
+
+.answers-panel {
+  background: radial-gradient(circle at top, #020617, #020617);
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-self: start;
+}
+
+.question-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.question-subtitle {
+  font-size: 0.83rem;
+  color: #9ca3af;
+}
+
+.answers-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.answer-btn {
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.06s ease, box-shadow 0.06s ease,
+    border-color 0.12s ease, background-color 0.12s ease;
+  gap: 8px;
+}
+
+.answer-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 14px rgba(15, 23, 42, 0.9);
+  border-color: rgba(129, 140, 248, 0.8);
+}
+
+.answer-btn:disabled {
+  cursor: default;
+  opacity: 0.9;
+  box-shadow: none;
+}
+
+.answer-btn.correct-choice {
+  background: radial-gradient(circle at top left, #16a34a, #052e16);
+  border-color: #22c55e;
+}
+
+.answer-btn.wrong-choice {
+  background: radial-gradient(circle at top left, #b45309, #451a03);
+  border-color: #f97316;
+}
+
+.answer-label {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 auto;
+}
+
+.answer-meta {
+  font-size: 0.75rem;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(31, 41, 55, 0.9);
+  color: #9ca3af;
+  flex: 0 0 auto;
+}
+
+.answer-meta.correct {
+  background: rgba(22, 163, 74, 0.3);
+  color: #bbf7d0;
+}
+
+.answer-meta.guess {
+  background: rgba(59, 130, 246, 0.2);
+  color: #bfdbfe;
+}
+
+/* Bottom row (score + next button) */
+
+.bottom-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.score-text strong {
+  color: #e5e7eb;
+}
+
+.next-btn {
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(129, 140, 248, 0.75);
+  background: linear-gradient(to right, #4338ca, #7c3aed);
+  color: #f9fafb;
+  font-size: 0.86rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.8);
+}
+
+.next-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* Footer */
+
+.game-footer {
+  margin-top: 14px;
+  border-top: 1px solid rgba(55, 65, 81, 0.8);
+  padding-top: 8px;
+  font-size: 0.78rem;
+  color: #9ca3af;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.game-footer a {
+  color: #a5b4fc;
+  text-decoration: none;
+}
+
+.game-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Stats panel */
+
+#stats-panel {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+#stats-panel summary {
+  cursor: pointer;
+}
+
+#stats-text {
+  white-space: pre;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  margin-top: 4px;
+}
+
+/* Generic helpers */
+
+.hidden {
+  display: none;
+}
+
+/* Start overlay */
+
+.start-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.start-overlay.hidden {
+  display: none;
+}
+
+.start-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at top,
+    rgba(16, 185, 129, 0.18),
+    rgba(15, 23, 42, 0.95)
+  );
+  pointer-events: none;
+}
+
+.start-card {
+  position: relative;
+  z-index: 1001;
+  background: rgba(15, 23, 42, 0.98);
+  border-radius: 18px;
+  padding: 22px;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.7);
+}
+
+.start-title {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.start-subtitle {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin-bottom: 14px;
+}
+
+.big-play-icon {
+  margin: 0 auto 12px;
+  width: 0;
+  height: 0;
+  border-top: 18px solid transparent;
+  border-bottom: 18px solid transparent;
+  border-left: 30px solid #22c55e;
+  filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.7));
+}
+
+.start-button {
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 185, 129, 0.7);
+  background: linear-gradient(to right, #16a34a, #22c55e);
+  color: #f9fafb;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 12px 26px rgba(16, 185, 129, 0.4);
+}
+
+.start-button:hover {
+  filter: brightness(1.05);
+}
+
+/* Hint overlay */
+
+.hint-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.hint-overlay.hidden {
+  display: none;
+}
+
+.hint-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.hint-panel {
+  position: relative;
+  z-index: 1101;
+  background: rgba(15, 23, 42, 0.98);
+  border-radius: 14px;
+  padding: 16px 18px;
+  border: 1px solid rgba(251, 191, 36, 0.7);
+  max-width: 420px;
+  text-align: left;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.7);
+}
+
+.hint-title {
+  font-size: 1rem;
+  margin-bottom: 4px;
+  color: #facc15;
+}
+
+.hint-text {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.hint-close-btn {
+  margin-top: 4px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.8);
+  background: linear-gradient(to right, #f59e0b, #facc15);
+  color: #0f172a;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hint-close-btn:hover {
+  filter: brightness(1.05);
+}
+
+/* Mode-change overlay */
+
+.mode-change-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1150;
+}
+
+.mode-change-overlay.hidden {
+  display: none;
+}
+
+.mode-change-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.mode-change-panel {
+  position: relative;
+  z-index: 1151;
+  background: rgba(15, 23, 42, 0.98);
+  border-radius: 14px;
+  padding: 16px 18px;
+  border: 1px solid rgba(129, 140, 248, 0.7);
+  max-width: 420px;
+  text-align: left;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.7);
+}
+
+.mode-change-title {
+  font-size: 1rem;
+  margin-bottom: 6px;
+  color: #e5e7eb;
+}
+
+.mode-change-text {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  color: #d1d5db;
+}
+
+.mode-change-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.mode-change-btn,
+.mode-change-cancel {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mode-change-btn {
+  border: 1px solid rgba(129, 140, 248, 0.9);
+  background: linear-gradient(to right, #4f46e5, #6366f1);
+  color: #f9fafb;
+}
+
+.mode-change-cancel {
+  border: 1px solid rgba(156, 163, 175, 0.8);
+  background: rgba(31, 41, 55, 0.9);
+  color: #e5e7eb;
+}
+
+.mode-change-btn:hover,
+.mode-change-cancel:hover {
+  filter: brightness(1.05);
+}
+
+/* Region overlay reuses mode-change styles */
+
+/* End-of-game overlay */
+
+.end-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+
+.end-overlay.hidden {
+  display: none;
+}
+
+.end-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(220, 38, 38, 0.45);
+  pointer-events: none;
+  transition: background 0.25s ease;
+}
+
+.end-overlay.tint-bad .end-overlay-backdrop {
+  background: rgba(220, 38, 38, 0.6);
+}
+
+.end-overlay.tint-mid .end-overlay-backdrop {
+  background: rgba(234, 179, 8, 0.6);
+}
+
+.end-overlay.tint-good .end-overlay-backdrop {
+  background: rgba(34, 197, 94, 0.55);
+}
+
+.end-overlay-panel {
+  position: relative;
+  z-index: 1201;
+  background: rgba(15, 23, 42, 0.96);
+  border-radius: 16px;
+  padding: 20px 24px;
+  border: 1px solid rgba(248, 250, 252, 0.2);
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
+}
+
+.end-title {
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+}
+
+.end-score-text {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: #e5e7eb;
+}
+
+.end-message {
+  font-size: 1rem;
+  margin-bottom: 14px;
+  color: #f9fafb;
+}
+
+.play-again-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 197, 94, 0.7);
+  background: linear-gradient(to right, #16a34a, #22c55e);
+  color: #f9fafb;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(22, 163, 74, 0.4);
+  margin-bottom: 6px;
+}
+
+.play-again-btn:hover {
+  filter: brightness(1.05);
+}
+
+.change-mode-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.9);
+  background: rgba(31, 41, 55, 0.95);
+  color: #e5e7eb;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-right: 6px;
+}
+
+.change-region-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(56, 189, 248, 0.9);
+  background: rgba(15, 23, 42, 0.95);
+  color: #e0f2fe;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.change-mode-btn:hover,
+.change-region-btn:hover {
+  filter: brightness(1.05);
+}
+
+/* Focus outlines for keyboard users */
+
+.answer-btn:focus-visible,
+.play-button:focus-visible,
+.next-btn:focus-visible,
+.mode-pill:focus-visible,
+.start-button:focus-visible,
+.play-again-btn:focus-visible,
+.change-mode-btn:focus-visible,
+.change-region-btn:focus-visible,
+.hint-close-btn:focus-visible,
+.mode-change-btn:focus-visible,
+.mode-change-cancel:focus-visible,
+.region-toggle:focus-visible {
+  outline: 2px solid #e5e7eb;
+  outline-offset: 2px;
+}
+
+/* Responsive tweaks */
+
+@media (max-width: 840px) {
+  .main-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .meta-block {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .game-shell {
+    padding: 14px;
+  }
+  .question-text {
+    font-size: 1rem;
+  }
+  .end-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .play-button {
+    width: 100%;
+    justify-content: center;
+  }
+  .answers-panel {
+    padding: 10px;
+  }
+}
