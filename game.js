@@ -289,11 +289,29 @@
     insectPhotoEl.src = "";
     insectPhotoEl.alt = "";
 
-    const photoLicense = song.copyrightPhoto || "license not set";
-    const audioLicense = song.copyrightAudio || "license not set";
-    creditsEl.innerHTML =
-      `<span>📷 ${song.photoCredit} (${photoLicense})</span>` +
-      `<span>🎧 ${song.audioCredit} (${audioLicense})</span>`;
+   // Build photo/audio credit lines.
+// If license fields are empty, don't show any placeholder text.
+let photoText = "";
+if (song.photoCredit) {
+  photoText = `📷 ${song.photoCredit}`;
+  if (song.copyrightPhoto) {
+    photoText += ` (${song.copyrightPhoto})`;
+  }
+}
+
+let audioText = "";
+if (song.audioCredit) {
+  audioText = `🎧 ${song.audioCredit}`;
+  if (song.copyrightAudio) {
+    audioText += ` (${song.copyrightAudio})`;
+  }
+}
+
+const creditParts = [];
+if (photoText) creditParts.push(`<span>${photoText}</span>`);
+if (audioText) creditParts.push(`<span>${audioText}</span>`);
+
+creditsEl.innerHTML = creditParts.join(" ");
 
     specRegionEl.textContent = song.region
       ? `Region: ${song.region}`
