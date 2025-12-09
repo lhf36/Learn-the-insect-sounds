@@ -76,6 +76,7 @@
       font-size: 0.75rem;
       gap: 4px;
       white-space: nowrap;
+      cursor: pointer;
     }
 
     .meta-dot {
@@ -116,7 +117,7 @@
       align-items: start;
     }
 
-    /* Spectrogram / left panel */
+    /* Left panel */
 
     .spectrogram-panel {
       background: radial-gradient(circle at top, #020617, #020617);
@@ -172,8 +173,6 @@
       font-size: 0.75rem;
       color: #6ee7b7;
     }
-
-    /* Axes + big image */
 
     .spectrogram-with-axes {
       display: grid;
@@ -317,6 +316,14 @@
       color: #e5e7eb;
     }
 
+    .fact-box.fact-mode {
+      padding: 10px 12px;
+      background: rgba(15, 23, 42, 0.97);
+      border-color: rgba(244, 244, 245, 0.45);
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.5),
+        0 10px 24px rgba(0, 0, 0, 0.6);
+    }
+
     .fact-label {
       font-size: 0.75rem;
       text-transform: uppercase;
@@ -325,11 +332,24 @@
       margin-bottom: 2px;
     }
 
-    .fact-text { font-size: 0.83rem; }
+    .fact-box.fact-mode .fact-label {
+      font-size: 0.8rem;
+      color: #e5e7eb;
+    }
+
+    .fact-text {
+      font-size: 0.83rem;
+      line-height: 1.4;
+    }
+
+    .fact-box.fact-mode .fact-text {
+      font-size: 1.02rem;
+      line-height: 1.6;
+    }
 
     .photo-box {
       margin-top: 8px;
-      padding: 8px;
+      padding: 6px 8px;
       background: rgba(15, 23, 42, 0.8);
       border-radius: 10px;
       border: 1px solid rgba(148, 163, 184, 0.3);
@@ -341,18 +361,17 @@
       max-width: 450px;
       border-radius: 10px;
       display: block;
-      margin: 0 auto;
+      margin: 0 auto 4px;
     }
 
     .credits {
-      margin-top: 4px;
       font-size: 0.75rem;
       color: #9ca3af;
     }
 
     .hidden { display: none; }
 
-    /* Right / answers */
+    /* Right panel */
 
     .answers-panel {
       background: radial-gradient(circle at top, #020617, #020617);
@@ -497,7 +516,7 @@
       text-decoration: underline;
     }
 
-    /* Start screen */
+    /* Start overlay */
 
     .start-overlay {
       position: fixed;
@@ -652,6 +671,84 @@
       filter: brightness(1.05);
     }
 
+    /* Mode-change overlay */
+
+    .mode-change-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1150;
+    }
+
+    .mode-change-overlay.hidden {
+      display: none;
+    }
+
+    .mode-change-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .mode-change-panel {
+      position: relative;
+      z-index: 1151;
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 14px;
+      padding: 16px 18px;
+      border: 1px solid rgba(129, 140, 248, 0.7);
+      max-width: 420px;
+      text-align: left;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.7);
+    }
+
+    .mode-change-title {
+      font-size: 1rem;
+      margin-bottom: 6px;
+      color: #e5e7eb;
+    }
+
+    .mode-change-text {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      color: #d1d5db;
+    }
+
+    .mode-change-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .mode-change-confirm,
+    .mode-change-cancel {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mode-change-confirm {
+      border: 1px solid rgba(129, 140, 248, 0.9);
+      background: linear-gradient(to right, #4f46e5, #6366f1);
+      color: #f9fafb;
+    }
+
+    .mode-change-cancel {
+      border: 1px solid rgba(156, 163, 175, 0.8);
+      background: rgba(31, 41, 55, 0.9);
+      color: #e5e7eb;
+    }
+
+    .mode-change-confirm:hover,
+    .mode-change-cancel:hover {
+      filter: brightness(1.05);
+    }
+
     /* End-of-game overlay */
 
     .end-overlay {
@@ -670,21 +767,21 @@
     .end-overlay-backdrop {
       position: absolute;
       inset: 0;
-      background: rgba(220, 38, 38, 0.45); /* default red-ish */
+      background: rgba(220, 38, 38, 0.45);
       pointer-events: none;
       transition: background 0.25s ease;
     }
 
     .end-overlay.tint-bad .end-overlay-backdrop {
-      background: rgba(220, 38, 38, 0.6); /* red */
+      background: rgba(220, 38, 38, 0.6);
     }
 
     .end-overlay.tint-mid .end-overlay-backdrop {
-      background: rgba(234, 179, 8, 0.6); /* yellow */
+      background: rgba(234, 179, 8, 0.6);
     }
 
     .end-overlay.tint-good .end-overlay-backdrop {
-      background: rgba(34, 197, 94, 0.55); /* green */
+      background: rgba(34, 197, 94, 0.55);
     }
 
     .end-overlay-panel {
@@ -726,9 +823,25 @@
       font-weight: 600;
       cursor: pointer;
       box-shadow: 0 12px 30px rgba(22, 163, 74, 0.4);
+      margin-bottom: 6px;
     }
 
     .play-again-btn:hover {
+      filter: brightness(1.05);
+    }
+
+    .change-mode-btn {
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      background: rgba(31, 41, 55, 0.95);
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .change-mode-btn:hover {
       filter: brightness(1.05);
     }
 
@@ -740,7 +853,10 @@
     .mode-pill:focus-visible,
     .mode-select-btn:focus-visible,
     .play-again-btn:focus-visible,
-    .hint-close-btn:focus-visible {
+    .change-mode-btn:focus-visible,
+    .hint-close-btn:focus-visible,
+    .mode-change-confirm:focus-visible,
+    .mode-change-cancel:focus-visible {
       outline: 2px solid #e5e7eb;
       outline-offset: 2px;
     }
@@ -775,7 +891,7 @@
         <p>Match insect calls, images, or facts to the right species.</p>
       </div>
       <div class="meta-block">
-        <div class="meta-pill">
+        <div id="mode-bubble" class="meta-pill">
           <span class="meta-dot"></span>
           <span id="mode-label">Mode: —</span>
         </div>
@@ -844,8 +960,8 @@
           </div>
         </div>
 
-        <div id="photo-box" class="photo-box hidden">
-          <img id="insect-photo" class="insect-photo" src="" alt="Insect photo" />
+        <div id="photo-box" class="photo-box">
+          <img id="insect-photo" class="insect-photo hidden" src="" alt="Insect photo" />
           <div id="credits" class="credits"></div>
         </div>
       </section>
@@ -929,6 +1045,25 @@
       </div>
     </div>
 
+    <!-- Mode-change overlay -->
+    <div id="mode-change-overlay" class="mode-change-overlay hidden">
+      <div class="mode-change-backdrop"></div>
+      <div class="mode-change-panel">
+        <h3 class="mode-change-title">Change mode?</h3>
+        <p class="mode-change-text">
+          Are you sure you want to change modes? Your current game will reset.
+        </p>
+        <div class="mode-change-buttons">
+          <button id="mode-change-confirm" class="mode-change-confirm" type="button">
+            Yes, change mode
+          </button>
+          <button id="mode-change-cancel" class="mode-change-cancel" type="button">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- End-of-game overlay -->
     <div id="end-overlay" class="end-overlay hidden">
       <div class="end-overlay-backdrop"></div>
@@ -941,6 +1076,10 @@
         <button id="play-again-btn" class="play-again-btn" type="button">
           Play again
         </button>
+        <br />
+        <button id="change-mode-btn" class="change-mode-btn" type="button">
+          Change mode
+        </button>
       </div>
     </div>
   </div>
@@ -951,7 +1090,6 @@
     // Modes: "spectrogram", "image", "facts"
     let currentMode = null;
 
-    // ---- Species data ----
     const SONGS = [
       {
         commonName: "Four-spotted Tree Cricket",
@@ -1045,17 +1183,15 @@
 
     const ALL_COMMON_NAMES = SONGS.map(s => s.commonName);
 
-    // ---- State ----
-    let scoreCorrect = 0;   // number of questions answered correctly on first try
-    let scoreTotal = 0;     // number of rounds completed in this game (0–5)
-    let hasAnswered = false;  // round finished
-    let hadWrongGuess = false; // did this round have a wrong guess before final correct?
+    let scoreCorrect = 0;
+    let scoreTotal = 0;
+    let hasAnswered = false;
+    let hadWrongGuess = false;
 
     let sessionSongs = [];
     let sessionIndex = 0;
     let currentSong = null;
 
-    // DOM elements
     const spectrogramImageEl = document.getElementById("spectrogram-image");
     const specTaglineEl = document.getElementById("spec-tagline");
     const specRegionEl = document.getElementById("spec-region");
@@ -1085,8 +1221,8 @@
     const questionTextEl = document.getElementById("question-text");
     const questionSubtitleEl = document.getElementById("question-subtitle");
     const modeLabelEl = document.getElementById("mode-label");
+    const modeBubbleEl = document.getElementById("mode-bubble");
 
-    // Start + hint + end overlays
     const startOverlayEl = document.getElementById("start-overlay");
     const startSpectroBtn = document.getElementById("start-spectro-btn");
     const startImageBtn = document.getElementById("start-image-btn");
@@ -1096,16 +1232,20 @@
     const hintTextEl = document.getElementById("hint-text");
     const hintCloseBtnEl = document.getElementById("hint-close-btn");
 
+    const modeChangeOverlayEl = document.getElementById("mode-change-overlay");
+    const modeChangeConfirmEl = document.getElementById("mode-change-confirm");
+    const modeChangeCancelEl = document.getElementById("mode-change-cancel");
+
     const endOverlayEl = document.getElementById("end-overlay");
     const endTitleEl = document.getElementById("end-title");
     const endScoreTextEl = document.getElementById("end-score-text");
     const endMessageEl = document.getElementById("end-message");
     const playAgainBtnEl = document.getElementById("play-again-btn");
+    const changeModeBtnEl = document.getElementById("change-mode-btn");
 
     let sciNamesOn = false;
     let audioCtx = null;
 
-    // ---- Helpers ----
     function shuffleArray(arr) {
       return arr
         .map(v => ({ v, r: Math.random() }))
@@ -1114,32 +1254,41 @@
     }
 
     function redactFact(song) {
-      // Simple redaction: remove occurrences of common name, genus, and generic group words
-      let text = song.fact;
+      let text = song.fact || "";
+      if (!text) return text;
+
       const targets = [];
 
+      // full common name
       targets.push(song.commonName);
+
+      // genus
       const genus = song.species.split(" ")[0];
       if (genus) targets.push(genus);
 
-      const groupWords = ["cricket", "crickets", "cicada", "cicadas", "grasshopper", "grasshoppers", "katydid", "katydids"];
-      groupWords.forEach(w => targets.push(w, w[0].toUpperCase() + w.slice(1)));
+      // group words
+      const groupWords = [
+        "cricket", "crickets",
+        "cicada", "cicadas",
+        "grasshopper", "grasshoppers",
+        "katydid", "katydids"
+      ];
+      groupWords.forEach(w => targets.push(w));
 
-      targets.forEach(t => {
-        if (!t) return;
-        const re = new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
-        text = text.replace(re, "••••••");
-      });
+      // Build a single regex OR-ed from escaped targets
+      const escaped = targets
+        .filter(Boolean)
+        .map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+      if (!escaped.length) return text;
 
-      return text;
+      const re = new RegExp(escaped.join("|"), "gi");
+      return text.replace(re, match => "•".repeat(match.length));
     }
 
     function getHintText(song) {
       if (currentMode === "facts") {
-        // Use region as extra hint
         return `This species is found in: ${song.region}.`;
       }
-      // For spectrogram & image, use first sentence of fact
       const fact = song.fact || "";
       const idx = fact.indexOf(".");
       if (idx !== -1) {
@@ -1149,6 +1298,8 @@
     }
 
     function updateModeUI() {
+      factBoxEl.classList.remove("fact-mode");
+
       if (currentMode === "spectrogram") {
         modeLabelEl.textContent = "Mode: Spectrogram training";
         specLabelEl.textContent = "Visualizing sound";
@@ -1185,9 +1336,8 @@
         axisYEl.textContent = "";
         axisXEl.textContent = "";
         ampBoxEl.style.display = "none";
-        // We keep the frame but no image needed; fact box becomes main stimulus
         specAxesWrapperEl.classList.add("hidden");
-        playBtnEl.disabled = false; // optional: allow listening too
+        playBtnEl.disabled = false;
         playBtnLabelEl.textContent = "Play call (optional)";
         modeHintTextEl.textContent =
           "Tip: read the description carefully before you choose.";
@@ -1195,12 +1345,14 @@
         questionSubtitleEl.textContent =
           "Read the description, then choose the species.";
         factLabelEl.textContent = "Description";
+        factBoxEl.classList.add("fact-mode");
+      } else {
+        modeLabelEl.textContent = "Mode: —";
       }
     }
 
     function startNewGame() {
       if (!currentMode) return;
-      // pick 5 random species
       sessionSongs = shuffleArray(SONGS.slice()).slice(0, TOTAL_ROUNDS);
       sessionIndex = 0;
       scoreCorrect = 0;
@@ -1231,10 +1383,13 @@
       feedbackLineEl.textContent = "";
       feedbackLineEl.className = "feedback-line";
 
+      // Always hide photo at start of round; credits always visible
+      insectPhotoEl.classList.add("hidden");
       insectPhotoEl.src = "";
       insectPhotoEl.alt = "";
-      photoBoxEl.classList.add("hidden");
-      creditsEl.textContent = "";
+
+      // Credits always visible
+      creditsEl.textContent = `Photo: ${song.photoCredit} · Audio: ${song.audioCredit}`;
 
       specRegionEl.textContent = song.region ? `Region: ${song.region}` : "Region: —";
       winMarkEl.classList.remove("win-mark-visible");
@@ -1337,7 +1492,6 @@
       }, 800);
     }
 
-    // Small correct chime
     function playDing() {
       try {
         if (!audioCtx) {
@@ -1345,7 +1499,6 @@
           if (!Ctx) return;
           audioCtx = new Ctx();
         }
-
         const ctx = audioCtx;
         const now = ctx.currentTime;
 
@@ -1375,7 +1528,6 @@
       } catch (e) {}
     }
 
-    // Triumphant game-end sound
     function playTriumph() {
       try {
         if (!audioCtx) {
@@ -1386,7 +1538,7 @@
         const ctx = audioCtx;
         const now = ctx.currentTime;
 
-        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+        const notes = [523.25, 659.25, 783.99];
         notes.forEach((freq, i) => {
           const start = now + i * 0.08;
           const osc = ctx.createOscillator();
@@ -1418,7 +1570,6 @@
       }
     }
 
-    // ---- Hint & end overlays ----
     function showHintOverlay(song) {
       hintTextEl.textContent = getHintText(song);
       hintOverlayEl.classList.remove("hidden");
@@ -1476,7 +1627,6 @@
       endOverlayEl.classList.add("hidden");
     }
 
-    // ---- Interaction ----
     function handleAnswer(selectedName, buttonEl) {
       if (hasAnswered) return;
 
@@ -1484,7 +1634,6 @@
       const meta = buttonEl.querySelector(".answer-meta");
 
       if (!correct) {
-        // First wrong guess: show hint, mark that round had a wrong guess
         if (!hadWrongGuess) {
           hadWrongGuess = true;
           if (meta) {
@@ -1497,7 +1646,6 @@
         return;
       }
 
-      // Correct guess: finalize this round
       hasAnswered = true;
       scoreTotal++;
 
@@ -1513,19 +1661,16 @@
 
       specTaglineEl.textContent = currentSong.commonName;
 
-      // Fact display depends on mode
-      if (currentMode === "facts") {
-        factLabelEl.textContent = "Fun fact";
-        factTextEl.textContent = currentSong.fact || "";
-      } else {
-        factLabelEl.textContent = "Fun fact";
-        factTextEl.textContent = currentSong.fact || "";
-      }
+      // Fact box content on correct
+      factLabelEl.textContent = "Fun fact";
+      factTextEl.textContent = currentSong.fact || "";
 
-      insectPhotoEl.src = currentSong.photo;
-      insectPhotoEl.alt = `Photo of ${currentSong.commonName}`;
-      photoBoxEl.classList.remove("hidden");
-      creditsEl.textContent = `Photo: ${currentSong.photoCredit} · Audio: ${currentSong.audioCredit}`;
+      // Reveal photo ONLY in spectrogram & fact modes; never in image mode
+      if (currentMode === "spectrogram" || currentMode === "facts") {
+        insectPhotoEl.src = currentSong.photo;
+        insectPhotoEl.alt = `Photo of ${currentSong.commonName}`;
+        insectPhotoEl.classList.remove("hidden");
+      }
 
       const buttons = answersListEl.querySelectorAll(".answer-btn");
       buttons.forEach(btn => {
@@ -1563,7 +1708,15 @@
       }
     }
 
-    // ---- Events ----
+    // Mode selection
+    function selectMode(mode) {
+      currentMode = mode;
+      startOverlayEl.classList.add("hidden");
+      updateModeUI();
+      startNewGame();
+    }
+
+    // Events
     playBtnEl.addEventListener("click", playFromStart);
     nextBtnEl.addEventListener("click", goToNextRound);
 
@@ -1573,28 +1726,46 @@
       applySciToggleToButtons();
     });
 
-    // Start screen mode buttons
-    function selectMode(mode) {
-      currentMode = mode;
-      startOverlayEl.classList.add("hidden");
-      hideEndOverlay();
-      startNewGame();
-    }
-
     startSpectroBtn.addEventListener("click", () => selectMode("spectrogram"));
     startImageBtn.addEventListener("click", () => selectMode("image"));
     startFactsBtn.addEventListener("click", () => selectMode("facts"));
 
-    // Hint close
     hintCloseBtnEl.addEventListener("click", hideHintOverlay);
 
-    // Play again (same mode)
     playAgainBtnEl.addEventListener("click", () => {
       hideEndOverlay();
       startNewGame();
     });
 
-    // Spacebar play/pause audio (any mode)
+    changeModeBtnEl.addEventListener("click", () => {
+      hideEndOverlay();
+      currentMode = null;
+      modeLabelEl.textContent = "Mode: —";
+      startOverlayEl.classList.remove("hidden");
+    });
+
+    // Mode bubble click -> open change-mode overlay or start overlay
+    modeBubbleEl.addEventListener("click", () => {
+      if (!currentMode) {
+        startOverlayEl.classList.remove("hidden");
+        return;
+      }
+      modeChangeOverlayEl.classList.remove("hidden");
+    });
+
+    modeChangeConfirmEl.addEventListener("click", () => {
+      modeChangeOverlayEl.classList.add("hidden");
+      currentMode = null;
+      modeLabelEl.textContent = "Mode: —";
+      audioPlayerEl.pause();
+      startOverlayEl.classList.remove("hidden");
+    });
+
+    modeChangeCancelEl.addEventListener("click", () => {
+      modeChangeOverlayEl.classList.add("hidden");
+    });
+
+    // Spacebar toggles audio
     document.addEventListener("keydown", (e) => {
       if (e.code === "Space" || e.key === " ") {
         const tag = (e.target && e.target.tagName || "").toLowerCase();
@@ -1606,9 +1777,9 @@
       }
     });
 
-    // ---- Init ----
+    // Init
     updateSciToggleUI();
-    // game waits at start screen until a mode is chosen
+    // Start screen is visible initially; wait for mode choice
   </script>
 </body>
 </html>
