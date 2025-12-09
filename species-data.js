@@ -21,6 +21,8 @@
   You can remove a species from the game by deleting its object
   from the SONGS_DATA array. Please DO NOT delete existing species without written permission from the Admin.
 
+  Then add your spectrogram image file and insect photo file into the images folder and add your audio file into the audio folder.
+
 */
 
 window.SONGS_DATA = [
