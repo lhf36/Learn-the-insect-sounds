@@ -1,925 +1,923 @@
-/*
-  game.js
+// game.js
+// Core logic for the Insect Song Learning Game
 
-  Core logic for the Insect Song Learning Game.
+// ----- Config / constants ---------------------------------------------------
 
-  Depends on:
-    - species-data.js       (window.SONGS_DATA)
-    - analytics.js          (window.InsectGameAnalytics)
-    - DOM structure in index.html (elements with IDs referenced below)
-*/
+const MODES = {
+  SPECTRO: "spectrogram",
+  IMAGE: "image",
+  FACTS: "facts",
+};
 
-(function () {
-  "use strict";
+const MODE_LABELS = {
+  [MODES.SPECTRO]: "Spectrogram training",
+  [MODES.IMAGE]: "Image recognition",
+  [MODES.FACTS]: "Fact matching",
+};
 
-  const TOTAL_ROUNDS = 5;
-  const SONGS = (window.SONGS_DATA || []).slice();
+const ROUNDS_PER_GAME = 5;
 
-  // ---- State ----
-  let currentMode = null;       // "spectrogram" | "image" | "facts"
-  let currentRegion = null;     // null => all regions
-  let sessionSongs = [];        // array of SONGS for this 5-round game
-  let sessionIndex = 0;         // which of the 5 we're on
-  let currentSong = null;
+// End-game messages by mode + score
+function getEndMessage(mode, score) {
+  // Clamp 0–5 just in case
+  const s = Math.max(0, Math.min(5, score));
 
-  let roundsAnswered = 0;
-  let scoreCorrect = 0;
-  let hasAnswered = false;
-  let hadWrongGuess = false;
-  let sciNamesOn = false;
-
-  let audioCtx = null;
-
-  // ---- DOM refs ----
-  let spectrogramImageEl;
-  let specTaglineEl;
-  let specRegionEl;
-  let specLabelEl;
-  let axisXEl;
-  let axisYEl;
-  let ampBoxEl;
-  let specAxesWrapperEl;
-
-  let factBoxEl;
-  let factLabelEl;
-  let factTextEl;
-  let feedbackLineEl;
-  let insectPhotoEl;
-  let creditsEl;
-
-  let answersListEl;
-  let scoreTextEl;
-  let playBtnEl;
-  let playBtnLabelEl;
-  let nextBtnEl;
-  let audioPlayerEl;
-  let sciToggleBtn;
-  let winMarkEl;
-  let modeHintTextEl;
-  let questionTextEl;
-  let questionSubtitleEl;
-  let modeLabelEl;
-  let modeBubbleEl;
-  let regionToggleBtn;
-
-  let startOverlayEl;
-  let startBtnEl;
-
-  let hintOverlayEl;
-  let hintTextEl;
-  let hintCloseBtnEl;
-
-  let modeChangeOverlayEl;
-  let modeChangeSpectroEl;
-  let modeChangeImageEl;
-  let modeChangeFactsEl;
-  let modeChangeCancelEl;
-
-  let regionOverlayEl;
-  let regionButtonsEl;
-  let regionCancelEl;
-
-  let endOverlayEl;
-  let endTitleEl;
-  let endScoreTextEl;
-  let endMessageEl;
-  let playAgainBtnEl;
-  let changeModeBtnEl;
-  let changeRegionBtnEl;
-
-  // ---- Helpers ----
-
-  function shuffleArray(arr) {
-    return arr
-      .map(v => ({ v, r: Math.random() }))
-      .sort((a, b) => a.r - b.r)
-      .map(x => x.v);
-  }
-
-  function getActiveRegionName() {
-    return currentRegion || "All regions";
-  }
-
-  function getRegionPool() {
-    if (!currentRegion) return SONGS.slice();
-    return SONGS.filter(s => s.region === currentRegion);
-  }
-
-  // strong redaction for fact mode
-  function redactFact(song) {
-    let text = song.fact || "";
-    if (!text) return text;
-
-    let targets = [];
-
-    const fullName = song.commonName;
-    if (fullName) {
-      const noHyphen = fullName.replace(/-/g, " ");
-      targets.push(fullName);
-      targets.push(noHyphen);
-      noHyphen.split(/\s+/).forEach(part => {
-        if (part.length > 2) targets.push(part);
-      });
+  if (mode === MODES.SPECTRO) {
+    switch (s) {
+      case 0:
+        return "You need to clean your ears. Play again…";
+      case 1:
+        return "You need to learn to listen. Play again…";
+      case 2:
+        return "Almost halfway there!";
+      case 3:
+        return "Pretty good! Your chance of finding a mate is more than 50%!";
+      case 4:
+        return "Impressive ears!";
+      case 5:
+        return "Master of insect sounds! You must be an insect sound biologist!";
     }
-
-    if (song.species) {
-      song.species.split(/\s+/).forEach(part => {
-        if (part.length > 2) targets.push(part);
-      });
+  } else if (mode === MODES.IMAGE) {
+    switch (s) {
+      case 0:
+        return "You might need new glasses. Try again!";
+      case 1:
+        return "You’re just getting warmed up—look more closely!";
+      case 2:
+        return "Almost halfway there—those field marks are adding up.";
+      case 3:
+        return "Pretty good insect spotting!";
+      case 4:
+        return "Excellent eye for detail!";
+      case 5:
+        return "Visual ID master! You’d make a great field guide illustrator.";
     }
-
-    const groups = [
-      "cricket","crickets",
-      "cicada","cicadas",
-      "grasshopper","grasshoppers",
-      "katydid","katydids",
-      "conehead","coneheads"
-    ];
-    targets.push(...groups);
-
-    // special handling for periodical cicada
-    if (
-      song.commonName.toLowerCase().includes("13-year") ||
-      song.species.toLowerCase().includes("magicicada")
-    ) {
-      targets.push("13", "13-year", "13 year");
-      targets.push("periodical cicadas", "periodical cicada", "periodical");
-    }
-
-    const escaped = [...new Set(
-      targets
-        .filter(Boolean)
-        .map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-    )];
-
-    if (!escaped.length) return text;
-
-    const re = new RegExp(escaped.join("|"), "gi");
-    return text.replace(re, match => "•".repeat(match.length));
-  }
-
-  function getHintText(song) {
-    if (currentMode === "facts") {
-      return `This species is found in: ${song.region}.`;
-    }
-    const fact = song.fact || "";
-    const idx = fact.indexOf(".");
-    if (idx !== -1) return fact.slice(0, idx + 1);
-    return fact || "Listen / look again and pay attention to the patterns.";
-  }
-
-  function updateNextLabel() {
-    if (currentMode === "spectrogram") {
-      nextBtnEl.textContent = "Next spectrogram ➜";
-    } else if (currentMode === "image") {
-      nextBtnEl.textContent = "Next image ➜";
-    } else if (currentMode === "facts") {
-      nextBtnEl.textContent = "Next description ➜";
-    } else {
-      nextBtnEl.textContent = "Next ➜";
+  } else if (mode === MODES.FACTS) {
+    switch (s) {
+      case 0:
+        return "You need to study your insect facts. Try again!";
+      case 1:
+        return "You’re just getting to know these species—keep reading!";
+      case 2:
+        return "Almost halfway there—those natural history facts are sinking in.";
+      case 3:
+        return "Pretty good knowledge! The insects are impressed.";
+      case 4:
+        return "Great memory for insect trivia!";
+      case 5:
+        return "Natural history wizard! You definitely think like an insect biologist.";
     }
   }
 
-  function updateRegionToggleLabel() {
-    const name = getActiveRegionName();
-    regionToggleBtn.textContent = `🌍 Region: ${
-      name === "All regions" ? "All" : name
-    }`;
-  }
+  return "Nice work!";
+}
 
-  function updateModeUI() {
-    factBoxEl.classList.remove("fact-mode");
+// ----- Simple “ding” and “triumphant” sounds (no external files) -----------
 
-    if (currentMode === "spectrogram") {
-      modeLabelEl.textContent = "Mode: Spectrogram training";
-      specLabelEl.textContent = "Visualizing sound";
-      axisYEl.textContent = "Frequency (kHz)";
-      axisXEl.textContent = "Time (seconds)";
-      ampBoxEl.style.display = "";
-      specAxesWrapperEl.classList.remove("hidden");
-      playBtnEl.disabled = false;
-      playBtnLabelEl.textContent = "Play call";
-      modeHintTextEl.textContent =
-        "Tip: match the band of energy and the rhythm of pulses.";
-      questionTextEl.textContent = "Which insect is producing this sound?";
-      questionSubtitleEl.textContent =
-        "Listen as many times as you like, then choose the common name.";
-      factLabelEl.textContent = "After the guess";
-    } else if (currentMode === "image") {
-      modeLabelEl.textContent = "Mode: Image recognition";
-      specLabelEl.textContent = "Insect image";
-      axisYEl.textContent = "";
-      axisXEl.textContent = "";
-      ampBoxEl.style.display = "none";
-      specAxesWrapperEl.classList.remove("hidden");
-      playBtnEl.disabled = false;
-      playBtnLabelEl.textContent = "Play call (optional)";
-      modeHintTextEl.textContent =
-        "Tip: look at body shape, wings, and posture.";
-      questionTextEl.textContent = "Which insect is shown here?";
-      questionSubtitleEl.textContent =
-        "Look closely at the insect's appearance, then choose its name.";
-      factLabelEl.textContent = "After the guess";
-    } else if (currentMode === "facts") {
-      modeLabelEl.textContent = "Mode: Fact knowledge";
-      specLabelEl.textContent = "Fact training";
-      axisYEl.textContent = "";
-      axisXEl.textContent = "";
-      ampBoxEl.style.display = "none";
-      specAxesWrapperEl.classList.add("hidden");
-      playBtnEl.disabled = false;
-      playBtnLabelEl.textContent = "Play call (optional)";
-      modeHintTextEl.textContent =
-        "Tip: read the description carefully before you choose.";
-      questionTextEl.textContent = "Which insect fits this description?";
-      questionSubtitleEl.textContent =
-        "Read the description, then choose the species.";
-      factLabelEl.textContent = "Description";
-      factBoxEl.classList.add("fact-mode");
-    } else {
-      modeLabelEl.textContent = "Mode: —";
-    }
+let audioContext = null;
 
-    updateNextLabel();
-    updateRegionToggleLabel();
-  }
-
-  function startNewGame() {
-    if (!currentMode) return;
-
-    const pool = getRegionPool();
-    // pick up to TOTAL_ROUNDS distinct species from this region
-    sessionSongs = shuffleArray(pool).slice(0, TOTAL_ROUNDS);
-    sessionIndex = 0;
-    roundsAnswered = 0;
-    scoreCorrect = 0;
-    hasAnswered = false;
-    hadWrongGuess = false;
-
-    audioPlayerEl.pause();
-    audioPlayerEl.currentTime = 0;
-    nextBtnEl.disabled = true;
-
-    scoreTextEl.innerHTML = `Score this game: <strong>0</strong> of ${TOTAL_ROUNDS}`;
-    updateModeUI();
-    renderRound();
-
-    if (window.InsectGameAnalytics) {
-      window.InsectGameAnalytics.recordGameStarted(
-        currentMode,
-        getActiveRegionName()
-      );
-    }
-  }
-
-  function renderRound() {
-    hasAnswered = false;
-    hadWrongGuess = false;
-    nextBtnEl.disabled = true;
-    feedbackLineEl.textContent = "";
-    feedbackLineEl.className = "feedback-line";
-
-    currentSong = sessionSongs[sessionIndex];
-    renderForMode(currentSong);
-    renderAnswers(currentSong);
-  }
-
-  function renderForMode(song) {
-    insectPhotoEl.classList.add("hidden");
-    insectPhotoEl.src = "";
-    insectPhotoEl.alt = "";
-
-   // Build photo/audio credit lines.
-// If license fields are empty, don't show any placeholder text.
-let photoText = "";
-if (song.photoCredit) {
-  photoText = `📷 ${song.photoCredit}`;
-  if (song.copyrightPhoto) {
-    photoText += ` (${song.copyrightPhoto})`;
+function ensureAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
   }
 }
 
-let audioText = "";
-if (song.audioCredit) {
-  audioText = `🎧 ${song.audioCredit}`;
-  if (song.copyrightAudio) {
-    audioText += ` (${song.copyrightAudio})`;
+// Short “ding” on correct answer
+function playCorrectDing() {
+  try {
+    ensureAudioContext();
+    const ctx = audioContext;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.value = 880; // A5
+    gain.gain.setValueAtTime(0.0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.25);
+  } catch (e) {
+    // Non-fatal
   }
 }
 
-const creditParts = [];
-if (photoText) creditParts.push(`<span>${photoText}</span>`);
-if (audioText) creditParts.push(`<span>${audioText}</span>`);
+// Longer triumphant chord on end screen
+function playEndFanfare() {
+  try {
+    ensureAudioContext();
+    const ctx = audioContext;
 
-creditsEl.innerHTML = creditParts.join(" ");
-
-    specRegionEl.textContent = song.region
-      ? `Region: ${song.region}`
-      : "Region: —";
-    winMarkEl.classList.remove("win-mark-visible");
-
-    if (currentMode === "spectrogram") {
-      specAxesWrapperEl.classList.remove("hidden");
-      spectrogramImageEl.src = song.spectrogramImage;
-      spectrogramImageEl.alt = `Spectrogram of ${song.commonName} call`;
-      audioPlayerEl.src = song.audio;
-      specTaglineEl.textContent = "Who is calling?";
-      factLabelEl.textContent = "After the guess";
-      factTextEl.textContent = "Identify the caller to reveal a fun fact.";
-    } else if (currentMode === "image") {
-      specAxesWrapperEl.classList.remove("hidden");
-      spectrogramImageEl.src = song.photo;
-      spectrogramImageEl.alt = `Photo of ${song.commonName}`;
-      audioPlayerEl.src = song.audio;
-      specTaglineEl.textContent = "Who is this insect?";
-      factLabelEl.textContent = "After the guess";
-      factTextEl.textContent = "Identify the insect to reveal a fun fact.";
-    } else if (currentMode === "facts") {
-      specAxesWrapperEl.classList.add("hidden");
-      spectrogramImageEl.src = "";
-      spectrogramImageEl.alt = "";
-      audioPlayerEl.src = song.audio;
-      specTaglineEl.textContent = "Which insect fits this description?";
-      factLabelEl.textContent = "Description";
-      factTextEl.textContent = redactFact(song);
-    }
-  }
-
-  function buildChoices(correctName) {
-    const pool = getRegionPool().map(s => s.commonName);
-    const others = pool.filter(n => n !== correctName);
-    const wrong = shuffleArray(others).slice(0, 3);
-    return shuffleArray([correctName, ...wrong]);
-  }
-
-  function renderAnswers(song) {
-    answersListEl.innerHTML = "";
-    const choices = buildChoices(song.commonName);
-
-    choices.forEach(commonName => {
-      const songObj = SONGS.find(s => s.commonName === commonName);
-      if (!songObj) return;
-
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "answer-btn";
-      btn.setAttribute("aria-label", `Guess: ${commonName}`);
-
-      btn.dataset.commonName = songObj.commonName;
-      btn.dataset.scientificName = songObj.species;
-
-      const label = document.createElement("span");
-      label.className = "answer-label";
-      label.textContent = sciNamesOn ? songObj.species : songObj.commonName;
-
-      const meta = document.createElement("span");
-      meta.className = "answer-meta";
-      meta.textContent = "Guess";
-
-      btn.appendChild(label);
-      btn.appendChild(meta);
-
-      btn.addEventListener("click", () =>
-        handleAnswer(songObj.commonName, btn)
-      );
-      answersListEl.appendChild(btn);
-    });
-  }
-
-  function updateSciToggleUI() {
-    if (sciToggleBtn) {
-      if (sciNamesOn) {
-        sciToggleBtn.classList.add("mode-on");
-        sciToggleBtn.classList.remove("mode-off");
-        sciToggleBtn.textContent = "Show scientific names: ON";
-        sciToggleBtn.setAttribute("aria-pressed", "true");
-      } else {
-        sciToggleBtn.classList.add("mode-off");
-        sciToggleBtn.classList.remove("mode-on");
-        sciToggleBtn.textContent = "Show scientific names: OFF";
-        sciToggleBtn.setAttribute("aria-pressed", "false");
-      }
-    }
-  }
-
-  function applySciToggleToButtons() {
-    const buttons = answersListEl.querySelectorAll(".answer-btn");
-    buttons.forEach(btn => {
-      const labelSpan = btn.querySelector(".answer-label");
-      if (!labelSpan) return;
-      if (sciNamesOn) {
-        labelSpan.textContent = btn.dataset.scientificName;
-      } else {
-        labelSpan.textContent = btn.dataset.commonName;
-      }
-    });
-  }
-
-  function showWinMark() {
-    winMarkEl.classList.add("win-mark-visible");
-    setTimeout(() => {
-      winMarkEl.classList.remove("win-mark-visible");
-    }, 800);
-  }
-
-  function getAudioCtx() {
-    if (audioCtx) return audioCtx;
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return null;
-    audioCtx = new Ctx();
-    return audioCtx;
-  }
-
-  function playDing() {
-    const ctx = getAudioCtx();
-    if (!ctx) return;
-    const now = ctx.currentTime;
-
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = "sine";
-    osc1.frequency.setValueAtTime(880, now);
-    gain1.gain.setValueAtTime(0.0001, now);
-    gain1.gain.exponentialRampToValueAtTime(0.3, now + 0.02);
-    gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.start(now);
-    osc1.stop(now + 0.3);
-
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = "sine";
-    osc2.frequency.setValueAtTime(1320, now + 0.04);
-    gain2.gain.setValueAtTime(0.0001, now + 0.04);
-    gain2.gain.exponentialRampToValueAtTime(0.15, now + 0.06);
-    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.start(now + 0.04);
-    osc2.stop(now + 0.3);
-  }
-
-  function playTriumph() {
-    const ctx = getAudioCtx();
-    if (!ctx) return;
-    const now = ctx.currentTime;
-    const notes = [523.25, 659.25, 783.99];
-
-    notes.forEach((freq, i) => {
-      const start = now + i * 0.08;
+    const freqs = [523.25, 659.25, 783.99]; // C major-ish
+    freqs.forEach((f, idx) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "triangle";
-      osc.frequency.setValueAtTime(freq, start);
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(0.35, start + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3);
+      osc.frequency.value = f;
+      const start = ctx.currentTime + 0.02 * idx;
+      const end = start + 0.6;
+
+      gain.gain.setValueAtTime(0.0, start);
+      gain.gain.linearRampToValueAtTime(0.18, start + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, end);
+
       osc.connect(gain);
       gain.connect(ctx.destination);
+
       osc.start(start);
-      osc.stop(start + 0.32);
+      osc.stop(end + 0.05);
+    });
+  } catch (e) {
+    // Non-fatal
+  }
+}
+
+// ----- Species data helper --------------------------------------------------
+
+// Try a few common global names; whichever your species-data.js defines
+const ALL_SPECIES =
+  (window.SPECIES_DATA && Array.isArray(window.SPECIES_DATA) && window.SPECIES_DATA) ||
+  (window.SPECIES && Array.isArray(window.SPECIES) && window.SPECIES) ||
+  (window.SONGS && Array.isArray(window.SONGS) && window.SONGS) ||
+  [];
+
+if (!ALL_SPECIES.length) {
+  console.warn(
+    "No species data found. Expecting SPECIES_DATA / SPECIES / SONGS as an array."
+  );
+}
+
+function getRegionsFromSpecies(data) {
+  const counts = new Map();
+  data.forEach((sp) => {
+    const regions = sp.regions && sp.regions.length ? sp.regions : ["All"];
+    regions.forEach((r) => {
+      counts.set(r, (counts.get(r) || 0) + 1);
+    });
+  });
+  return counts;
+}
+
+// ----- Game state -----------------------------------------------------------
+
+let currentMode = MODES.SPECTRO;
+let currentRegion = "All regions";
+let showScientificNames = false;
+
+let filteredSpecies = [];
+let speciesQueue = []; // shuffled indices for correct answers
+let currentRound = 0;
+let correctFirstTry = 0;
+let currentSpecies = null;
+let currentOptions = [];
+let firstGuessThisRound = true;
+let hasAnsweredThisRound = false;
+
+// DOM refs
+let elModeLabel,
+  elRegionToggle,
+  elModeBubble,
+  elSciToggle,
+  elSpecRegion,
+  elModeHintText,
+  elQuestionText,
+  elQuestionSubtitle,
+  elAnswersList,
+  elScoreText,
+  elPlayBtn,
+  elPlayBtnLabel,
+  elFeedbackLine,
+  elSpectrogramImage,
+  elInsectPhoto,
+  elFactBox,
+  elFactLabel,
+  elFactText,
+  elCredits,
+  elStartOverlay,
+  elStartBtn,
+  elHintOverlay,
+  elHintText,
+  elHintCloseBtn,
+  elModeChangeOverlay,
+  elRegionOverlay,
+  elRegionButtons,
+  elRegionCancel,
+  elModeChangeSpectro,
+  elModeChangeImage,
+  elModeChangeFacts,
+  elModeChangeCancel,
+  elEndOverlay,
+  elEndTitle,
+  elEndScoreText,
+  elEndMessage,
+  elPlayAgainBtn,
+  elChangeModeBtn,
+  elChangeRegionBtn,
+  elWinMark,
+  elSpecLabel,
+  elStatsPanel;
+
+let audioElement;
+
+// ----- Utility helpers ------------------------------------------------------
+
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickOtherIndices(pool, correctIndex, count) {
+  const others = pool.filter((idx) => idx !== correctIndex);
+  const shuffled = shuffleArray(others);
+  return shuffled.slice(0, count);
+}
+
+function hideElement(el) {
+  if (!el) return;
+  el.classList.add("hidden");
+}
+
+function showElement(el) {
+  if (!el) return;
+  el.classList.remove("hidden");
+}
+
+// ----- Mode / region / sci-name UI -----------------------------------------
+
+function updateModeLabel() {
+  if (!elModeLabel) return;
+  elModeLabel.textContent = `Mode: ${MODE_LABELS[currentMode] || "—"}`;
+
+  if (!elModeHintText) return;
+  if (currentMode === MODES.SPECTRO) {
+    elModeHintText.textContent = "Match the call’s spectrogram to the correct species.";
+  } else if (currentMode === MODES.IMAGE) {
+    elModeHintText.textContent = "Match the insect photo to the correct species.";
+  } else if (currentMode === MODES.FACTS) {
+    elModeHintText.textContent = "Match each natural history fact to the right species.";
+  } else {
+    elModeHintText.textContent = "";
+  }
+}
+
+function updateSciToggle() {
+  if (!elSciToggle) return;
+  elSciToggle.setAttribute("aria-pressed", showScientificNames ? "true" : "false");
+  if (showScientificNames) {
+    elSciToggle.textContent = "Show scientific names: ON";
+    elSciToggle.classList.remove("mode-off");
+    elSciToggle.classList.add("mode-on");
+  } else {
+    elSciToggle.textContent = "Show scientific names: OFF";
+    elSciToggle.classList.remove("mode-on");
+    elSciToggle.classList.add("mode-off");
+  }
+}
+
+function updateRegionLabel() {
+  if (elRegionToggle) {
+    elRegionToggle.textContent =
+      currentRegion === "All regions" ? "🌍 Region: All" : `🌍 Region: ${currentRegion}`;
+  }
+  if (elSpecRegion) {
+    elSpecRegion.textContent = `Region: ${currentRegion}`;
+  }
+}
+
+// ----- Species filtering & region buttons ----------------------------------
+
+function applyRegionFilter() {
+  if (currentRegion === "All regions") {
+    filteredSpecies = ALL_SPECIES.slice();
+    return;
+  }
+  filteredSpecies = ALL_SPECIES.filter((sp) => {
+    if (!sp.regions || !sp.regions.length) return false;
+    return sp.regions.includes(currentRegion);
+  });
+  if (!filteredSpecies.length) {
+    // Fallback to all
+    filteredSpecies = ALL_SPECIES.slice();
+  }
+}
+
+function buildRegionButtons() {
+  if (!elRegionButtons) return;
+
+  const counts = getRegionsFromSpecies(ALL_SPECIES);
+  const entries = Array.from(counts.entries()).filter(
+    ([region, count]) => count > 5 // threshold
+  );
+
+  // Always include All regions option
+  const regions = ["All regions", ...entries.map(([region]) => region)];
+
+  elRegionButtons.innerHTML = "";
+
+  regions.forEach((region) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "mode-change-btn";
+    btn.textContent = region === "All regions" ? "All regions" : region;
+    btn.addEventListener("click", () => {
+      currentRegion = region;
+      updateRegionLabel();
+      applyRegionFilter();
+      startNewGame();
+      hideElement(elRegionOverlay);
+    });
+    elRegionButtons.appendChild(btn);
+  });
+}
+
+// ----- Round / question generation -----------------------------------------
+
+function resetSpeciesQueue() {
+  if (!filteredSpecies.length) {
+    filteredSpecies = ALL_SPECIES.slice();
+  }
+  const indices = filteredSpecies.map((_, i) => i);
+  speciesQueue = shuffleArray(indices);
+}
+
+function pickNextSpeciesIndex() {
+  if (!speciesQueue.length) {
+    resetSpeciesQueue();
+  }
+  return speciesQueue.shift();
+}
+
+function buildOptions(correctIdx) {
+  const indices = filteredSpecies.map((_, i) => i);
+  const others = pickOtherIndices(indices, correctIdx, 3);
+  const pool = shuffleArray([correctIdx, ...others]);
+  return pool.map((i) => filteredSpecies[i]);
+}
+
+function getDisplayName(sp) {
+  if (!sp) return "";
+  if (showScientificNames && sp.scientificName) return sp.scientificName;
+  return sp.commonName || sp.name || "";
+}
+
+// ----- Rendering for current mode ------------------------------------------
+
+function renderQuestion() {
+  if (!currentSpecies) return;
+
+  // Spectrogram / image / fact content
+  const isSpectro = currentMode === MODES.SPECTRO;
+  const isImage = currentMode === MODES.IMAGE;
+  const isFacts = currentMode === MODES.FACTS;
+
+  // Question text
+  if (elQuestionText) {
+    if (isSpectro) {
+      elQuestionText.textContent = "Which insect is producing this sound?";
+    } else if (isImage) {
+      elQuestionText.textContent = "Which insect is shown in this photo?";
+    } else if (isFacts) {
+      elQuestionText.textContent = "Which insect does this fact describe?";
+    }
+  }
+
+  if (elQuestionSubtitle) {
+    if (isSpectro) {
+      elQuestionSubtitle.textContent =
+        "Listen and study the spectrogram, then choose the correct name.";
+    } else if (isImage) {
+      elQuestionSubtitle.textContent =
+        "Use color, shape, and posture to identify the insect.";
+    } else if (isFacts) {
+      elQuestionSubtitle.textContent =
+        "Read the fact carefully and match it to the right species.";
+    }
+  }
+
+  // Spectrogram vs photo vs fact emphasis
+  if (elSpectrogramImage) {
+    if (isSpectro || isFacts) {
+      // Spectrogram visible
+      elSpectrogramImage.src = currentSpecies.spectrogramImage || "";
+      elSpectrogramImage.alt = `Spectrogram of ${currentSpecies.commonName || ""}`;
+      elSpectrogramImage.classList.remove("hidden");
+    } else {
+      // In image mode we can still show the spectrogram OR hide; for now keep it visible.
+      elSpectrogramImage.src = currentSpecies.spectrogramImage || "";
+      elSpectrogramImage.alt = `Spectrogram of ${currentSpecies.commonName || ""}`;
+      elSpectrogramImage.classList.remove("hidden");
+    }
+  }
+
+  if (elInsectPhoto) {
+    if (isImage) {
+      // Show photo prominently
+      elInsectPhoto.src = currentSpecies.photoImage || "";
+      elInsectPhoto.alt = currentSpecies.commonName || "Insect photo";
+      elInsectPhoto.classList.remove("hidden");
+    } else {
+      // Still show below in spectro/fact modes, but not essential
+      elInsectPhoto.src = currentSpecies.photoImage || "";
+      elInsectPhoto.alt = currentSpecies.commonName || "Insect photo";
+      elInsectPhoto.classList.remove("hidden");
+    }
+  }
+
+  if (elSpecLabel) {
+    elSpecLabel.textContent = isSpectro
+      ? "Visualizing sound"
+      : isImage
+      ? "Image training"
+      : "Fact training";
+  }
+
+  // Fact box
+  if (elFactBox && elFactLabel && elFactText) {
+    if (isFacts) {
+      elFactBox.classList.add("fact-mode");
+      elFactLabel.textContent = "Fact to match";
+      const redacted = currentSpecies.factRedacted || currentSpecies.fact;
+      elFactText.textContent =
+        redacted ||
+        "Read the natural history clues and choose the correct insect.";
+    } else {
+      elFactBox.classList.remove("fact-mode");
+      elFactLabel.textContent = "After the guess";
+      elFactText.textContent = "Identify the caller to reveal a fun fact.";
+    }
+  }
+
+  // Credits
+  if (elCredits) {
+    let parts = [];
+    if (currentSpecies.photoCredit) {
+      let t = `📷 ${currentSpecies.photoCredit}`;
+      if (currentSpecies.copyrightPhoto) {
+        t += ` (${currentSpecies.copyrightPhoto})`;
+      }
+      parts.push(`<span>${t}</span>`);
+    }
+    if (currentSpecies.audioCredit) {
+      let t = `🎧 ${currentSpecies.audioCredit}`;
+      if (currentSpecies.copyrightAudio) {
+        t += ` (${currentSpecies.copyrightAudio})`;
+      }
+      parts.push(`<span>${t}</span>`);
+    }
+    elCredits.innerHTML = parts.join(" ");
+  }
+
+  // Audio src
+  if (audioElement) {
+    if (currentSpecies.audioFile) {
+      audioElement.src = currentSpecies.audioFile;
+      audioElement.load();
+    } else {
+      audioElement.removeAttribute("src");
+    }
+  }
+
+  // Answer buttons
+  if (elAnswersList) {
+    elAnswersList.innerHTML = "";
+    currentOptions.forEach((sp) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "answer-btn";
+      btn.dataset.speciesId = sp.id || sp.commonName || "";
+
+      const labelSpan = document.createElement("span");
+      labelSpan.className = "answer-label";
+      labelSpan.textContent = getDisplayName(sp);
+
+      const metaSpan = document.createElement("span");
+      metaSpan.className = "answer-meta";
+      metaSpan.textContent = "Guess";
+
+      btn.appendChild(labelSpan);
+      btn.appendChild(metaSpan);
+
+      btn.addEventListener("click", () => handleAnswer(sp, btn, metaSpan));
+
+      elAnswersList.appendChild(btn);
     });
   }
 
-  function playFromStart() {
-    if (!currentSong || !audioPlayerEl) return;
-    audioPlayerEl.currentTime = 0;
-    audioPlayerEl.play().catch(() => {});
+  // Reset feedback, win mark, next button
+  if (elFeedbackLine) {
+    elFeedbackLine.textContent = "";
+    elFeedbackLine.classList.remove("correct", "wrong");
+  }
+  if (elWinMark) {
+    elWinMark.classList.remove("win-mark-visible");
+  }
+  if (elPlayBtnLabel) {
+    elPlayBtnLabel.textContent = isSpectro ? "Play call" : "Play audio";
+  }
+  if (elScoreText) {
+    elScoreText.innerHTML = `Score this game: <strong>${correctFirstTry}</strong> of ${ROUNDS_PER_GAME}`;
+  }
+  const nextBtn = document.getElementById("next-btn");
+  if (nextBtn) {
+    nextBtn.disabled = true;
+  }
+}
+
+// ----- Answer handling ------------------------------------------------------
+
+function showHintFromFact() {
+  if (!currentSpecies || !elHintOverlay || !elHintText) return;
+
+  const base = currentSpecies.fact || "";
+  const shortHint = currentSpecies.hint || base;
+  elHintText.textContent = shortHint;
+  showElement(elHintOverlay);
+}
+
+function handleAnswer(chosenSpecies, buttonEl, metaSpan) {
+  if (!currentSpecies || hasAnsweredThisRound) {
+    return;
   }
 
-  function togglePlayPause() {
-    if (!audioPlayerEl) return;
-    if (audioPlayerEl.paused) {
-      audioPlayerEl.play().catch(() => {});
-    } else {
-      audioPlayerEl.pause();
-    }
-  }
+  const isCorrect = chosenSpecies === currentSpecies;
 
-  function showHintOverlay(song) {
-    hintTextEl.textContent = getHintText(song);
-    hintOverlayEl.classList.remove("hidden");
-  }
-
-  function hideHintOverlay() {
-    hintOverlayEl.classList.add("hidden");
-  }
-
-  function getModeCorrectMessage(firstTry) {
-    if (currentMode === "spectrogram") {
-      return firstTry
-        ? "Correct! Nice listening."
-        : "That's it! Now you've found the right caller.";
-    } else if (currentMode === "image") {
-      return firstTry
-        ? "Correct! Nice observation."
-        : "That's it! Now you've picked the right insect.";
-    } else if (currentMode === "facts") {
-      return firstTry
-        ? "Correct! Nice recall."
-        : "That's it! You've matched the right species.";
-    }
-    return firstTry ? "Correct!" : "You got it.";
-  }
-
-  function getEndMessage(score, mode) {
-    if (mode === "spectrogram") {
-      switch (score) {
-        case 0: return "You need to clean your ears. Play again...";
-        case 1: return "You need to learn to listen. Play again...";
-        case 2: return "Almost half way there!";
-        case 3: return "Pretty good! Your chance of finding a mate is more than 50%!";
-        case 4: return "Impressive ears!";
-        case 5:
-        default:
-          return "Master of insect sounds! You must be an insect sound biologist!";
-      }
-    } else if (mode === "image") {
-      switch (score) {
-        case 0: return "You need new glasses. Play again...";
-        case 1: return "You need to look more closely. Play again...";
-        case 2: return "Almost half way there! Keep sharpening your eyes.";
-        case 3: return "Pretty good! Your field ID skills are waking up.";
-        case 4: return "Impressive eye for insects!";
-        case 5:
-        default:
-          return "Master of insect identification! Your field guide game is strong!";
-      }
-    } else if (mode === "facts") {
-      switch (score) {
-        case 0: return "You need to hit the books. Play again...";
-        case 1: return "You need to brush up your insect trivia.";
-        case 2: return "Almost half way there! These facts are starting to stick.";
-        case 3: return "Pretty good! Your insect natural history memory is solid.";
-        case 4: return "Impressive knowledge! You're almost a walking field guide.";
-        case 5:
-        default:
-          return "Master of insect facts! You must be an insect natural history expert!";
+  if (isCorrect) {
+    // First-try correctness
+    if (firstGuessThisRound) {
+      correctFirstTry += 1;
+      if (elScoreText) {
+        elScoreText.innerHTML = `Score this game: <strong>${correctFirstTry}</strong> of ${ROUNDS_PER_GAME}`;
       }
     }
-    // fallback
-    switch (score) {
-      case 0: return "Play again and see what you can learn!";
-      case 1: return "Keep practicing!";
-      case 2: return "Almost half way there!";
-      case 3: return "Pretty good!";
-      case 4: return "Nice work!";
-      case 5:
-      default: return "Excellent!";
+
+    hasAnsweredThisRound = true;
+
+    // Visual feedback
+    buttonEl.classList.add("correct-choice");
+    metaSpan.classList.add("correct");
+    metaSpan.textContent = "Correct";
+
+    if (elFeedbackLine) {
+      elFeedbackLine.classList.remove("wrong");
+      elFeedbackLine.classList.add("correct");
+
+      if (currentMode === MODES.SPECTRO) {
+        elFeedbackLine.textContent = "Nice listening!";
+      } else if (currentMode === MODES.IMAGE) {
+        elFeedbackLine.textContent = "Nice recognition!";
+      } else if (currentMode === MODES.FACTS) {
+        elFeedbackLine.textContent = "Great fact matching!";
+      }
     }
-  }
 
-  function showEndOverlay() {
-    const finalScore = scoreCorrect;
-    let tintClass = "tint-bad";
-    if (finalScore <= 1) tintClass = "tint-bad";
-    else if (finalScore <= 3) tintClass = "tint-mid";
-    else tintClass = "tint-good";
-
-    endOverlayEl.classList.remove("tint-bad", "tint-mid", "tint-good");
-    endOverlayEl.classList.add(tintClass);
-
-    const title =
-      currentMode === "spectrogram"
-        ? "Listening game complete!"
-        : currentMode === "image"
-        ? "Image game complete!"
-        : currentMode === "facts"
-        ? "Fact game complete!"
-        : "Game complete!";
-
-    endTitleEl.textContent = title;
-    endScoreTextEl.textContent = `You scored ${finalScore} / ${TOTAL_ROUNDS}.`;
-    endMessageEl.textContent = getEndMessage(finalScore, currentMode);
-
-    endOverlayEl.classList.remove("hidden");
-    playTriumph();
-
-    if (window.InsectGameAnalytics) {
-      window.InsectGameAnalytics.recordGameCompleted(
-        currentMode,
-        getActiveRegionName(),
-        finalScore,
-        TOTAL_ROUNDS
-      );
+    if (elWinMark) {
+      elWinMark.classList.add("win-mark-visible");
     }
-  }
 
-  function hideEndOverlay() {
-    endOverlayEl.classList.add("hidden");
-  }
+    // Reveal full fact
+    if (elFactBox && elFactLabel && elFactText) {
+      elFactLabel.textContent = "Fact";
+      elFactBox.classList.add("fact-mode");
+      const fullFact = currentSpecies.fact || currentSpecies.factRedacted || "";
+      elFactText.textContent = fullFact;
+    }
 
-  function handleAnswer(selectedName, buttonEl) {
-    if (hasAnswered) return;
-
-    const correct = selectedName === currentSong.commonName;
-    const meta = buttonEl.querySelector(".answer-meta");
-
-    if (!correct) {
-      if (!hadWrongGuess) {
-        hadWrongGuess = true;
-        if (meta) {
-          meta.textContent = "Try again";
-          meta.classList.add("guess");
+    // Disable other buttons
+    if (elAnswersList) {
+      const allButtons = elAnswersList.querySelectorAll(".answer-btn");
+      allButtons.forEach((b) => {
+        b.disabled = true;
+        if (b !== buttonEl && b.classList.contains("correct-choice") === false) {
+          // leave them neutral
         }
-        buttonEl.classList.add("wrong-choice");
+      });
+    }
 
-        const msg =
-          currentMode === "spectrogram"
-            ? "Not quite – listen again and check the hint."
-            : currentMode === "image"
-            ? "Not quite – look again and check the hint."
-            : "Not quite – reread the description and check the hint.";
+    playCorrectDing();
 
-        feedbackLineEl.textContent = msg;
-        feedbackLineEl.classList.add("wrong");
-        showHintOverlay(currentSong);
+    // Enable next
+    const nextBtn = document.getElementById("next-btn");
+    if (nextBtn) {
+      nextBtn.disabled = false;
+    }
+  } else {
+    // Wrong answer: show hint overlay
+    firstGuessThisRound = false;
+    if (elFeedbackLine) {
+      elFeedbackLine.classList.remove("correct");
+      elFeedbackLine.classList.add("wrong");
+      if (currentMode === MODES.SPECTRO) {
+        elFeedbackLine.textContent = "Not quite—listen again and check the hint.";
+      } else if (currentMode === MODES.IMAGE) {
+        elFeedbackLine.textContent = "Not quite—look again and check the hint.";
+      } else if (currentMode === MODES.FACTS) {
+        elFeedbackLine.textContent = "Not quite—read the fact again and check the hint.";
       }
-      return;
     }
 
-    // Correct
-    hasAnswered = true;
-    roundsAnswered++;
+    // Mark this button briefly as wrong
+    buttonEl.classList.add("wrong-choice");
+    metaSpan.textContent = "Try again";
 
-    const firstTry = !hadWrongGuess;
-    if (firstTry) {
-      scoreCorrect++;
-      feedbackLineEl.textContent = getModeCorrectMessage(true);
-      feedbackLineEl.classList.add("correct");
-      playDing();
-    } else {
-      feedbackLineEl.textContent = getModeCorrectMessage(false);
-      feedbackLineEl.classList.add("correct");
-    }
+    showHintFromFact();
+  }
+}
 
-    specTaglineEl.textContent = currentSong.commonName;
+// ----- Rounds & game flow ---------------------------------------------------
 
-    factLabelEl.textContent = "Fun fact";
-    factTextEl.textContent = currentSong.fact || "";
+function startNewRound() {
+  if (!filteredSpecies.length) {
+    applyRegionFilter();
+  }
+  const correctIdx = pickNextSpeciesIndex();
+  currentSpecies = filteredSpecies[correctIdx];
+  currentOptions = buildOptions(correctIdx);
+  firstGuessThisRound = true;
+  hasAnsweredThisRound = false;
+  currentRound += 1;
 
-    if (currentMode === "spectrogram" || currentMode === "facts") {
-      insectPhotoEl.src = currentSong.photo;
-      insectPhotoEl.alt = `Photo of ${currentSong.commonName}`;
-      insectPhotoEl.classList.remove("hidden");
-    }
-
-    const buttons = answersListEl.querySelectorAll(".answer-btn");
-    buttons.forEach(btn => {
-      const m = btn.querySelector(".answer-meta");
-      if (btn.dataset.commonName === currentSong.commonName) {
-        btn.classList.add("correct-choice");
-        if (m) {
-          m.textContent = "Answer";
-          m.classList.add("correct");
-        }
-      }
-      btn.disabled = true;
-    });
-
-    showWinMark();
-
-    scoreTextEl.innerHTML = `Score this game: <strong>${scoreCorrect}</strong> of ${TOTAL_ROUNDS}`;
-
-    if (roundsAnswered >= TOTAL_ROUNDS) {
-      nextBtnEl.disabled = true;
-      showEndOverlay();
-    } else {
-      nextBtnEl.disabled = false;
-    }
+  if (audioElement) {
+    audioElement.pause();
+    audioElement.currentTime = 0;
   }
 
-  function goToNextRound() {
-    if (!hasAnswered) return;
-    if (roundsAnswered >= TOTAL_ROUNDS) return;
+  renderQuestion();
+}
 
-    sessionIndex++;
-    if (sessionIndex < sessionSongs.length) {
-      renderRound();
+function showEndOverlay() {
+  if (!elEndOverlay || !elEndTitle || !elEndScoreText || !elEndMessage) return;
+
+  // Tint based on score
+  const ratio = correctFirstTry / ROUNDS_PER_GAME;
+  elEndOverlay.classList.remove("tint-bad", "tint-mid", "tint-good");
+  if (ratio <= 0.3) {
+    elEndOverlay.classList.add("tint-bad");
+  } else if (ratio <= 0.7) {
+    elEndOverlay.classList.add("tint-mid");
+  } else {
+    elEndOverlay.classList.add("tint-good");
+  }
+
+  elEndTitle.textContent = "Game complete!";
+  elEndScoreText.textContent = `You scored ${correctFirstTry} / ${ROUNDS_PER_GAME}.`;
+  elEndMessage.textContent = getEndMessage(currentMode, correctFirstTry);
+
+  showElement(elEndOverlay);
+  playEndFanfare();
+}
+
+function startNewGame() {
+  currentRound = 0;
+  correctFirstTry = 0;
+  firstGuessThisRound = true;
+  hasAnsweredThisRound = false;
+
+  applyRegionFilter();
+  resetSpeciesQueue();
+
+  if (elWinMark) {
+    elWinMark.classList.remove("win-mark-visible");
+  }
+  if (elScoreText) {
+    elScoreText.innerHTML = `Score this game: <strong>${correctFirstTry}</strong> of ${ROUNDS_PER_GAME}`;
+  }
+  hideElement(elEndOverlay);
+
+  startNewRound();
+}
+
+// ----- Audio + controls -----------------------------------------------------
+
+function togglePlayPause() {
+  if (!audioElement || !currentSpecies) return;
+
+  if (audioElement.paused) {
+    audioElement.play().catch(() => {});
+    if (elPlayBtnLabel) elPlayBtnLabel.textContent = "Pause audio";
+  } else {
+    audioElement.pause();
+    if (elPlayBtnLabel) {
+      elPlayBtnLabel.textContent =
+        currentMode === MODES.SPECTRO ? "Play call" : "Play audio";
     }
   }
+}
 
-  function setModeAndStart(mode) {
-    currentMode = mode;
-    startOverlayEl.classList.add("hidden");
-    updateModeUI();
-    startNewGame();
-  }
+// ----- Overlay helpers ------------------------------------------------------
 
-  function buildRegionButtons() {
-    regionButtonsEl.innerHTML = "";
+function resetAllOverlaysOnLoad() {
+  showElement(elStartOverlay);
+  hideElement(elEndOverlay);
+  hideElement(elHintOverlay);
+  hideElement(elModeChangeOverlay);
+  hideElement(elRegionOverlay);
+}
 
-    // "All regions" option
-    const allBtn = document.createElement("button");
-    allBtn.type = "button";
-    allBtn.className = "mode-change-btn";
-    allBtn.textContent = "All regions";
-    allBtn.addEventListener("click", () => {
-      currentRegion = null;
-      if (window.InsectGameAnalytics) {
-        window.InsectGameAnalytics.recordRegionChoice("All regions");
-      }
-      regionOverlayEl.classList.add("hidden");
-      updateRegionToggleLabel();
+// ----- Initialization -------------------------------------------------------
+
+function initDomRefs() {
+  elModeLabel = document.getElementById("mode-label");
+  elRegionToggle = document.getElementById("region-toggle");
+  elModeBubble = document.getElementById("mode-bubble");
+  elSciToggle = document.getElementById("sci-toggle");
+
+  elSpecRegion = document.getElementById("spec-region");
+  elModeHintText = document.getElementById("mode-hint-text");
+
+  elQuestionText = document.getElementById("question-text");
+  elQuestionSubtitle = document.getElementById("question-subtitle");
+  elAnswersList = document.getElementById("answers-list");
+  elScoreText = document.getElementById("score-text");
+
+  elPlayBtn = document.getElementById("play-btn");
+  elPlayBtnLabel = document.getElementById("play-btn-label");
+  elFeedbackLine = document.getElementById("feedback-line");
+
+  elSpectrogramImage = document.getElementById("spectrogram-image");
+  elInsectPhoto = document.getElementById("insect-photo");
+
+  elFactBox = document.getElementById("fact-box");
+  elFactLabel = document.getElementById("fact-label");
+  elFactText = document.getElementById("fact-text");
+
+  elCredits = document.getElementById("credits");
+
+  elStartOverlay = document.getElementById("start-overlay");
+  elStartBtn = document.getElementById("start-btn");
+
+  elHintOverlay = document.getElementById("hint-overlay");
+  elHintText = document.getElementById("hint-text");
+  elHintCloseBtn = document.getElementById("hint-close-btn");
+
+  elModeChangeOverlay = document.getElementById("mode-change-overlay");
+  elRegionOverlay = document.getElementById("region-overlay");
+  elRegionButtons = document.getElementById("region-buttons");
+  elRegionCancel = document.getElementById("region-cancel");
+
+  elModeChangeSpectro = document.getElementById("mode-change-spectro");
+  elModeChangeImage = document.getElementById("mode-change-image");
+  elModeChangeFacts = document.getElementById("mode-change-facts");
+  elModeChangeCancel = document.getElementById("mode-change-cancel");
+
+  elEndOverlay = document.getElementById("end-overlay");
+  elEndTitle = document.getElementById("end-title");
+  elEndScoreText = document.getElementById("end-score-text");
+  elEndMessage = document.getElementById("end-message");
+  elPlayAgainBtn = document.getElementById("play-again-btn");
+  elChangeModeBtn = document.getElementById("change-mode-btn");
+  elChangeRegionBtn = document.getElementById("change-region-btn");
+
+  elWinMark = document.getElementById("win-mark");
+  elSpecLabel = document.getElementById("spec-label");
+
+  elStatsPanel = document.getElementById("stats-panel");
+
+  audioElement = document.getElementById("audio-player");
+}
+
+function attachEventListeners() {
+  if (elStartBtn) {
+    elStartBtn.addEventListener("click", () => {
+      hideElement(elStartOverlay);
       startNewGame();
     });
-    regionButtonsEl.appendChild(allBtn);
-
-    const counts = {};
-    SONGS.forEach(s => {
-      if (!counts[s.region]) counts[s.region] = 0;
-      counts[s.region] += 1;
-    });
-
-    Object.entries(counts)
-      .filter(([, count]) => count > 5) // appears only if >5 species
-      .forEach(([name, count]) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "mode-change-btn";
-        btn.textContent = `${name} (${count} species)`;
-        btn.addEventListener("click", () => {
-          currentRegion = name;
-          if (window.InsectGameAnalytics) {
-            window.InsectGameAnalytics.recordRegionChoice(name);
-          }
-          regionOverlayEl.classList.add("hidden");
-          updateRegionToggleLabel();
-          startNewGame();
-        });
-        regionButtonsEl.appendChild(btn);
-      });
   }
 
-  // ---- Init ----
-
-  function initDomRefs() {
-    spectrogramImageEl = document.getElementById("spectrogram-image");
-    specTaglineEl = document.getElementById("spec-tagline");
-    specRegionEl = document.getElementById("spec-region");
-    specLabelEl = document.getElementById("spec-label");
-    axisXEl = document.getElementById("axis-x");
-    axisYEl = document.getElementById("axis-y");
-    ampBoxEl = document.getElementById("amp-box");
-    specAxesWrapperEl = document.getElementById("spec-axes-wrapper");
-
-    factBoxEl = document.getElementById("fact-box");
-    factLabelEl = document.getElementById("fact-label");
-    factTextEl = document.getElementById("fact-text");
-    feedbackLineEl = document.getElementById("feedback-line");
-    insectPhotoEl = document.getElementById("insect-photo");
-    creditsEl = document.getElementById("credits");
-
-    answersListEl = document.getElementById("answers-list");
-    scoreTextEl = document.getElementById("score-text");
-    playBtnEl = document.getElementById("play-btn");
-    playBtnLabelEl = document.getElementById("play-btn-label");
-    nextBtnEl = document.getElementById("next-btn");
-    audioPlayerEl = document.getElementById("audio-player");
-    sciToggleBtn = document.getElementById("sci-toggle");
-    winMarkEl = document.getElementById("win-mark");
-    modeHintTextEl = document.getElementById("mode-hint-text");
-    questionTextEl = document.getElementById("question-text");
-    questionSubtitleEl = document.getElementById("question-subtitle");
-    modeLabelEl = document.getElementById("mode-label");
-    modeBubbleEl = document.getElementById("mode-bubble");
-    regionToggleBtn = document.getElementById("region-toggle");
-
-    startOverlayEl = document.getElementById("start-overlay");
-    startBtnEl = document.getElementById("start-btn");
-
-    hintOverlayEl = document.getElementById("hint-overlay");
-    hintTextEl = document.getElementById("hint-text");
-    hintCloseBtnEl = document.getElementById("hint-close-btn");
-
-    modeChangeOverlayEl = document.getElementById("mode-change-overlay");
-    modeChangeSpectroEl = document.getElementById("mode-change-spectro");
-    modeChangeImageEl = document.getElementById("mode-change-image");
-    modeChangeFactsEl = document.getElementById("mode-change-facts");
-    modeChangeCancelEl = document.getElementById("mode-change-cancel");
-
-    regionOverlayEl = document.getElementById("region-overlay");
-    regionButtonsEl = document.getElementById("region-buttons");
-    regionCancelEl = document.getElementById("region-cancel");
-
-    endOverlayEl = document.getElementById("end-overlay");
-    endTitleEl = document.getElementById("end-title");
-    endScoreTextEl = document.getElementById("end-score-text");
-    endMessageEl = document.getElementById("end-message");
-    playAgainBtnEl = document.getElementById("play-again-btn");
-    changeModeBtnEl = document.getElementById("change-mode-btn");
-    changeRegionBtnEl = document.getElementById("change-region-btn");
+  if (elPlayBtn) {
+    elPlayBtn.addEventListener("click", () => togglePlayPause());
   }
 
-  function attachEvents() {
-    if (playBtnEl) {
-      playBtnEl.addEventListener("click", playFromStart);
+  // Spacebar play/pause
+  window.addEventListener("keydown", (evt) => {
+    if (evt.code === "Space" || evt.key === " ") {
+      evt.preventDefault();
+      // Avoid reacting when focus is in a button we might need; but for now, global toggle is fine.
+      togglePlayPause();
     }
-    if (nextBtnEl) {
-      nextBtnEl.addEventListener("click", goToNextRound);
-    }
-    if (sciToggleBtn) {
-      sciToggleBtn.addEventListener("click", () => {
-        sciNamesOn = !sciNamesOn;
-        updateSciToggleUI();
-        applySciToggleToButtons();
-      });
-    }
-    if (startBtnEl) {
-      startBtnEl.addEventListener("click", () => setModeAndStart("spectrogram"));
-    }
-    if (hintCloseBtnEl) {
-      hintCloseBtnEl.addEventListener("click", hideHintOverlay);
-    }
-    if (playAgainBtnEl) {
-      playAgainBtnEl.addEventListener("click", () => {
-        hideEndOverlay();
-        startNewGame();
-      });
-    }
-    if (changeModeBtnEl) {
-      changeModeBtnEl.addEventListener("click", () => {
-        hideEndOverlay();
-        modeChangeOverlayEl.classList.remove("hidden");
-      });
-    }
-    if (changeRegionBtnEl) {
-      changeRegionBtnEl.addEventListener("click", () => {
-        hideEndOverlay();
-        buildRegionButtons();
-        regionOverlayEl.classList.remove("hidden");
-      });
-    }
-    if (modeBubbleEl) {
-      modeBubbleEl.addEventListener("click", () => {
-        modeChangeOverlayEl.classList.remove("hidden");
-      });
-    }
-    if (modeChangeSpectroEl) {
-      modeChangeSpectroEl.addEventListener("click", () => {
-        modeChangeOverlayEl.classList.add("hidden");
-        setModeAndStart("spectrogram");
-      });
-    }
-    if (modeChangeImageEl) {
-      modeChangeImageEl.addEventListener("click", () => {
-        modeChangeOverlayEl.classList.add("hidden");
-        setModeAndStart("image");
-      });
-    }
-    if (modeChangeFactsEl) {
-      modeChangeFactsEl.addEventListener("click", () => {
-        modeChangeOverlayEl.classList.add("hidden");
-        setModeAndStart("facts");
-      });
-    }
-    if (modeChangeCancelEl) {
-      modeChangeCancelEl.addEventListener("click", () => {
-        modeChangeOverlayEl.classList.add("hidden");
-      });
-    }
-    if (regionToggleBtn) {
-      regionToggleBtn.addEventListener("click", () => {
-        buildRegionButtons();
-        regionOverlayEl.classList.remove("hidden");
-      });
-    }
-    if (regionCancelEl) {
-      regionCancelEl.addEventListener("click", () => {
-        regionOverlayEl.classList.add("hidden");
-      });
-    }
+  });
 
-    // Spacebar toggles play/pause (but not in text inputs)
-    document.addEventListener("keydown", e => {
-      if (e.code === "Space" || e.key === " ") {
-        const tag = (e.target && e.target.tagName || "").toLowerCase();
-        if (tag === "input" || tag === "textarea" || e.target.isContentEditable) {
-          return;
-        }
-        e.preventDefault();
-        togglePlayPause();
+  if (audioElement) {
+    audioElement.addEventListener("ended", () => {
+      if (elPlayBtnLabel) {
+        elPlayBtnLabel.textContent =
+          currentMode === MODES.SPECTRO ? "Play call" : "Play audio";
       }
     });
   }
 
-  function initGame() {
-    if (!SONGS.length) {
-      console.error("No SONGS_DATA found.");
-      return;
-    }
-
-    initDomRefs();
-    attachEvents();
-    updateSciToggleUI();
-    updateRegionToggleLabel();
-
-    // Initialize analytics and stats panel if available
-    if (window.InsectGameAnalytics && document.getElementById("stats-text")) {
-      window.InsectGameAnalytics.init("stats-text");
-    }
+  // Next question
+  const nextBtn = document.getElementById("next-btn");
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      if (currentRound >= ROUNDS_PER_GAME) {
+        showEndOverlay();
+      } else {
+        startNewRound();
+      }
+    });
   }
 
-  document.addEventListener("DOMContentLoaded", initGame);
-})();
+  // Hint close
+  if (elHintCloseBtn) {
+    elHintCloseBtn.addEventListener("click", () => hideElement(elHintOverlay));
+  }
+
+  // Mode bubble -> open mode change overlay
+  if (elModeBubble) {
+    elModeBubble.addEventListener("click", () => {
+      showElement(elModeChangeOverlay);
+    });
+  }
+
+  // Mode change buttons
+  if (elModeChangeSpectro) {
+    elModeChangeSpectro.addEventListener("click", () => {
+      currentMode = MODES.SPECTRO;
+      updateModeLabel();
+      hideElement(elModeChangeOverlay);
+      startNewGame();
+    });
+  }
+  if (elModeChangeImage) {
+    elModeChangeImage.addEventListener("click", () => {
+      currentMode = MODES.IMAGE;
+      updateModeLabel();
+      hideElement(elModeChangeOverlay);
+      startNewGame();
+    });
+  }
+  if (elModeChangeFacts) {
+    elModeChangeFacts.addEventListener("click", () => {
+      currentMode = MODES.FACTS;
+      updateModeLabel();
+      hideElement(elModeChangeOverlay);
+      startNewGame();
+    });
+  }
+  if (elModeChangeCancel) {
+    elModeChangeCancel.addEventListener("click", () =>
+      hideElement(elModeChangeOverlay)
+    );
+  }
+
+  // Region toggle
+  if (elRegionToggle) {
+    elRegionToggle.addEventListener("click", () => {
+      showElement(elRegionOverlay);
+    });
+  }
+  if (elRegionCancel) {
+    elRegionCancel.addEventListener("click", () => hideElement(elRegionOverlay));
+  }
+
+  // End overlay buttons
+  if (elPlayAgainBtn) {
+    elPlayAgainBtn.addEventListener("click", () => {
+      hideElement(elEndOverlay);
+      startNewGame();
+    });
+  }
+  if (elChangeModeBtn) {
+    elChangeModeBtn.addEventListener("click", () => {
+      hideElement(elEndOverlay);
+      showElement(elModeChangeOverlay);
+    });
+  }
+  if (elChangeRegionBtn) {
+    elChangeRegionBtn.addEventListener("click", () => {
+      hideElement(elEndOverlay);
+      showElement(elRegionOverlay);
+    });
+  }
+
+  // Sci-name toggle
+  if (elSciToggle) {
+    elSciToggle.addEventListener("click", () => {
+      showScientificNames = !showScientificNames;
+      updateSciToggle();
+      // Re-render answer labels
+      renderQuestion();
+    });
+  }
+}
+
+// ----- Main init ------------------------------------------------------------
+
+window.addEventListener("DOMContentLoaded", () => {
+  initDomRefs();
+  resetAllOverlaysOnLoad();
+  applyRegionFilter();
+  buildRegionButtons();
+  updateModeLabel();
+  updateRegionLabel();
+  updateSciToggle();
+  attachEventListeners();
+});
