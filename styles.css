@@ -221,27 +221,30 @@ body {
   display: block;
 }
 
+.axis-y-outside,
+.axis-x-outside {
+  font-size: 0.7rem;   
+  color: #e5e7eb;
+  margin: 0;
+  padding: 0;
+  line-height: 1;        
+  font-weight: 400;
 }
+
+/* Y axis rotation */
 .axis-y-outside {
-  grid-row: 1 / 2;
-  grid-column: 1 / 2;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   transform: rotate(180deg);
-  font-size: 0.7rem;     /* SAME size as X axis */
-  color: #e5e7eb;
   text-align: center;
-  margin: 0;
 }
 
+/* X axis positioning */
 .axis-x-outside {
-  grid-row: 2 / 3;
-  grid-column: 2 / 3;
-  font-size: 0.7rem;     /* SAME size as Y axis */
-  color: #e5e7eb;
   text-align: center;
   margin-top: 2px;
 }
+
 
 
 .spectrogram-image {
