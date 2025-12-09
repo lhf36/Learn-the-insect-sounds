@@ -1,7 +1,7 @@
-// game.js
-// Core logic for the Insect Song Learning Game
+// game.js — clean, working version
+// --------------------------------
 
-// ----- Config / constants ---------------------------------------------------
+// ----- CONFIG --------------------------------------------------------------
 
 const MODES = {
   SPECTRO: "spectrogram",
@@ -17,9 +17,21 @@ const MODE_LABELS = {
 
 const ROUNDS_PER_GAME = 5;
 
-// End-game messages by mode + score
+// Expect SPECIES_DATA to be defined in species-data.js
+const ALL_SPECIES =
+  typeof SPECIES_DATA !== "undefined" && Array.isArray(SPECIES_DATA)
+    ? SPECIES_DATA
+    : [];
+
+if (!ALL_SPECIES.length) {
+  console.warn(
+    "SPECIES_DATA is missing or not an array. Check species-data.js (must define const SPECIES_DATA = [...])."
+  );
+}
+
+// ----- END SCREEN MESSAGES -------------------------------------------------
+
 function getEndMessage(mode, score) {
-  // Clamp 0–5 just in case
   const s = Math.max(0, Math.min(5, score));
 
   if (mode === MODES.SPECTRO) {
@@ -42,9 +54,9 @@ function getEndMessage(mode, score) {
       case 0:
         return "You might need new glasses. Try again!";
       case 1:
-        return "You’re just getting warmed up—look more closely!";
+        return "Look a little closer—these insects have great camouflage!";
       case 2:
-        return "Almost halfway there—those field marks are adding up.";
+        return "Almost halfway there—those field marks are sinking in.";
       case 3:
         return "Pretty good insect spotting!";
       case 4:
@@ -68,148 +80,118 @@ function getEndMessage(mode, score) {
         return "Natural history wizard! You definitely think like an insect biologist.";
     }
   }
-
   return "Nice work!";
 }
 
-// ----- Simple “ding” and “triumphant” sounds (no external files) -----------
+// ----- SIMPLE SOUND EFFECTS (DING + FANFARE) -------------------------------
 
-let audioContext = null;
+let audioCtx = null;
 
-function ensureAudioContext() {
-  if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+function ensureAudioCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
 }
 
-// Short “ding” on correct answer
 function playCorrectDing() {
   try {
-    ensureAudioContext();
-    const ctx = audioContext;
+    ensureAudioCtx();
+    const ctx = audioCtx;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
     osc.type = "sine";
-    osc.frequency.value = 880; // A5
+    osc.frequency.value = 880;
     gain.gain.setValueAtTime(0.0, ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
-
     osc.start();
     osc.stop(ctx.currentTime + 0.25);
   } catch (e) {
-    // Non-fatal
+    // ignore
   }
 }
 
-// Longer triumphant chord on end screen
 function playEndFanfare() {
   try {
-    ensureAudioContext();
-    const ctx = audioContext;
+    ensureAudioCtx();
+    const ctx = audioCtx;
+    const freqs = [523.25, 659.25, 783.99]; // C E G-ish
 
-    const freqs = [523.25, 659.25, 783.99]; // C major-ish
-    freqs.forEach((f, idx) => {
+    freqs.forEach((f, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+      const start = ctx.currentTime + i * 0.03;
+      const end = start + 0.5;
+
       osc.type = "triangle";
       osc.frequency.value = f;
-      const start = ctx.currentTime + 0.02 * idx;
-      const end = start + 0.6;
 
       gain.gain.setValueAtTime(0.0, start);
-      gain.gain.linearRampToValueAtTime(0.18, start + 0.05);
+      gain.gain.linearRampToValueAtTime(0.2, start + 0.05);
       gain.gain.exponentialRampToValueAtTime(0.001, end);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
-
       osc.start(start);
       osc.stop(end + 0.05);
     });
   } catch (e) {
-    // Non-fatal
+    // ignore
   }
 }
 
-// ----- Species data helper --------------------------------------------------
+// ----- HELPERS --------------------------------------------------------------
 
-// Try a few common global names; whichever your species-data.js defines
-// ----- Species data helper --------------------------------------------------
-
-// Try a few common global names; whichever your species-data.js defines.
-// Use typeof checks so we don't crash if a name is missing.
-// ----- Species data helper --------------------------------------------------
-
-// Try MANY possible global names; whichever your species-data.js defines.
-// This is deliberately forgiving so you don't have to rename your file.
-const ALL_SPECIES =
-  // Common patterns
-  (typeof SPECIES_DATA !== "undefined" &&
-    Array.isArray(SPECIES_DATA) &&
-    SPECIES_DATA) ||
-  (typeof SPECIES !== "undefined" && Array.isArray(SPECIES) && SPECIES) ||
-  (typeof SONGS !== "undefined" && Array.isArray(SONGS) && SONGS) ||
-  (typeof speciesData !== "undefined" &&
-    Array.isArray(speciesData) &&
-    speciesData) ||
-  // Window-attached variants (if someone used var or explicit window.)
-  (typeof window !== "undefined" &&
-    window.SPECIES_DATA &&
-    Array.isArray(window.SPECIES_DATA) &&
-    window.SPECIES_DATA) ||
-  (typeof window !== "undefined" &&
-    window.SPECIES &&
-    Array.isArray(window.SPECIES) &&
-    window.SPECIES) ||
-  (typeof window !== "undefined" &&
-    window.SONGS &&
-    Array.isArray(window.SONGS) &&
-    window.SONGS) ||
-  (typeof window !== "undefined" &&
-    window.speciesData &&
-    Array.isArray(window.speciesData) &&
-    window.speciesData) ||
-  [];
-
-// If nothing loaded, show a visible hint in the UI as well as console.
-if (!ALL_SPECIES.length) {
-  console.warn(
-    "No species data found. Tried SPECIES_DATA, SPECIES, SONGS, speciesData (and window.* variants)."
-  );
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
+function hide(el) {
+  if (el) el.classList.add("hidden");
+}
+function show(el) {
+  if (el) el.classList.remove("hidden");
+}
 
-
-function getRegionsFromSpecies(data) {
+function getRegionsFromSpecies() {
   const counts = new Map();
-  data.forEach((sp) => {
-    const regions = sp.regions && sp.regions.length ? sp.regions : ["All"];
-    regions.forEach((r) => {
-      counts.set(r, (counts.get(r) || 0) + 1);
-    });
+  ALL_SPECIES.forEach((sp) => {
+    const regs = sp.regions && sp.regions.length ? sp.regions : ["All regions"];
+    regs.forEach((r) => counts.set(r, (counts.get(r) || 0) + 1));
   });
   return counts;
 }
 
-// ----- Game state -----------------------------------------------------------
+function displayName(sp, sciMode) {
+  if (!sp) return "";
+  if (sciMode && sp.scientificName) return sp.scientificName;
+  return sp.commonName || sp.name || "";
+}
+
+// ----- STATE ----------------------------------------------------------------
 
 let currentMode = MODES.SPECTRO;
 let currentRegion = "All regions";
-let showScientificNames = false;
+let showSci = false;
 
-let filteredSpecies = [];
-let speciesQueue = []; // shuffled indices for correct answers
+let filtered = [];
+let queue = [];
 let currentRound = 0;
 let correctFirstTry = 0;
+
 let currentSpecies = null;
 let currentOptions = [];
-let firstGuessThisRound = true;
-let hasAnsweredThisRound = false;
+let firstGuess = true;
+let answered = false;
 
 // DOM refs
 let elModeLabel,
@@ -252,60 +234,30 @@ let elModeLabel,
   elChangeModeBtn,
   elChangeRegionBtn,
   elWinMark,
-  elSpecLabel,
-  elStatsPanel;
+  elSpecLabel;
 
-let audioElement;
+let audioEl;
 
-// ----- Utility helpers ------------------------------------------------------
-
-function shuffleArray(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function pickOtherIndices(pool, correctIndex, count) {
-  const others = pool.filter((idx) => idx !== correctIndex);
-  const shuffled = shuffleArray(others);
-  return shuffled.slice(0, count);
-}
-
-function hideElement(el) {
-  if (!el) return;
-  el.classList.add("hidden");
-}
-
-function showElement(el) {
-  if (!el) return;
-  el.classList.remove("hidden");
-}
-
-// ----- Mode / region / sci-name UI -----------------------------------------
+// ----- MODE / REGION UI -----------------------------------------------------
 
 function updateModeLabel() {
-  if (!elModeLabel) return;
-  elModeLabel.textContent = `Mode: ${MODE_LABELS[currentMode] || "—"}`;
-
+  if (elModeLabel) {
+    elModeLabel.textContent = `Mode: ${MODE_LABELS[currentMode]}`;
+  }
   if (!elModeHintText) return;
   if (currentMode === MODES.SPECTRO) {
     elModeHintText.textContent = "Match the call’s spectrogram to the correct species.";
   } else if (currentMode === MODES.IMAGE) {
     elModeHintText.textContent = "Match the insect photo to the correct species.";
   } else if (currentMode === MODES.FACTS) {
-    elModeHintText.textContent = "Match each natural history fact to the right species.";
-  } else {
-    elModeHintText.textContent = "";
+    elModeHintText.textContent = "Match the natural history fact to the right species.";
   }
 }
 
 function updateSciToggle() {
   if (!elSciToggle) return;
-  elSciToggle.setAttribute("aria-pressed", showScientificNames ? "true" : "false");
-  if (showScientificNames) {
+  elSciToggle.setAttribute("aria-pressed", showSci ? "true" : "false");
+  if (showSci) {
     elSciToggle.textContent = "Show scientific names: ON";
     elSciToggle.classList.remove("mode-off");
     elSciToggle.classList.add("mode-on");
@@ -319,108 +271,86 @@ function updateSciToggle() {
 function updateRegionLabel() {
   if (elRegionToggle) {
     elRegionToggle.textContent =
-      currentRegion === "All regions" ? "🌍 Region: All" : `🌍 Region: ${currentRegion}`;
+      currentRegion === "All regions"
+        ? "🌍 Region: All"
+        : `🌍 Region: ${currentRegion}`;
   }
   if (elSpecRegion) {
     elSpecRegion.textContent = `Region: ${currentRegion}`;
   }
 }
 
-// ----- Species filtering & region buttons ----------------------------------
-
 function applyRegionFilter() {
   if (currentRegion === "All regions") {
-    filteredSpecies = ALL_SPECIES.slice();
-    return;
-  }
-  filteredSpecies = ALL_SPECIES.filter((sp) => {
-    if (!sp.regions || !sp.regions.length) return false;
-    return sp.regions.includes(currentRegion);
-  });
-  if (!filteredSpecies.length) {
-    // Fallback to all
-    filteredSpecies = ALL_SPECIES.slice();
+    filtered = ALL_SPECIES.slice();
+  } else {
+    filtered = ALL_SPECIES.filter(
+      (sp) => sp.regions && sp.regions.includes(currentRegion)
+    );
+    if (!filtered.length) filtered = ALL_SPECIES.slice();
   }
 }
 
 function buildRegionButtons() {
   if (!elRegionButtons) return;
-
-  const counts = getRegionsFromSpecies(ALL_SPECIES);
+  const counts = getRegionsFromSpecies();
   const entries = Array.from(counts.entries()).filter(
-    ([region, count]) => count > 5 // threshold
+    ([, count]) => count > 5
   );
 
-  // Always include All regions option
-  const regions = ["All regions", ...entries.map(([region]) => region)];
-
+  const regions = ["All regions", ...entries.map(([r]) => r)];
   elRegionButtons.innerHTML = "";
-
   regions.forEach((region) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "mode-change-btn";
-    btn.textContent = region === "All regions" ? "All regions" : region;
-    btn.addEventListener("click", () => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "mode-change-btn";
+    b.textContent = region === "All regions" ? "All regions" : region;
+    b.addEventListener("click", () => {
       currentRegion = region;
       updateRegionLabel();
       applyRegionFilter();
       startNewGame();
-      hideElement(elRegionOverlay);
+      hide(elRegionOverlay);
     });
-    elRegionButtons.appendChild(btn);
+    elRegionButtons.appendChild(b);
   });
 }
 
-// ----- Round / question generation -----------------------------------------
+// ----- ROUND MANAGEMENT -----------------------------------------------------
 
-function resetSpeciesQueue() {
-  if (!filteredSpecies.length) {
-    filteredSpecies = ALL_SPECIES.slice();
-  }
-  const indices = filteredSpecies.map((_, i) => i);
-  speciesQueue = shuffleArray(indices);
+function resetQueue() {
+  const indices = filtered.map((_, i) => i);
+  queue = shuffle(indices);
 }
 
-function pickNextSpeciesIndex() {
-  if (!speciesQueue.length) {
-    resetSpeciesQueue();
-  }
-  return speciesQueue.shift();
+function nextSpeciesIndex() {
+  if (!queue.length) resetQueue();
+  return queue.shift();
 }
 
 function buildOptions(correctIdx) {
-  const indices = filteredSpecies.map((_, i) => i);
-  const others = pickOtherIndices(indices, correctIdx, 3);
-  const pool = shuffleArray([correctIdx, ...others]);
-  return pool.map((i) => filteredSpecies[i]);
+  const indices = filtered.map((_, i) => i);
+  const others = shuffle(indices.filter((i) => i !== correctIdx)).slice(0, 3);
+  const all = shuffle([correctIdx, ...others]);
+  return all.map((i) => filtered[i]);
 }
 
-function getDisplayName(sp) {
-  if (!sp) return "";
-  if (showScientificNames && sp.scientificName) return sp.scientificName;
-  return sp.commonName || sp.name || "";
-}
-
-// ----- Rendering for current mode ------------------------------------------
+// ----- RENDERING ------------------------------------------------------------
 
 function renderQuestion() {
   if (!currentSpecies) return;
 
-  // Spectrogram / image / fact content
   const isSpectro = currentMode === MODES.SPECTRO;
   const isImage = currentMode === MODES.IMAGE;
   const isFacts = currentMode === MODES.FACTS;
 
-  // Question text
   if (elQuestionText) {
-    if (isSpectro) {
-      elQuestionText.textContent = "Which insect is producing this sound?";
-    } else if (isImage) {
-      elQuestionText.textContent = "Which insect is shown in this photo?";
-    } else if (isFacts) {
-      elQuestionText.textContent = "Which insect does this fact describe?";
-    }
+    elQuestionText.textContent =
+      currentMode === MODES.SPECTRO
+        ? "Which insect is producing this sound?"
+        : currentMode === MODES.IMAGE
+        ? "Which insect is shown in this photo?"
+        : "Which insect does this fact describe?";
   }
 
   if (elQuestionSubtitle) {
@@ -436,41 +366,28 @@ function renderQuestion() {
     }
   }
 
-  // Spectrogram vs photo vs fact emphasis
-  if (elSpectrogramImage) {
-    if (isSpectro || isFacts) {
-      // Spectrogram visible
-      elSpectrogramImage.src = currentSpecies.spectrogramImage || "";
-      elSpectrogramImage.alt = `Spectrogram of ${currentSpecies.commonName || ""}`;
-      elSpectrogramImage.classList.remove("hidden");
-    } else {
-      // In image mode we can still show the spectrogram OR hide; for now keep it visible.
-      elSpectrogramImage.src = currentSpecies.spectrogramImage || "";
-      elSpectrogramImage.alt = `Spectrogram of ${currentSpecies.commonName || ""}`;
-      elSpectrogramImage.classList.remove("hidden");
-    }
-  }
-
-  if (elInsectPhoto) {
-    if (isImage) {
-      // Show photo prominently
-      elInsectPhoto.src = currentSpecies.photoImage || "";
-      elInsectPhoto.alt = currentSpecies.commonName || "Insect photo";
-      elInsectPhoto.classList.remove("hidden");
-    } else {
-      // Still show below in spectro/fact modes, but not essential
-      elInsectPhoto.src = currentSpecies.photoImage || "";
-      elInsectPhoto.alt = currentSpecies.commonName || "Insect photo";
-      elInsectPhoto.classList.remove("hidden");
-    }
-  }
-
   if (elSpecLabel) {
     elSpecLabel.textContent = isSpectro
-      ? "Visualizing sound"
+      ? "VISUALIZING SOUND"
       : isImage
-      ? "Image training"
-      : "Fact training";
+      ? "IMAGE TRAINING"
+      : "FACT TRAINING";
+  }
+
+  // Spectrogram image (always shown, but content varies by mode)
+  if (elSpectrogramImage) {
+    elSpectrogramImage.src = currentSpecies.spectrogramImage || "";
+    elSpectrogramImage.alt = `Spectrogram of ${
+      currentSpecies.commonName || ""
+    }`;
+    elSpectrogramImage.classList.remove("hidden");
+  }
+
+  // Photo box
+  if (elInsectPhoto) {
+    elInsectPhoto.src = currentSpecies.photoImage || "";
+    elInsectPhoto.alt = currentSpecies.commonName || "Insect photo";
+    elInsectPhoto.classList.remove("hidden");
   }
 
   // Fact box
@@ -478,10 +395,8 @@ function renderQuestion() {
     if (isFacts) {
       elFactBox.classList.add("fact-mode");
       elFactLabel.textContent = "Fact to match";
-      const redacted = currentSpecies.factRedacted || currentSpecies.fact;
       elFactText.textContent =
-        redacted ||
-        "Read the natural history clues and choose the correct insect.";
+        currentSpecies.factRedacted || currentSpecies.fact || "";
     } else {
       elFactBox.classList.remove("fact-mode");
       elFactLabel.textContent = "After the guess";
@@ -491,31 +406,27 @@ function renderQuestion() {
 
   // Credits
   if (elCredits) {
-    let parts = [];
+    const parts = [];
     if (currentSpecies.photoCredit) {
-      let t = `📷 ${currentSpecies.photoCredit}`;
-      if (currentSpecies.copyrightPhoto) {
-        t += ` (${currentSpecies.copyrightPhoto})`;
-      }
-      parts.push(`<span>${t}</span>`);
+      let s = `📷 ${currentSpecies.photoCredit}`;
+      if (currentSpecies.copyrightPhoto) s += ` (${currentSpecies.copyrightPhoto})`;
+      parts.push(`<span>${s}</span>`);
     }
     if (currentSpecies.audioCredit) {
-      let t = `🎧 ${currentSpecies.audioCredit}`;
-      if (currentSpecies.copyrightAudio) {
-        t += ` (${currentSpecies.copyrightAudio})`;
-      }
-      parts.push(`<span>${t}</span>`);
+      let s = `🎧 ${currentSpecies.audioCredit}`;
+      if (currentSpecies.copyrightAudio) s += ` (${currentSpecies.copyrightAudio})`;
+      parts.push(`<span>${s}</span>`);
     }
     elCredits.innerHTML = parts.join(" ");
   }
 
   // Audio src
-  if (audioElement) {
+  if (audioEl) {
     if (currentSpecies.audioFile) {
-      audioElement.src = currentSpecies.audioFile;
-      audioElement.load();
+      audioEl.src = currentSpecies.audioFile;
+      audioEl.load();
     } else {
-      audioElement.removeAttribute("src");
+      audioEl.removeAttribute("src");
     }
   }
 
@@ -526,26 +437,24 @@ function renderQuestion() {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "answer-btn";
-      btn.dataset.speciesId = sp.id || sp.commonName || "";
 
-      const labelSpan = document.createElement("span");
-      labelSpan.className = "answer-label";
-      labelSpan.textContent = getDisplayName(sp);
+      const label = document.createElement("span");
+      label.className = "answer-label";
+      label.textContent = displayName(sp, showSci);
 
-      const metaSpan = document.createElement("span");
-      metaSpan.className = "answer-meta";
-      metaSpan.textContent = "Guess";
+      const meta = document.createElement("span");
+      meta.className = "answer-meta";
+      meta.textContent = "Guess";
 
-      btn.appendChild(labelSpan);
-      btn.appendChild(metaSpan);
+      btn.appendChild(label);
+      btn.appendChild(meta);
 
-      btn.addEventListener("click", () => handleAnswer(sp, btn, metaSpan));
-
+      btn.addEventListener("click", () => handleAnswer(sp, btn, meta));
       elAnswersList.appendChild(btn);
     });
   }
 
-  // Reset feedback, win mark, next button
+  // Feedback / score / controls
   if (elFeedbackLine) {
     elFeedbackLine.textContent = "";
     elFeedbackLine.classList.remove("correct", "wrong");
@@ -553,143 +462,119 @@ function renderQuestion() {
   if (elWinMark) {
     elWinMark.classList.remove("win-mark-visible");
   }
-  if (elPlayBtnLabel) {
-    elPlayBtnLabel.textContent = isSpectro ? "Play call" : "Play audio";
-  }
+  const nextBtn = document.getElementById("next-btn");
+  if (nextBtn) nextBtn.disabled = true;
   if (elScoreText) {
     elScoreText.innerHTML = `Score this game: <strong>${correctFirstTry}</strong> of ${ROUNDS_PER_GAME}`;
   }
-  const nextBtn = document.getElementById("next-btn");
-  if (nextBtn) {
-    nextBtn.disabled = true;
+  if (elPlayBtnLabel) {
+    elPlayBtnLabel.textContent = isSpectro ? "Play call" : "Play audio";
   }
 }
 
-// ----- Answer handling ------------------------------------------------------
+// ----- HINTS & ANSWERS ------------------------------------------------------
 
-function showHintFromFact() {
+function showHintOverlay() {
   if (!currentSpecies || !elHintOverlay || !elHintText) return;
-
-  const base = currentSpecies.fact || "";
-  const shortHint = currentSpecies.hint || base;
-  elHintText.textContent = shortHint;
-  showElement(elHintOverlay);
+  const hint = currentSpecies.hint || currentSpecies.fact || "";
+  elHintText.textContent = hint;
+  show(elHintOverlay);
 }
 
-function handleAnswer(chosenSpecies, buttonEl, metaSpan) {
-  if (!currentSpecies || hasAnsweredThisRound) {
-    return;
-  }
+function handleAnswer(chosen, btn, metaSpan) {
+  if (!currentSpecies || answered) return;
 
-  const isCorrect = chosenSpecies === currentSpecies;
+  const correct = chosen === currentSpecies;
 
-  if (isCorrect) {
-    // First-try correctness
-    if (firstGuessThisRound) {
+  if (correct) {
+    if (firstGuess) {
       correctFirstTry += 1;
       if (elScoreText) {
         elScoreText.innerHTML = `Score this game: <strong>${correctFirstTry}</strong> of ${ROUNDS_PER_GAME}`;
       }
     }
+    answered = true;
 
-    hasAnsweredThisRound = true;
-
-    // Visual feedback
-    buttonEl.classList.add("correct-choice");
+    btn.classList.add("correct-choice");
     metaSpan.classList.add("correct");
     metaSpan.textContent = "Correct";
 
     if (elFeedbackLine) {
       elFeedbackLine.classList.remove("wrong");
       elFeedbackLine.classList.add("correct");
-
       if (currentMode === MODES.SPECTRO) {
         elFeedbackLine.textContent = "Nice listening!";
       } else if (currentMode === MODES.IMAGE) {
         elFeedbackLine.textContent = "Nice recognition!";
-      } else if (currentMode === MODES.FACTS) {
+      } else {
         elFeedbackLine.textContent = "Great fact matching!";
       }
     }
-
-    if (elWinMark) {
-      elWinMark.classList.add("win-mark-visible");
-    }
+    if (elWinMark) elWinMark.classList.add("win-mark-visible");
 
     // Reveal full fact
     if (elFactBox && elFactLabel && elFactText) {
-      elFactLabel.textContent = "Fact";
       elFactBox.classList.add("fact-mode");
-      const fullFact = currentSpecies.fact || currentSpecies.factRedacted || "";
-      elFactText.textContent = fullFact;
+      elFactLabel.textContent = "Fact";
+      elFactText.textContent =
+        currentSpecies.fact || currentSpecies.factRedacted || "";
     }
 
-    // Disable other buttons
+    // disable other buttons
     if (elAnswersList) {
-      const allButtons = elAnswersList.querySelectorAll(".answer-btn");
-      allButtons.forEach((b) => {
-        b.disabled = true;
-        if (b !== buttonEl && b.classList.contains("correct-choice") === false) {
-          // leave them neutral
-        }
-      });
+      elAnswersList
+        .querySelectorAll(".answer-btn")
+        .forEach((b) => (b.disabled = true));
     }
 
     playCorrectDing();
 
-    // Enable next
     const nextBtn = document.getElementById("next-btn");
-    if (nextBtn) {
-      nextBtn.disabled = false;
-    }
+    if (nextBtn) nextBtn.disabled = false;
   } else {
-    // Wrong answer: show hint overlay
-    firstGuessThisRound = false;
+    firstGuess = false;
     if (elFeedbackLine) {
       elFeedbackLine.classList.remove("correct");
       elFeedbackLine.classList.add("wrong");
       if (currentMode === MODES.SPECTRO) {
-        elFeedbackLine.textContent = "Not quite—listen again and check the hint.";
+        elFeedbackLine.textContent =
+          "Not quite—listen again and check the hint.";
       } else if (currentMode === MODES.IMAGE) {
-        elFeedbackLine.textContent = "Not quite—look again and check the hint.";
-      } else if (currentMode === MODES.FACTS) {
-        elFeedbackLine.textContent = "Not quite—read the fact again and check the hint.";
+        elFeedbackLine.textContent =
+          "Not quite—look again and check the hint.";
+      } else {
+        elFeedbackLine.textContent =
+          "Not quite—read the fact again and check the hint.";
       }
     }
-
-    // Mark this button briefly as wrong
-    buttonEl.classList.add("wrong-choice");
+    btn.classList.add("wrong-choice");
     metaSpan.textContent = "Try again";
-
-    showHintFromFact();
+    showHintOverlay();
   }
 }
 
-// ----- Rounds & game flow ---------------------------------------------------
+// ----- GAME FLOW ------------------------------------------------------------
 
-function startNewRound() {
-  if (!filteredSpecies.length) {
-    applyRegionFilter();
-  }
-  const correctIdx = pickNextSpeciesIndex();
-  currentSpecies = filteredSpecies[correctIdx];
-  currentOptions = buildOptions(correctIdx);
-  firstGuessThisRound = true;
-  hasAnsweredThisRound = false;
+function startRound() {
+  if (!filtered.length) applyRegionFilter();
+  const idx = nextSpeciesIndex();
+  currentSpecies = filtered[idx];
+  currentOptions = buildOptions(idx);
+  firstGuess = true;
+  answered = false;
   currentRound += 1;
 
-  if (audioElement) {
-    audioElement.pause();
-    audioElement.currentTime = 0;
+  if (audioEl) {
+    audioEl.pause();
+    audioEl.currentTime = 0;
   }
 
   renderQuestion();
 }
 
 function showEndOverlay() {
-  if (!elEndOverlay || !elEndTitle || !elEndScoreText || !elEndMessage) return;
+  if (!elEndOverlay) return;
 
-  // Tint based on score
   const ratio = correctFirstTry / ROUNDS_PER_GAME;
   elEndOverlay.classList.remove("tint-bad", "tint-mid", "tint-good");
   if (ratio <= 0.3) {
@@ -700,69 +585,58 @@ function showEndOverlay() {
     elEndOverlay.classList.add("tint-good");
   }
 
-  elEndTitle.textContent = "Game complete!";
-  elEndScoreText.textContent = `You scored ${correctFirstTry} / ${ROUNDS_PER_GAME}.`;
-  elEndMessage.textContent = getEndMessage(currentMode, correctFirstTry);
+  if (elEndTitle) elEndTitle.textContent = "Game complete!";
+  if (elEndScoreText)
+    elEndScoreText.textContent = `You scored ${correctFirstTry} / ${ROUNDS_PER_GAME}.`;
+  if (elEndMessage)
+    elEndMessage.textContent = getEndMessage(currentMode, correctFirstTry);
 
-  showElement(elEndOverlay);
+  show(elEndOverlay);
   playEndFanfare();
 }
 
 function startNewGame() {
   currentRound = 0;
   correctFirstTry = 0;
-  firstGuessThisRound = true;
-  hasAnsweredThisRound = false;
+  firstGuess = true;
+  answered = false;
 
   applyRegionFilter();
-  resetSpeciesQueue();
+  resetQueue();
 
-  if (elWinMark) {
-    elWinMark.classList.remove("win-mark-visible");
-  }
+  hide(elEndOverlay);
+  if (elWinMark) elWinMark.classList.remove("win-mark-visible");
   if (elScoreText) {
-    elScoreText.innerHTML = `Score this game: <strong>${correctFirstTry}</strong> of ${ROUNDS_PER_GAME}`;
+    elScoreText.innerHTML = `Score this game: <strong>0</strong> of ${ROUNDS_PER_GAME}`;
   }
-  hideElement(elEndOverlay);
 
-  startNewRound();
+  startRound();
 }
 
-// ----- Audio + controls -----------------------------------------------------
+// ----- AUDIO CONTROLS -------------------------------------------------------
 
 function togglePlayPause() {
-  if (!audioElement || !currentSpecies) return;
-
-  if (audioElement.paused) {
-    audioElement.play().catch(() => {});
-    if (elPlayBtnLabel) elPlayBtnLabel.textContent = "Pause audio";
+  if (!audioEl || !currentSpecies) return;
+  if (audioEl.paused) {
+    audioEl.play().catch(() => {});
+    if (elPlayBtnLabel)
+      elPlayBtnLabel.textContent =
+        currentMode === MODES.SPECTRO ? "Pause call" : "Pause audio";
   } else {
-    audioElement.pause();
-    if (elPlayBtnLabel) {
+    audioEl.pause();
+    if (elPlayBtnLabel)
       elPlayBtnLabel.textContent =
         currentMode === MODES.SPECTRO ? "Play call" : "Play audio";
-    }
   }
 }
 
-// ----- Overlay helpers ------------------------------------------------------
-
-function resetAllOverlaysOnLoad() {
-  showElement(elStartOverlay);
-  hideElement(elEndOverlay);
-  hideElement(elHintOverlay);
-  hideElement(elModeChangeOverlay);
-  hideElement(elRegionOverlay);
-}
-
-// ----- Initialization -------------------------------------------------------
+// ----- INIT -----------------------------------------------------------------
 
 function initDomRefs() {
   elModeLabel = document.getElementById("mode-label");
   elRegionToggle = document.getElementById("region-toggle");
   elModeBubble = document.getElementById("mode-bubble");
   elSciToggle = document.getElementById("sci-toggle");
-
   elSpecRegion = document.getElementById("spec-region");
   elModeHintText = document.getElementById("mode-hint-text");
 
@@ -783,7 +657,6 @@ function initDomRefs() {
   elFactText = document.getElementById("fact-text");
 
   elCredits = document.getElementById("credits");
-
   elStartOverlay = document.getElementById("start-overlay");
   elStartBtn = document.getElementById("start-btn");
 
@@ -812,71 +685,58 @@ function initDomRefs() {
   elWinMark = document.getElementById("win-mark");
   elSpecLabel = document.getElementById("spec-label");
 
-  elStatsPanel = document.getElementById("stats-panel");
-
-  audioElement = document.getElementById("audio-player");
+  audioEl = document.getElementById("audio-player");
 }
 
-function attachEventListeners() {
+function attachListeners() {
   if (elStartBtn) {
     elStartBtn.addEventListener("click", () => {
-      hideElement(elStartOverlay);
+      hide(elStartOverlay);
       startNewGame();
     });
   }
 
-  if (elPlayBtn) {
-    elPlayBtn.addEventListener("click", () => togglePlayPause());
-  }
+  if (elPlayBtn) elPlayBtn.addEventListener("click", togglePlayPause);
 
-  // Spacebar play/pause
-  window.addEventListener("keydown", (evt) => {
-    if (evt.code === "Space" || evt.key === " ") {
-      evt.preventDefault();
-      // Avoid reacting when focus is in a button we might need; but for now, global toggle is fine.
+  window.addEventListener("keydown", (ev) => {
+    if (ev.code === "Space" || ev.key === " ") {
+      ev.preventDefault();
       togglePlayPause();
     }
   });
 
-  if (audioElement) {
-    audioElement.addEventListener("ended", () => {
-      if (elPlayBtnLabel) {
+  if (audioEl) {
+    audioEl.addEventListener("ended", () => {
+      if (elPlayBtnLabel)
         elPlayBtnLabel.textContent =
           currentMode === MODES.SPECTRO ? "Play call" : "Play audio";
-      }
     });
   }
 
-  // Next question
   const nextBtn = document.getElementById("next-btn");
   if (nextBtn) {
     nextBtn.addEventListener("click", () => {
       if (currentRound >= ROUNDS_PER_GAME) {
         showEndOverlay();
       } else {
-        startNewRound();
+        startRound();
       }
     });
   }
 
-  // Hint close
   if (elHintCloseBtn) {
-    elHintCloseBtn.addEventListener("click", () => hideElement(elHintOverlay));
+    elHintCloseBtn.addEventListener("click", () => hide(elHintOverlay));
   }
 
-  // Mode bubble -> open mode change overlay
   if (elModeBubble) {
-    elModeBubble.addEventListener("click", () => {
-      showElement(elModeChangeOverlay);
-    });
+    elModeBubble.addEventListener("click", () => show(elModeChangeOverlay));
   }
 
-  // Mode change buttons
   if (elModeChangeSpectro) {
     elModeChangeSpectro.addEventListener("click", () => {
       currentMode = MODES.SPECTRO;
       updateModeLabel();
-      hideElement(elModeChangeOverlay);
+      hide(elModeChangeOverlay);
       startNewGame();
     });
   }
@@ -884,7 +744,7 @@ function attachEventListeners() {
     elModeChangeImage.addEventListener("click", () => {
       currentMode = MODES.IMAGE;
       updateModeLabel();
-      hideElement(elModeChangeOverlay);
+      hide(elModeChangeOverlay);
       startNewGame();
     });
   }
@@ -892,76 +752,65 @@ function attachEventListeners() {
     elModeChangeFacts.addEventListener("click", () => {
       currentMode = MODES.FACTS;
       updateModeLabel();
-      hideElement(elModeChangeOverlay);
+      hide(elModeChangeOverlay);
       startNewGame();
     });
   }
   if (elModeChangeCancel) {
     elModeChangeCancel.addEventListener("click", () =>
-      hideElement(elModeChangeOverlay)
+      hide(elModeChangeOverlay)
     );
   }
 
-  // Region toggle
   if (elRegionToggle) {
-    elRegionToggle.addEventListener("click", () => {
-      showElement(elRegionOverlay);
-    });
+    elRegionToggle.addEventListener("click", () => show(elRegionOverlay));
   }
   if (elRegionCancel) {
-    elRegionCancel.addEventListener("click", () => hideElement(elRegionOverlay));
+    elRegionCancel.addEventListener("click", () => hide(elRegionOverlay));
   }
 
-  // End overlay buttons
   if (elPlayAgainBtn) {
     elPlayAgainBtn.addEventListener("click", () => {
-      hideElement(elEndOverlay);
+      hide(elEndOverlay);
       startNewGame();
     });
   }
   if (elChangeModeBtn) {
     elChangeModeBtn.addEventListener("click", () => {
-      hideElement(elEndOverlay);
-      showElement(elModeChangeOverlay);
+      hide(elEndOverlay);
+      show(elModeChangeOverlay);
     });
   }
   if (elChangeRegionBtn) {
     elChangeRegionBtn.addEventListener("click", () => {
-      hideElement(elEndOverlay);
-      showElement(elRegionOverlay);
+      hide(elEndOverlay);
+      show(elRegionOverlay);
     });
   }
 
-  // Sci-name toggle
   if (elSciToggle) {
     elSciToggle.addEventListener("click", () => {
-      showScientificNames = !showScientificNames;
+      showSci = !showSci;
       updateSciToggle();
-      // Re-render answer labels
       renderQuestion();
     });
   }
 }
 
-// ----- Main init ------------------------------------------------------------
+function resetOverlaysOnLoad() {
+  show(elStartOverlay);
+  hide(elEndOverlay);
+  hide(elHintOverlay);
+  hide(elModeChangeOverlay);
+  hide(elRegionOverlay);
+}
 
 window.addEventListener("DOMContentLoaded", () => {
   initDomRefs();
-  resetAllOverlaysOnLoad();
-  applyRegionFilter();
-  buildRegionButtons();
+  resetOverlaysOnLoad();
   updateModeLabel();
   updateRegionLabel();
   updateSciToggle();
-  attachEventListeners();
+  buildRegionButtons();
+  attachListeners();
 });
-  // If no species loaded, show a friendly message instead of a blank game.
-  if (!ALL_SPECIES.length && elQuestionText) {
-    elQuestionText.textContent =
-      "No species loaded. Check species-data.js and make sure it defines an array named SPECIES_DATA, SPECIES, SONGS, or speciesData.";
-    if (elQuestionSubtitle) {
-      elQuestionSubtitle.textContent =
-        "Once the data file is loaded correctly, this will become a 5-round game.";
-    }
-  }
-
