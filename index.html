@@ -1253,37 +1253,53 @@
         .map(x => x.v);
     }
 
-    function redactFact(song) {
-      let text = song.fact || "";
-      if (!text) return text;
+function redactFact(song) {
+  let text = song.fact || "";
+  if (!text) return text;
 
-      const targets = [];
+  let targets = [];
 
-      // full common name
-      targets.push(song.commonName);
+  // --- A) Full common name variations ---
+  const fullName = song.commonName;
+  const noHyphen = fullName.replace(/-/g, " ");
+  const nameParts = noHyphen.split(/\s+/);
 
-      // genus
-      const genus = song.species.split(" ")[0];
-      if (genus) targets.push(genus);
+  // Remove punctuation & allow flexible matching
+  targets.push(fullName);
+  targets.push(noHyphen);
 
-      // group words
-      const groupWords = [
-        "cricket", "crickets",
-        "cicada", "cicadas",
-        "grasshopper", "grasshoppers",
-        "katydid", "katydids"
-      ];
-      groupWords.forEach(w => targets.push(w));
+  // --- B) Add each component word of the common name ---
+  nameParts.forEach(part => {
+    if (part.length > 2) targets.push(part);
+  });
 
-      // Build a single regex OR-ed from escaped targets
-      const escaped = targets
-        .filter(Boolean)
-        .map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-      if (!escaped.length) return text;
+  // --- C) Scientific name: genus + species ---
+  const sciParts = song.species.split(/\s+/);
+  sciParts.forEach(p => targets.push(p));
 
-      const re = new RegExp(escaped.join("|"), "gi");
-      return text.replace(re, match => "•".repeat(match.length));
-    }
+  // --- D) Known insect group labels ---
+  const groups = [
+    "cricket","crickets",
+    "katydid","katydids",
+    "grasshopper","grasshoppers",
+    "cicada","cicadas"
+  ];
+  targets.push(...groups);
+
+  // Escape and dedupe
+  const escaped = [...new Set(
+    targets
+      .filter(Boolean)
+      .map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+  )];
+
+  if (!escaped.length) return text;
+
+  // Build master regex
+  const re = new RegExp(escaped.join("|"), "gi");
+
+  return text.replace(re, match => "•".repeat(match.length));
+}
 
     function getHintText(song) {
       if (currentMode === "facts") {
