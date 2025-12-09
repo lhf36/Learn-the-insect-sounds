@@ -247,13 +247,6 @@ body {
   text-align: center;
 }
 
-/* X axis positioning */
-.axis-x-outside {
-  text-align: center;
-  margin-top: 2px;
-}
-
-
 
 .spectrogram-image {
   width: 100%;
