@@ -2,7 +2,8 @@
    Visual styling for the Insect Song Learning Game
 */
 
-/* Reset-ish */
+/* ----- Base reset-ish ----- */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -13,7 +14,7 @@
 
 body {
   min-height: 100vh;
-  background: radial-gradient(circle at top, #0f172a, #020617 60%, #000 100%);
+  background: radial-gradient(circle at top, #020617, #000);
   color: #e5e7eb;
   display: flex;
   align-items: center;
@@ -21,28 +22,28 @@ body {
   padding: 16px;
 }
 
-/* Outer shell */
+/* ----- Main shell ----- */
 
 .game-shell {
   width: 100%;
   max-width: 1100px;
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.96);
   border-radius: 18px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
-  padding: 20px 22px;
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
+  padding: 18px 20px;
   position: relative;
   overflow: hidden;
 }
 
-/* Header */
+/* ----- Header ----- */
 
 .game-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .title-block h1 {
@@ -57,13 +58,12 @@ body {
 }
 
 .meta-block {
-  text-align: right;
-  font-size: 0.8rem;
-  color: #9ca3af;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #9ca3af;
 }
 
 .pill-row {
@@ -73,38 +73,29 @@ body {
   gap: 4px;
 }
 
-
+/* General pill (mode-change) */
 .meta-pill {
   display: inline-flex;
   align-items: center;
   padding: 3px 10px;
   border-radius: 999px;
-  background: rgba(15, 118, 110, 0.2);
-  border: 1px solid rgba(34, 211, 238, 0.3);
+  background: rgba(15, 118, 110, 0.18);
+  border: 1px solid rgba(34, 211, 238, 0.35);
   color: #e0f2fe;
   font-size: 0.75rem;
   gap: 4px;
   white-space: nowrap;
   cursor: pointer;
 }
+
+/* Region pill distinct color */
 .region-toggle {
-  background: rgba(59, 130, 246, 0.18);        /* blue-ish */
+  background: rgba(37, 99, 235, 0.22);
   border-color: rgba(96, 165, 250, 0.7);
   color: #bfdbfe;
 }
 
-.region-toggle:hover {
-  filter: brightness(1.05);
-}
-
-
-.meta-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: #22d3ee;
-}
-
+/* Scientific name toggle pill */
 .mode-pill {
   display: inline-flex;
   align-items: center;
@@ -114,39 +105,50 @@ body {
   font-size: 0.75rem;
   cursor: pointer;
   white-space: nowrap;
-  background: rgba(31, 41, 55, 0.8);
+  background: rgba(31, 41, 55, 0.9);
   color: #e5e7eb;
-  gap: 4px;
 }
 
 .mode-pill.mode-off {
-  background: rgba(185, 28, 28, 0.2);
-  border-color: rgba(248, 113, 113, 0.5);
+  background: rgba(185, 28, 28, 0.22);
+  border-color: rgba(248, 113, 113, 0.8);
   color: #fecaca;
 }
 
 .mode-pill.mode-on {
-  background: rgba(22, 163, 74, 0.2);
-  border-color: rgba(74, 222, 128, 0.7);
+  background: rgba(22, 163, 74, 0.22);
+  border-color: rgba(74, 222, 128, 0.9);
   color: #bbf7d0;
 }
 
-/* Layout */
+.meta-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #22d3ee;
+}
+
+.spec-level,
+#mode-label {
+  font-size: 0.78rem;
+  color: #a5b4fc;
+}
+
+/* ----- Layout (two columns) ----- */
 
 .main-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 16px;
   margin-top: 6px;
-  align-items: start;
 }
 
-/* Left panel: spectrogram / image / fact area */
+/* ----- LEFT: Spectrogram / image / fact panel ----- */
 
 .spectrogram-panel {
   background: radial-gradient(circle at top, #020617, #020617);
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.45);
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -159,12 +161,11 @@ body {
   align-items: center;
   font-size: 0.8rem;
   color: #9ca3af;
-  padding-bottom: 4px;
 }
 
 .spec-label {
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   font-size: 0.7rem;
   color: #a5b4fc;
 }
@@ -177,7 +178,7 @@ body {
 
 .species-tagline {
   font-size: 0.82rem;
-  color: #a5b4fc;
+  color: #c4b5fd;
 }
 
 .win-mark {
@@ -193,22 +194,22 @@ body {
   transform: scale(1);
 }
 
-.spec-level {
-  font-size: 0.75rem;
-  color: #6ee7b7;
-}
-
-/* Spectrogram and axes layout */
+/* ----- Spectrogram + axes layout ----- */
 
 .spectrogram-with-axes {
   display: grid;
+  /* Left column is 32px wide for the vertical frequency label.
+     Right column is the spectrogram frame. */
   grid-template-columns: 32px minmax(0, 1fr);
+  /* First row: spectrogram; second row: time label */
   grid-template-rows: auto auto;
   column-gap: 6px;
   row-gap: 2px;
   align-items: center;
+  margin-top: 4px;
 }
 
+/* Spectrogram frame: height is set by image; no min-height. */
 .spectrogram-frame {
   grid-row: 1 / 2;
   grid-column: 2 / 3;
@@ -221,72 +222,79 @@ body {
   display: block;
 }
 
-.axis-y-outside,
-.axis-x-outside {
-  grid-row: 2 / 3;
-  grid-column: 2 / 3;
-  font-size: 0.7rem;
-  color: #e5e7eb;
-  text-align: center;
-  margin: 0;
-  padding: 0;
-
-  /* This forces perfect centering */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-}
-
-/* Y axis rotation */
-.axis-y-outside {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(270deg);
-  text-align: center;
-}
-
-
+/* Spectrogram image: fills width; height scales from intrinsic aspect ratio */
 .spectrogram-image {
   width: 100%;
-  height: auto;       
+  height: auto;
   display: block;
   object-fit: contain;
   background: #000;
 }
 
+/* Subtle overlay to improve contrast without hiding axes in image */
 .spectrogram-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(15, 23, 42, 0.4),
+    rgba(15, 23, 42, 0.25),
     transparent 20%,
-    transparent 70%,
-    rgba(15, 23, 42, 0.85)
+    transparent 80%,
+    rgba(15, 23, 42, 0.75)
   );
 }
 
+/* Amplitude box, restored simple style */
 .amp-box {
   position: absolute;
   top: 6px;
   right: 6px;
-
   padding: 2px 6px;
   border-radius: 6px;
-
   background: rgba(15, 23, 42, 0.75);
   border: 1px solid rgba(148, 163, 184, 0.7);
-
   font-size: 0.7rem;
   color: #e5e7eb;
-
   pointer-events: none;
 }
 
-/* Under-spectrogram controls and fact area */
+/* Axis label base style (same size) */
+
+.axis-y-outside,
+.axis-x-outside {
+  font-size: 0.7rem;
+  color: #e5e7eb;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  font-weight: 400;
+}
+
+/* Frequency (kHz) on the left, vertical, centered */
+.axis-y-outside {
+  grid-row: 1 / 2;
+  grid-column: 1 / 2;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Time (seconds) centered under the spectrogram */
+.axis-x-outside {
+  grid-row: 2 / 3;
+  grid-column: 2 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ----- Play controls + feedback ----- */
 
 .spectrogram-footer {
   display: flex;
@@ -310,8 +318,8 @@ body {
   gap: 6px;
   padding: 7px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(129, 140, 248, 0.6);
-  background: linear-gradient(to right, #1d243c, #312e81);
+  border: 1px solid rgba(129, 140, 248, 0.7);
+  background: linear-gradient(to right, #1d243c, #4338ca);
   color: #e5e7eb;
   font-size: 0.85rem;
   cursor: pointer;
@@ -319,13 +327,13 @@ body {
 }
 
 .play-button:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.08);
 }
 
 .play-button:disabled {
   opacity: 0.5;
-  cursor: default;
   box-shadow: none;
+  cursor: default;
 }
 
 .play-icon {
@@ -354,42 +362,40 @@ body {
   color: #fb923c;
 }
 
-/* Fact box */
+/* ----- Fact box ----- */
 
 .fact-box {
   margin-top: 8px;
   padding: 8px 10px;
   border-radius: 10px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.4);
   font-size: 0.83rem;
   color: #e5e7eb;
 }
 
 .fact-box.fact-mode {
-  padding: 10px 12px;
-  background: rgba(15, 23, 42, 0.97);
-  border-color: rgba(244, 244, 245, 0.45);
-  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.5),
-    0 10px 24px rgba(0, 0, 0, 0.6);
+  background: rgba(15, 23, 42, 0.98);
+  border-color: rgba(244, 244, 245, 0.6);
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.6),
+    0 12px 26px rgba(0, 0, 0, 0.7);
 }
 
 .fact-label {
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.16em;
   color: #6b7280;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .fact-box.fact-mode .fact-label {
-  font-size: 0.8rem;
   color: #e5e7eb;
 }
 
 .fact-text {
-  font-size: 0.83rem;
-  line-height: 1.4;
+  font-size: 0.85rem;
+  line-height: 1.45;
 }
 
 .fact-box.fact-mode .fact-text {
@@ -397,20 +403,20 @@ body {
   line-height: 1.6;
 }
 
-/* Photo + credits */
+/* ----- Photo + credits ----- */
 
 .photo-box {
   margin-top: 8px;
   padding: 6px 8px;
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(15, 23, 42, 0.92);
   border-radius: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.35);
   text-align: center;
 }
 
 .insect-photo {
   width: 100%;
-  max-width: 450px;
+  max-width: 460px;
   border-radius: 10px;
   display: block;
   margin: 0 auto 4px;
@@ -421,25 +427,31 @@ body {
   color: #9ca3af;
 }
 
-.credits span {
-  margin-right: 8px;
+.credits span + span {
+  margin-left: 8px;
 }
 
-/* Right panel: answers / controls */
+/* ----- RIGHT: answers panel ----- */
 
 .answers-panel {
   background: radial-gradient(circle at top, #020617, #020617);
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.45);
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  align-self: start;
+  align-self: flex-start;
+}
+
+.question-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .question-text {
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 600;
 }
 
@@ -460,26 +472,26 @@ body {
   padding: 9px 11px;
   border-radius: 999px;
   border: 1px solid rgba(55, 65, 81, 0.9);
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.96);
   color: #e5e7eb;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
+  gap: 8px;
   cursor: pointer;
   transition: transform 0.06s ease, box-shadow 0.06s ease,
     border-color 0.12s ease, background-color 0.12s ease;
-  gap: 8px;
 }
 
 .answer-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 7px 14px rgba(15, 23, 42, 0.9);
-  border-color: rgba(129, 140, 248, 0.8);
+  border-color: rgba(129, 140, 248, 0.9);
 }
 
 .answer-btn:disabled {
   cursor: default;
-  opacity: 0.9;
+  opacity: 0.92;
   box-shadow: none;
 }
 
@@ -516,19 +528,19 @@ body {
 }
 
 .answer-meta.guess {
-  background: rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.3);
   color: #bfdbfe;
 }
 
-/* Bottom row (score + next button) */
+/* ----- Bottom controls ----- */
 
 .bottom-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 8px;
-  flex-wrap: wrap;
   gap: 8px;
+  flex-wrap: wrap;
   font-size: 0.85rem;
   color: #9ca3af;
 }
@@ -540,7 +552,7 @@ body {
 .next-btn {
   padding: 7px 13px;
   border-radius: 999px;
-  border: 1px solid rgba(129, 140, 248, 0.75);
+  border: 1px solid rgba(129, 140, 248, 0.85);
   background: linear-gradient(to right, #4338ca, #7c3aed);
   color: #f9fafb;
   font-size: 0.86rem;
@@ -549,7 +561,7 @@ body {
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.8);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.9);
 }
 
 .next-btn:disabled {
@@ -558,18 +570,18 @@ body {
   box-shadow: none;
 }
 
-/* Footer */
+/* ----- Footer ----- */
 
 .game-footer {
-  margin-top: 14px;
-  border-top: 1px solid rgba(55, 65, 81, 0.8);
+  margin-top: 12px;
+  border-top: 1px solid rgba(55, 65, 81, 0.9);
   padding-top: 8px;
   font-size: 0.78rem;
   color: #9ca3af;
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .game-footer a {
@@ -581,25 +593,12 @@ body {
   text-decoration: underline;
 }
 
-/* Stats panel */
-
+/* Hidden stats outlet (analytics.js uses it, user doesn’t see it) */
 #stats-panel {
-  font-size: 0.75rem;
-  opacity: 0.7;
+  display: none;
 }
 
-#stats-panel summary {
-  cursor: pointer;
-}
-
-#stats-text {
-  white-space: pre;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-  margin-top: 4px;
-}
-
-/* Generic helpers */
+/* ----- Overlays: shared helpers ----- */
 
 .hidden {
   display: none;
@@ -616,19 +615,14 @@ body {
   z-index: 1000;
 }
 
-.start-overlay.hidden {
-  display: none;
-}
-
 .start-backdrop {
   position: absolute;
   inset: 0;
   background: radial-gradient(
     circle at top,
-    rgba(16, 185, 129, 0.18),
+    rgba(16, 185, 129, 0.2),
     rgba(15, 23, 42, 0.95)
   );
-  pointer-events: none;
 }
 
 .start-card {
@@ -637,7 +631,7 @@ body {
   background: rgba(15, 23, 42, 0.98);
   border-radius: 18px;
   padding: 22px;
-  border: 1px solid rgba(16, 185, 129, 0.5);
+  border: 1px solid rgba(16, 185, 129, 0.6);
   max-width: 420px;
   text-align: center;
   box-shadow: 0 22px 50px rgba(0, 0, 0, 0.7);
@@ -667,17 +661,17 @@ body {
 .start-button {
   padding: 9px 18px;
   border-radius: 999px;
-  border: 1px solid rgba(16, 185, 129, 0.7);
+  border: 1px solid rgba(16, 185, 129, 0.8);
   background: linear-gradient(to right, #16a34a, #22c55e);
   color: #f9fafb;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 12px 26px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.5);
 }
 
 .start-button:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.06);
 }
 
 /* Hint overlay */
@@ -691,14 +685,10 @@ body {
   z-index: 1100;
 }
 
-.hint-overlay.hidden {
-  display: none;
-}
-
 .hint-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(15, 23, 42, 0.7);
 }
 
 .hint-panel {
@@ -710,7 +700,7 @@ body {
   border: 1px solid rgba(251, 191, 36, 0.7);
   max-width: 420px;
   text-align: left;
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
 }
 
 .hint-title {
@@ -725,7 +715,6 @@ body {
 }
 
 .hint-close-btn {
-  margin-top: 4px;
   padding: 6px 14px;
   border-radius: 999px;
   border: 1px solid rgba(251, 191, 36, 0.8);
@@ -737,10 +726,10 @@ body {
 }
 
 .hint-close-btn:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.06);
 }
 
-/* Mode-change overlay */
+/* Mode / region overlay shared */
 
 .mode-change-overlay {
   position: fixed;
@@ -749,10 +738,6 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1150;
-}
-
-.mode-change-overlay.hidden {
-  display: none;
 }
 
 .mode-change-backdrop {
@@ -767,10 +752,10 @@ body {
   background: rgba(15, 23, 42, 0.98);
   border-radius: 14px;
   padding: 16px 18px;
-  border: 1px solid rgba(129, 140, 248, 0.7);
+  border: 1px solid rgba(129, 140, 248, 0.8);
   max-width: 420px;
   text-align: left;
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
 }
 
 .mode-change-title {
@@ -808,17 +793,15 @@ body {
 }
 
 .mode-change-cancel {
-  border: 1px solid rgba(156, 163, 175, 0.8);
-  background: rgba(31, 41, 55, 0.9);
+  border: 1px solid rgba(156, 163, 175, 0.85);
+  background: rgba(31, 41, 55, 0.95);
   color: #e5e7eb;
 }
 
 .mode-change-btn:hover,
 .mode-change-cancel:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.06);
 }
-
-/* Region overlay reuses mode-change styles */
 
 /* End-of-game overlay */
 
@@ -831,16 +814,11 @@ body {
   z-index: 1200;
 }
 
-.end-overlay.hidden {
-  display: none;
-}
-
 .end-overlay-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(220, 38, 38, 0.45);
+  background: rgba(34, 197, 94, 0.5);
   pointer-events: none;
-  transition: background 0.25s ease;
 }
 
 .end-overlay.tint-bad .end-overlay-backdrop {
@@ -858,17 +836,17 @@ body {
 .end-overlay-panel {
   position: relative;
   z-index: 1201;
-  background: rgba(15, 23, 42, 0.96);
+  background: rgba(15, 23, 42, 0.97);
   border-radius: 16px;
   padding: 20px 24px;
-  border: 1px solid rgba(248, 250, 252, 0.2);
+  border: 1px solid rgba(248, 250, 252, 0.25);
   max-width: 420px;
   text-align: center;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75);
 }
 
 .end-title {
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   margin-bottom: 6px;
 }
 
@@ -887,73 +865,72 @@ body {
 .play-again-btn {
   padding: 8px 18px;
   border-radius: 999px;
-  border: 1px solid rgba(34, 197, 94, 0.7);
+  border: 1px solid rgba(34, 197, 94, 0.8);
   background: linear-gradient(to right, #16a34a, #22c55e);
   color: #f9fafb;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 12px 30px rgba(22, 163, 74, 0.4);
+  box-shadow: 0 12px 30px rgba(22, 163, 74, 0.5);
   margin-bottom: 6px;
 }
 
 .play-again-btn:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.06);
 }
 
-.change-mode-btn {
-  padding: 7px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.9);
-  background: rgba(31, 41, 55, 0.95);
-  color: #e5e7eb;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  margin-right: 6px;
-}
-
+.change-mode-btn,
 .change-region-btn {
   padding: 7px 16px;
   border-radius: 999px;
-  border: 1px solid rgba(56, 189, 248, 0.9);
-  background: rgba(15, 23, 42, 0.95);
-  color: #e0f2fe;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  margin-top: 6px;
+  margin: 3px;
+}
+
+.change-mode-btn {
+  border: 1px solid rgba(148, 163, 184, 0.9);
+  background: rgba(31, 41, 55, 0.96);
+  color: #e5e7eb;
+}
+
+.change-region-btn {
+  border: 1px solid rgba(56, 189, 248, 0.9);
+  background: rgba(15, 23, 42, 0.96);
+  color: #e0f2fe;
 }
 
 .change-mode-btn:hover,
 .change-region-btn:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.06);
 }
 
-/* Focus outlines for keyboard users */
+/* ----- Focus outlines for keyboard users ----- */
 
-.answer-btn:focus-visible,
+button:focus-visible,
 .play-button:focus-visible,
 .next-btn:focus-visible,
 .mode-pill:focus-visible,
+.meta-pill:focus-visible,
 .start-button:focus-visible,
 .play-again-btn:focus-visible,
 .change-mode-btn:focus-visible,
 .change-region-btn:focus-visible,
 .hint-close-btn:focus-visible,
 .mode-change-btn:focus-visible,
-.mode-change-cancel:focus-visible,
-.region-toggle:focus-visible {
+.mode-change-cancel:focus-visible {
   outline: 2px solid #e5e7eb;
   outline-offset: 2px;
 }
 
-/* Responsive tweaks */
+/* ----- Responsive tweaks ----- */
 
 @media (max-width: 840px) {
   .main-layout {
     grid-template-columns: minmax(0, 1fr);
   }
+
   .meta-block {
     align-items: flex-start;
   }
@@ -963,9 +940,11 @@ body {
   .game-shell {
     padding: 14px;
   }
+
   .question-text {
     font-size: 1rem;
   }
+
   .end-title {
     font-size: 1.5rem;
   }
@@ -976,6 +955,7 @@ body {
     width: 100%;
     justify-content: center;
   }
+
   .answers-panel {
     padding: 10px;
   }
