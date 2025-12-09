@@ -243,7 +243,7 @@ body {
 .axis-y-outside {
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  transform: rotate(180deg);
+  transform: rotate(270deg);
   text-align: center;
 }
 
