@@ -20,9 +20,6 @@
 
       <div class="meta-block">
         <div class="pill-row">
-          <!-- Mode label (updated by JS) -->
-          <span id="mode-label" class="spec-level">Mode: —</span>
-
           <!-- Mode bubble: click to change mode (opens confirm overlay) -->
           <button
             id="mode-bubble"
@@ -43,22 +40,20 @@
           >
             🌍 Region: All
           </button>
+
+          <!-- Scientific names toggle -->
+          <button
+            id="sci-toggle"
+            type="button"
+            class="mode-pill mode-off"
+            aria-pressed="false"
+          >
+            Show scientific names: OFF
+          </button>
         </div>
 
-        <!-- Scientific names toggle -->
-        <button
-          id="sci-toggle"
-          type="button"
-          class="mode-pill mode-off"
-          aria-pressed="false"
-        >
-          Show scientific names: OFF
-        </button>
-
-        <div>
-          <span>Created by: Lucas H. Fink</span><br />
-          <span>Contact: <a href="mailto:lhf36@cornell.edu">lhf36@cornell.edu</a></span>
-        </div>
+        <!-- Mode label (updated by JS) -->
+        <span id="mode-label" class="spec-level">Mode: —</span>
       </div>
     </header>
 
@@ -141,7 +136,7 @@
             alt=""
           />
           <div id="credits" class="credits">
-            <!-- Filled by JS with photo/audio credits and license text -->
+            <!-- Filled by JS with photo/audio credits and (optional) license text -->
           </div>
         </div>
       </section>
@@ -194,16 +189,14 @@
     <footer class="game-footer">
       <div>
         <span>
-          Photo and sound credits shown above; licenses are managed by their original hosts
-          (e.g., iNaturalist, Xeno-canto).
+          Created by: Lucas H. Fink —
+          <a href="mailto:lhf36@cornell.edu">lhf36@cornell.edu</a>
         </span>
       </div>
 
-      <div id="stats-panel">
-        <details>
-          <summary>Local stats (this browser only)</summary>
-          <pre id="stats-text"></pre>
-        </details>
+      <!-- Hidden local stats outlet (used by analytics.js, but not shown to users) -->
+      <div id="stats-panel" style="display: none;">
+        <pre id="stats-text"></pre>
       </div>
     </footer>
   </div>
