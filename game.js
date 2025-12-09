@@ -143,12 +143,21 @@ function playEndFanfare() {
 
 // Try a few common global names; whichever your species-data.js defines.
 // Use typeof checks so we don't crash if a name is missing.
+// ----- Species data helper --------------------------------------------------
+
+// Try MANY possible global names; whichever your species-data.js defines.
+// This is deliberately forgiving so you don't have to rename your file.
 const ALL_SPECIES =
+  // Common patterns
   (typeof SPECIES_DATA !== "undefined" &&
     Array.isArray(SPECIES_DATA) &&
     SPECIES_DATA) ||
   (typeof SPECIES !== "undefined" && Array.isArray(SPECIES) && SPECIES) ||
   (typeof SONGS !== "undefined" && Array.isArray(SONGS) && SONGS) ||
+  (typeof speciesData !== "undefined" &&
+    Array.isArray(speciesData) &&
+    speciesData) ||
+  // Window-attached variants (if someone used var or explicit window.)
   (typeof window !== "undefined" &&
     window.SPECIES_DATA &&
     Array.isArray(window.SPECIES_DATA) &&
@@ -161,13 +170,19 @@ const ALL_SPECIES =
     window.SONGS &&
     Array.isArray(window.SONGS) &&
     window.SONGS) ||
+  (typeof window !== "undefined" &&
+    window.speciesData &&
+    Array.isArray(window.speciesData) &&
+    window.speciesData) ||
   [];
 
+// If nothing loaded, show a visible hint in the UI as well as console.
 if (!ALL_SPECIES.length) {
   console.warn(
-    "No species data found. Expecting SPECIES_DATA / SPECIES / SONGS as an array."
+    "No species data found. Tried SPECIES_DATA, SPECIES, SONGS, speciesData (and window.* variants)."
   );
 }
+
 
 
 function getRegionsFromSpecies(data) {
@@ -940,3 +955,13 @@ window.addEventListener("DOMContentLoaded", () => {
   updateSciToggle();
   attachEventListeners();
 });
+  // If no species loaded, show a friendly message instead of a blank game.
+  if (!ALL_SPECIES.length && elQuestionText) {
+    elQuestionText.textContent =
+      "No species loaded. Check species-data.js and make sure it defines an array named SPECIES_DATA, SPECIES, SONGS, or speciesData.";
+    if (elQuestionSubtitle) {
+      elQuestionSubtitle.textContent =
+        "Once the data file is loaded correctly, this will become a 5-round game.";
+    }
+  }
+
