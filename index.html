@@ -11,7 +11,7 @@
 </head>
 <body>
   <div class="game-shell">
-    <!-- Header -->
+    <!-- HEADER -->
     <header class="game-header">
       <div class="title-block">
         <h1>Insect Song Learning Game</h1>
@@ -20,7 +20,7 @@
 
       <div class="meta-block">
         <div class="pill-row">
-          <!-- Mode bubble: click to change mode (opens confirm overlay) -->
+          <!-- Mode bubble: opens mode change overlay -->
           <button
             id="mode-bubble"
             type="button"
@@ -31,7 +31,7 @@
             Change mode
           </button>
 
-          <!-- Region toggle with globe icon -->
+          <!-- Region toggle -->
           <button
             id="region-toggle"
             type="button"
@@ -52,19 +52,17 @@
           </button>
         </div>
 
-        <!-- Mode label (updated by JS) -->
-        <span id="mode-label" class="spec-level">Mode: —</span>
+        <!-- Mode label updated by JS -->
+        <span id="mode-label">Mode: —</span>
       </div>
     </header>
 
-    <!-- Main layout -->
+    <!-- MAIN LAYOUT -->
     <main class="main-layout">
-      <!-- LEFT: spectrogram / image / fact / photo -->
+      <!-- LEFT PANEL: spectrogram / facts / photo -->
       <section class="spectrogram-panel" aria-label="Insect sound and details">
         <div class="spectrogram-header">
-          <div>
-            <span id="spec-label" class="spec-label">Visualizing sound</span>
-          </div>
+          <span id="spec-label" class="spec-label">Visualizing sound</span>
           <div class="species-tagline-wrapper">
             <span id="spec-tagline" class="species-tagline">Who is calling?</span>
             <span id="win-mark" class="win-mark">✓</span>
@@ -72,11 +70,11 @@
         </div>
 
         <div class="spectrogram-header">
-          <span id="spec-region" class="spec-level">Region: —</span>
-          <span id="mode-hint-text" class="hint-label"></span>
+          <span id="spec-region">Region: —</span>
+          <span id="mode-hint-text"></span>
         </div>
 
-        <!-- Spectrogram / image + axes -->
+        <!-- Spectrogram + axes -->
         <div id="spec-axes-wrapper" class="spectrogram-with-axes">
           <div id="axis-y" class="axis-y-outside">Frequency (kHz)</div>
 
@@ -105,22 +103,14 @@
               <span class="play-icon" aria-hidden="true"></span>
               <span id="play-btn-label">Play call</span>
             </button>
-            <span class="hint-label">
-              Press spacebar to pause/play audio.
-            </span>
+            <span class="hint-label">Press spacebar to pause/play audio.</span>
           </div>
 
-          <div
-            id="feedback-line"
-            class="feedback-line"
-          ></div>
+          <div id="feedback-line" class="feedback-line"></div>
         </div>
 
-        <!-- Fact / description box -->
-        <div
-          id="fact-box"
-          class="fact-box"
-        >
+        <!-- Fact box -->
+        <div id="fact-box" class="fact-box">
           <div id="fact-label" class="fact-label">After the guess</div>
           <div id="fact-text" class="fact-text">
             Identify the caller to reveal a fun fact.
@@ -136,43 +126,30 @@
             alt=""
           />
           <div id="credits" class="credits">
-            <!-- Filled by JS with photo/audio credits and (optional) license text -->
+            <!-- Filled by game.js: 📷 photo credit, 🎧 audio credit (+ optional license) -->
           </div>
         </div>
       </section>
 
-      <!-- RIGHT: answers and controls -->
-      <section
-        class="answers-panel"
-        aria-label="Answer choices and score"
-      >
+      <!-- RIGHT PANEL: answers / score -->
+      <section class="answers-panel" aria-label="Answer choices and score">
         <div class="question-block">
-          <div
-            id="question-text"
-            class="question-text"
-          >
+          <div id="question-text" class="question-text">
             Which insect is producing this sound?
           </div>
-          <div
-            id="question-subtitle"
-            class="question-subtitle"
-          >
+          <div id="question-subtitle" class="question-subtitle">
             Listen as many times as you like, then choose the common name.
           </div>
         </div>
 
-        <div
-          id="answers-list"
-          class="answers-list"
-        >
-          <!-- Filled dynamically by JS -->
+        <div id="answers-list" class="answers-list">
+          <!-- Buttons injected by game.js -->
         </div>
 
         <div class="bottom-controls">
-          <div id="score-text" class="score-text">
+          <div id="score-text">
             Score this game: <strong>0</strong> of 5
           </div>
-
           <button
             id="next-btn"
             type="button"
@@ -185,30 +162,25 @@
       </section>
     </main>
 
-    <!-- Footer -->
+    <!-- FOOTER -->
     <footer class="game-footer">
       <div>
-        <span>
-          Created by: Lucas H. Fink —
-          <a href="mailto:lhf36@cornell.edu">lhf36@cornell.edu</a>
-        </span>
+        Created by: Lucas H. Fink —
+        <a href="mailto:lhf36@cornell.edu">lhf36@cornell.edu</a>
       </div>
 
-      <!-- Hidden local stats outlet (used by analytics.js, but not shown to users) -->
-      <div id="stats-panel" style="display: none;">
+      <!-- Hidden stats outlet used by analytics.js only -->
+      <div id="stats-panel">
         <pre id="stats-text"></pre>
       </div>
     </footer>
   </div>
 
-  <!-- Hidden audio element (used for playback; controlled by JS) -->
+  <!-- AUDIO ELEMENT (hidden) -->
   <audio id="audio-player" preload="auto"></audio>
 
   <!-- START OVERLAY -->
-  <div
-    id="start-overlay"
-    class="start-overlay"
-  >
+  <div id="start-overlay" class="start-overlay">
     <div class="start-backdrop"></div>
     <div class="start-card">
       <div class="big-play-icon" aria-hidden="true"></div>
@@ -228,19 +200,11 @@
   </div>
 
   <!-- HINT OVERLAY -->
-  <div
-    id="hint-overlay"
-    class="hint-overlay hidden"
-  >
+  <div id="hint-overlay" class="hint-overlay hidden">
     <div class="hint-backdrop"></div>
     <div class="hint-panel">
       <div class="hint-title">Biological hint</div>
-      <div
-        id="hint-text"
-        class="hint-text"
-      >
-        <!-- Filled by JS -->
-      </div>
+      <div id="hint-text" class="hint-text"></div>
       <button
         id="hint-close-btn"
         type="button"
@@ -252,10 +216,7 @@
   </div>
 
   <!-- MODE CHANGE OVERLAY -->
-  <div
-    id="mode-change-overlay"
-    class="mode-change-overlay hidden"
-  >
+  <div id="mode-change-overlay" class="mode-change-overlay hidden">
     <div class="mode-change-backdrop"></div>
     <div class="mode-change-panel">
       <div class="mode-change-title">Change game mode?</div>
@@ -297,10 +258,7 @@
   </div>
 
   <!-- REGION OVERLAY -->
-  <div
-    id="region-overlay"
-    class="mode-change-overlay hidden"
-  >
+  <div id="region-overlay" class="mode-change-overlay hidden">
     <div class="mode-change-backdrop"></div>
     <div class="mode-change-panel">
       <div class="mode-change-title">Choose region</div>
@@ -309,11 +267,8 @@
         everything together. Regions appear if there are more than five species
         available.
       </div>
-      <div
-        id="region-buttons"
-        class="mode-change-buttons"
-      >
-        <!-- Filled by JS with region choices -->
+      <div id="region-buttons" class="mode-change-buttons">
+        <!-- Region buttons injected by game.js -->
       </div>
       <button
         id="region-cancel"
@@ -326,30 +281,14 @@
     </div>
   </div>
 
-  <!-- END-OF-GAME OVERLAY -->
-  <div
-    id="end-overlay"
-    class="end-overlay hidden"
-  >
+  <!-- END-OF-GAME OVERLAY (HIDDEN BY DEFAULT) -->
+  <div id="end-overlay" class="end-overlay hidden">
     <div class="end-overlay-backdrop"></div>
     <div class="end-overlay-panel">
-      <h2
-        id="end-title"
-        class="end-title"
-      >
-        Game complete!
-      </h2>
-      <p
-        id="end-score-text"
-        class="end-score-text"
-      >
-        You scored 0 / 5.
-      </p>
-      <p
-        id="end-message"
-        class="end-message"
-      >
-        <!-- Mode-specific message filled by JS -->
+      <h2 id="end-title" class="end-title">Game complete!</h2>
+      <p id="end-score-text" class="end-score-text">You scored 0 / 5.</p>
+      <p id="end-message" class="end-message">
+        <!-- Filled by game.js based on mode + score -->
       </p>
       <button
         id="play-again-btn"
