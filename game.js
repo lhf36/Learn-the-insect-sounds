@@ -139,10 +139,28 @@ function playEndFanfare() {
 // ----- Species data helper --------------------------------------------------
 
 // Try a few common global names; whichever your species-data.js defines
+// ----- Species data helper --------------------------------------------------
+
+// Try a few common global names; whichever your species-data.js defines.
+// Use typeof checks so we don't crash if a name is missing.
 const ALL_SPECIES =
-  (window.SPECIES_DATA && Array.isArray(window.SPECIES_DATA) && window.SPECIES_DATA) ||
-  (window.SPECIES && Array.isArray(window.SPECIES) && window.SPECIES) ||
-  (window.SONGS && Array.isArray(window.SONGS) && window.SONGS) ||
+  (typeof SPECIES_DATA !== "undefined" &&
+    Array.isArray(SPECIES_DATA) &&
+    SPECIES_DATA) ||
+  (typeof SPECIES !== "undefined" && Array.isArray(SPECIES) && SPECIES) ||
+  (typeof SONGS !== "undefined" && Array.isArray(SONGS) && SONGS) ||
+  (typeof window !== "undefined" &&
+    window.SPECIES_DATA &&
+    Array.isArray(window.SPECIES_DATA) &&
+    window.SPECIES_DATA) ||
+  (typeof window !== "undefined" &&
+    window.SPECIES &&
+    Array.isArray(window.SPECIES) &&
+    window.SPECIES) ||
+  (typeof window !== "undefined" &&
+    window.SONGS &&
+    Array.isArray(window.SONGS) &&
+    window.SONGS) ||
   [];
 
 if (!ALL_SPECIES.length) {
@@ -150,6 +168,7 @@ if (!ALL_SPECIES.length) {
     "No species data found. Expecting SPECIES_DATA / SPECIES / SONGS as an array."
   );
 }
+
 
 function getRegionsFromSpecies(data) {
   const counts = new Map();
