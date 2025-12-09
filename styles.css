@@ -548,7 +548,7 @@ body {
 /* ===== Overlays ===== */
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 /* Start overlay */
