@@ -7,7 +7,7 @@ You may propose new species by editing **only** the `species-data.js` file.
 
 ## How to add a new species
 
-1. **Fork this repository**  
+1. **Fork this repository** (look this up if you don't know what it means) 
 2. Open `species-data.js`
 3. Copy the template object at the bottom of the file
 4. Fill in:
