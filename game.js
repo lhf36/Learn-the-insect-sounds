@@ -299,9 +299,9 @@
 function buildCreditHTML(label, person, copyright) {
   if (!person) return "";
 
-  // Show © only if copyright text exists
+  // Show CC only if a copyright/license string exists
   const icon = copyright
-    ? `<span class="copy-icon" tabindex="0">©
+    ? `<span class="copy-icon" tabindex="0">CC
          <span class="copy-tooltip">${copyright}</span>
        </span>`
     : "";
@@ -313,6 +313,7 @@ const photoHTML = buildCreditHTML("📷", song.photoCredit, song.copyrightPhoto)
 const audioHTML = buildCreditHTML("🎧", song.audioCredit, song.copyrightAudio);
 
 creditsEl.innerHTML = photoHTML + audioHTML;
+
 
     specRegionEl.textContent = song.region
       ? `Region: ${song.region}`
