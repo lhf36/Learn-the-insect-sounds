@@ -187,8 +187,10 @@
  <footer class="game-footer">
   <div>
     <span>
-      Created by: Lucas H. Fink —
-      <a href="mailto:lhf36@cornell.edu">lhf36@cornell.edu</a>
+    <p class="creator-line">
+  Created by Lucas H. Fink · <a href="mailto:lhf36@cornell.edu">lhf36@cornell.edu</a>
+  · <button id="about-open" class="about-link">About</button>
+</p>
     </span>
   </div>
 </footer>
@@ -220,7 +222,55 @@
       </button>
     </div>
   </div>
+<!-- ABOUT OVERLAY -->
+<div id="about-overlay" class="about-overlay hidden">
+  <div class="about-backdrop"></div>
 
+  <div class="about-panel">
+    <button id="about-close" class="about-close">✕</button>
+
+    <img src="images/Lucas H. Fink with crab.jpeg"
+         alt="Photo of Lucas H. Fink"
+         class="about-photo">
+
+    <h2 class="about-title">About the Creator</h2>
+
+    <p class="about-text">
+      <strong>Lucas H. Fink</strong> is an entomologist, bioacoustics researcher,
+      and natural history educator completing his bachelor’s degree in Entomology
+      and Ecology and Evolutionary Biology at Cornell University. He will graduate
+      in May 2026. Lucas describes and studies acoustic behavior across a wide
+      range of animals, working with the K. Lisa Yang Center for Conservation
+      Bioacoustics to explore how sound can deepen our understanding of the natural
+      world.
+    </p>
+
+    <p class="about-text">
+      His research includes fieldwork to describe the sounds of katydids and crickets in the Brazilian
+      Pantanal, dialect variation in Hawaiian honeycreepers, and long-term patterns
+      in orangutan vocal behavior. He is particularly interested in how tuning into
+      animal communication can reveal the ecology, behavior, and conservation needs
+      of wildlife.
+    </p>
+
+    <p class="about-text">
+      Beyond research, Lucas leads public science outreach and wilderness education
+      as an instructor with Cornell Outdoor Education and as the founder of the
+      Cornell Bioacoustics Club. He is committed to helping people develop sharper
+      observation and listening skills and to inspiring curiosity about the
+      biodiversity around us.
+    </p>
+
+    <p class="about-text">
+      This game reflects his mission to bring the world of animal communication to
+      learners and to make the experience of listening and identifying wildlife
+      more engaging and accessible.
+    </p>
+
+  </div>
+</div>
+
+  
   <!-- HINT OVERLAY -->
   <div
     id="hint-overlay"
