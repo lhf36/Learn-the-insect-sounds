@@ -239,13 +239,11 @@ body {
   position: relative;
   border-radius: 14px;
   overflow: hidden;
-  background: #000;
+  background: #000;          /* still gives a nice dark backing */
   border: 2px solid #e5e7eb;
-  min-height: 240px;
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
+  display: inline-block;     /* shrink-wrap to the image size */
 }
+
 
 .axis-x-outside {
   grid-row: 2 / 3;
@@ -258,11 +256,12 @@ body {
 
 .spectrogram-image {
   width: 100%;
-  height: 100%;
+  height: auto;          /* let height be whatever the image needs */
   display: block;
-  object-fit: contain; /* keep entire spectrogram visible */
+  object-fit: contain;   /* safe to leave, but height is no longer forced */
   background: #000;
 }
+
 
 .spectrogram-overlay {
   position: absolute;
