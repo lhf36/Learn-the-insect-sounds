@@ -57,6 +57,7 @@ body {
 .title-block p {
   font-size: 1.05rem;
   color: #047857;
+  margin-bottom: 6px;
 }
 
 .meta-block {
@@ -80,7 +81,7 @@ body {
 
 .pill-row {
   display: flex;
-  flex-direction: column;
+  flex-direction: column;  /* vertical stack of mode + region */
   align-items: flex-end;
   gap: 6px;
 }
@@ -239,11 +240,10 @@ body {
   position: relative;
   border-radius: 14px;
   overflow: hidden;
-  background: #000;          /* still gives a nice dark backing */
+  background: #000;          /* dark backing behind spectrogram */
   border: 2px solid #e5e7eb;
-  display: inline-block;     /* shrink-wrap to the image size */
+  display: inline-block;     /* frame shrink-wraps around image height */
 }
-
 
 .axis-x-outside {
   grid-row: 2 / 3;
@@ -256,12 +256,11 @@ body {
 
 .spectrogram-image {
   width: 100%;
-  height: auto;          /* let height be whatever the image needs */
+  height: auto;              /* let spectrogram decide the height */
   display: block;
-  object-fit: contain;   /* safe to leave, but height is no longer forced */
+  object-fit: contain;       /* keep entire image visible */
   background: #000;
 }
-
 
 .spectrogram-overlay {
   position: absolute;
@@ -621,7 +620,7 @@ body {
   text-decoration: underline;
 }
 
-/* Stats panel (if still present) */
+/* Stats panel (if still present in HTML) */
 
 #stats-panel {
   font-size: 0.75rem;
@@ -721,7 +720,7 @@ body {
   filter: brightness(1.05);
 }
 
-/* Hint overlay */
+/* Hint overlay (also used as reference size for content overlays) */
 
 .hint-overlay {
   position: fixed;
@@ -749,9 +748,12 @@ body {
   border-radius: 16px;
   padding: 18px 20px;
   border: 2px solid #fbbf24;
-  max-width: 440px;
+  max-width: 420px;
+  max-height: 70vh;   /* keeps it on screen */
+  overflow-y: auto;   /* scroll if long */
   text-align: left;
   box-shadow: 0 18px 40px rgba(245, 158, 11, 0.3);
+  margin: 0 12px;
 }
 
 .hint-title {
@@ -811,8 +813,11 @@ body {
   padding: 18px 20px;
   border: 2px solid #38bdf8;
   max-width: 440px;
+  max-height: 80vh;
+  overflow-y: auto;
   text-align: left;
   box-shadow: 0 18px 40px rgba(37, 99, 235, 0.25);
+  margin: 0 12px;
 }
 
 .mode-change-title {
@@ -903,8 +908,11 @@ body {
   padding: 22px 24px;
   border: 2px solid #0ea5e9;
   max-width: 440px;
+  max-height: 80vh;
+  overflow-y: auto;
   text-align: center;
   box-shadow: 0 20px 45px rgba(8, 47, 73, 0.35);
+  margin: 0 12px;
 }
 
 .end-title {
@@ -971,7 +979,7 @@ body {
   filter: brightness(1.05);
 }
 
-/* About overlay */
+/* About overlay (if present in HTML) */
 
 #about-overlay {
   position: fixed;
