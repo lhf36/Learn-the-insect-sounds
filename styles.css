@@ -1095,9 +1095,12 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.4);
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.6);
 
-  max-height: 80vh;      /* new: limit height */
-  overflow-y: auto;      /* new: scroll if needed */
+  max-height: 80vh;
+  /* change this: */
+  /* overflow-y: auto; */
+  overflow-y: scroll;   /* always show the scroll “sidebar” for this panel */
 }
+
 
 
 /* Close button */
