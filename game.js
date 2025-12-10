@@ -56,6 +56,13 @@
 
   let audioCtx = null;
 
+  let revealOverlayEl;
+  let revealTitleEl;
+  let revealPhotoEl;
+  let revealFactTextEl;
+  let revealCloseBtnEl;
+
+
   // ---------------------------------------------------------------------------
   // DOM REFERENCES
   // ---------------------------------------------------------------------------
@@ -785,16 +792,13 @@
     showWinMark();
 
     if (scoreTextEl) {
-      scoreTextEl.innerHTML = `Score this game: <strong>${scoreCorrect}</strong> of ${TOTAL_ROUNDS}`;
-    }
+        scoreTextEl.innerHTML = `Score this game: <strong>${scoreCorrect}</strong> of ${TOTAL_ROUNDS}`;
 
-    if (roundsAnswered >= TOTAL_ROUNDS) {
-      if (nextBtnEl) nextBtnEl.disabled = true;
-      showEndOverlay();
-    } else if (nextBtnEl) {
-      nextBtnEl.disabled = false;
-    }
+    // Force the player to see the reveal overlay (fact + image)
+    nextBtnEl.disabled = true;
+    showRevealOverlay(currentSong, firstTry);
   }
+
 
   function goToNextRound() {
     if (!hasAnswered) return;
@@ -901,6 +905,12 @@
   // ---------------------------------------------------------------------------
 
   function initDomRefs() {
+    revealOverlayEl = document.getElementById("reveal-overlay");
+    revealTitleEl = document.getElementById("reveal-title");
+    revealPhotoEl = document.getElementById("reveal-photo");
+    revealFactTextEl = document.getElementById("reveal-fact-text");
+    revealCloseBtnEl = document.getElementById("reveal-close-btn");
+
     spectrogramImageEl = document.getElementById("spectrogram-image");
     specTaglineEl = document.getElementById("spec-tagline");
     specRegionEl = document.getElementById("spec-region");
@@ -967,6 +977,18 @@
         sciNamesOn = !sciNamesOn;
         updateSciToggleUI();
         applySciToggleToButtons();
+      });
+    }
+    if (revealCloseBtnEl) {
+      revealCloseBtnEl.addEventListener("click", () => {
+        if (!revealOverlayEl) return;
+        revealOverlayEl.classList.add("hidden");
+
+        if (roundsAnswered >= TOTAL_ROUNDS) {
+          showEndOverlay();
+        } else {
+          nextBtnEl.disabled = false;
+        }
       });
     }
 
