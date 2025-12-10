@@ -513,6 +513,29 @@
     hintOverlayEl.classList.add("hidden");
   }
 
+  // ABOUT OVERLAY
+const aboutOverlay = document.getElementById("about-overlay");
+const aboutOpen = document.getElementById("about-open");
+const aboutClose = document.getElementById("about-close");
+
+if (aboutOpen && aboutClose && aboutOverlay) {
+  aboutOpen.addEventListener("click", () => {
+    aboutOverlay.classList.remove("hidden");
+  });
+
+  aboutClose.addEventListener("click", () => {
+    aboutOverlay.classList.add("hidden");
+  });
+
+  // Click outside to close
+  aboutOverlay.addEventListener("click", (e) => {
+    if (e.target === aboutOverlay) {
+      aboutOverlay.classList.add("hidden");
+    }
+  });
+}
+
+
   function getModeCorrectMessage(firstTry) {
     if (currentMode === "spectrogram") {
       return firstTry
