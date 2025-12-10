@@ -666,28 +666,29 @@ if (aboutOpen && aboutClose && aboutOverlay) {
     const correct = selectedName === currentSong.commonName;
     const meta = buttonEl.querySelector(".answer-meta");
 
-    if (!correct) {
-      if (!hadWrongGuess) {
-        hadWrongGuess = true;
-        if (meta) {
-          meta.textContent = "Try again";
-          meta.classList.add("guess");
-        }
-        buttonEl.classList.add("wrong-choice");
+     if (!correct) {
+    // Mark that this round had at least one wrong guess
+    hadWrongGuess = true;
 
-        const msg =
-          currentMode === "spectrogram"
-            ? "Not quite – listen again and check the hint."
-            : currentMode === "image"
-            ? "Not quite – look again and check the hint."
-            : "Not quite – reread the description and check the hint.";
-
-        feedbackLineEl.textContent = msg;
-        feedbackLineEl.classList.add("wrong");
-        showHintOverlay(currentSong);
-      }
-      return;
+    // Mark this button as wrong, but keep it clickable
+    if (meta) {
+      meta.textContent = "Try again";
+      meta.classList.add("guess");
     }
+    buttonEl.classList.add("wrong-choice");
+
+    // Simple, consistent feedback
+    feedbackLineEl.textContent = "Wrong answer, try again.";
+    feedbackLineEl.classList.remove("correct");
+    feedbackLineEl.classList.add("wrong");
+
+    // Show the hint overlay the first time they get it wrong
+    if (hintOverlayEl.classList.contains("hidden")) {
+      showHintOverlay(currentSong);
+    }
+
+    return;
+  }
 
     // Correct
     hasAnswered = true;
