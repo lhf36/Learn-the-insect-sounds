@@ -1025,10 +1025,17 @@ body {
 }
 
 .creator-line {
-  font-size: 0.95rem;
-  color: #cbd5e1;
+  font-size: 0.78rem;      /* smaller */
+  color: #9ca3af;          /* softer grey */
   text-align: center;
-  margin-top: 16px;
+}
+
+.creator-line a {
+  color: #a5b4fc;
+}
+
+.creator-line a:hover {
+  text-decoration: underline;
 }
 
 .about-link {
@@ -1036,7 +1043,7 @@ body {
   border: none;
   padding: 0;
   margin: 0 4px;
-  color: #93c5fd;             /* soft blue */
+  color: #93c5fd;
   font-size: inherit;
   cursor: pointer;
   text-decoration: underline;
@@ -1044,8 +1051,8 @@ body {
 
 .about-link:hover,
 .about-link:focus {
-  color: #bfdbfe;             /* slightly brighter blue */
-  outline: none;              /* remove white focus ring */
+  color: #bfdbfe;
+  outline: none;
 }
 
 .about-link:active {
