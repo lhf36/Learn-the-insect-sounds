@@ -1034,11 +1034,24 @@ body {
 .about-link {
   background: none;
   border: none;
-  color: #93c5fd;
-  cursor: pointer;
+  padding: 0;
+  margin: 0 4px;
+  color: #93c5fd;             /* soft blue */
   font-size: inherit;
+  cursor: pointer;
   text-decoration: underline;
 }
+
+.about-link:hover,
+.about-link:focus {
+  color: #bfdbfe;             /* slightly brighter blue */
+  outline: none;              /* remove white focus ring */
+}
+
+.about-link:active {
+  color: #60a5fa;
+}
+
 .about-link:hover {
   color: #bfdbfe;
 }
