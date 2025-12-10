@@ -705,11 +705,23 @@ if (aboutOpen && aboutClose && aboutOverlay) {
     factLabelEl.textContent = "Fun fact";
     factTextEl.textContent = currentSong.fact || "";
 
-    if (currentMode === "spectrogram" || currentMode === "facts") {
-      insectPhotoEl.src = currentSong.photo;
-      insectPhotoEl.alt = `Photo of ${currentSong.commonName}`;
-      insectPhotoEl.classList.remove("hidden");
-    }
+// after you compute firstTry, update score, etc.
+
+revealTitleEl.textContent = getModeCorrectMessage(firstTry);
+
+// photo: show for spectrogram + facts modes, hide for pure-facts if you want
+if (currentMode === "spectrogram" || currentMode === "image") {
+  revealPhotoEl.src = currentSong.photo;
+  revealPhotoEl.alt = `Photo of ${currentSong.commonName}`;
+  revealPhotoEl.classList.remove("hidden");
+} else {
+  revealPhotoEl.classList.add("hidden");
+}
+
+revealFactTextEl.textContent = currentSong.fact || "";
+
+// show overlay and force user to dismiss before continuing
+revealOverlayEl.classList.remove("hidden");
 
     const buttons = answersListEl.querySelectorAll(".answer-btn");
     buttons.forEach(btn => {
