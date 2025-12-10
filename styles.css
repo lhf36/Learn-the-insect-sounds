@@ -229,11 +229,11 @@ body {
   background: #000;
   border: 1px solid rgba(55, 65, 81, 0.9);
   box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.8);
-  min-height: 220px;
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
+  /* Let the frame match the spectrogram image height */
+  min-height: 0;
+  display: inline-block;
 }
+
 
 .axis-x-outside {
   grid-row: 2 / 3;
@@ -246,11 +246,12 @@ body {
 
 .spectrogram-image {
   width: 100%;
-  height: 100%;
+  height: auto;        /* let height be whatever the image needs */
   display: block;
-  object-fit: contain; /* show full spectrogram including any axes baked into image */
+  object-fit: contain; /* still keeps the full spectrogram visible */
   background: #000;
 }
+
 
 .spectrogram-overlay {
   position: absolute;
