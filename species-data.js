@@ -37,9 +37,8 @@ window.SONGS_DATA = [
     fact: "Four-spotted tree crickets high pitched trills from up in the trees. They amplify their songs by building tools called baffles out of leaves.",
     photoCredit: "Megan Ralph",
     audioCredit: "Daniel Parker",
-    // Fill these manually once you look up the licenses on iNaturalist / Xeno-canto
-    copyrightPhoto: "",
-    copyrightAudio: ""
+    copyrightPhoto: "CC0",
+    copyrightAudio: "CC BY-NC-SA 4.0"
   },
   {
     commonName: "Swamp Cicada",
@@ -51,8 +50,8 @@ window.SONGS_DATA = [
     fact: "Swamp cicadas produce loud songs by vibrating a thin membrane of an organ on their abdomen called a tymbal. Their songs are so loud that they actually turn down their hearing when they sing to avoid going deaf!",
     photoCredit: "\"Alie\" Kratzer",
     audioCredit: "David Marshall",
-    copyrightPhoto: "",
-    copyrightAudio: ""
+    copyrightPhoto: "CC-BY_SA",
+    copyrightAudio: "CC BY-NC-SA 4.0"
   },
   {
     commonName: "Common True Katydid",
@@ -64,8 +63,8 @@ window.SONGS_DATA = [
     fact: "Common true katydids produce rhythmic songs by rubbing their wings together. Unlike crickets who are righties, katydids are all lefties and rub their left wing over their right wings.",
     photoCredit: "Judy Gallagher",
     audioCredit: "Francisco Rivas Fuenzalida",
-    copyrightPhoto: "",
-    copyrightAudio: ""
+    copyrightPhoto: "CC BY-SA 4.0",
+    copyrightAudio: "CC BY-NC-SA 4.0"
   },
   {
     commonName: "Meadow Grasshopper",
@@ -77,8 +76,8 @@ window.SONGS_DATA = [
     fact: "Male meadow grasshoppers create their percussive songs by rubbing their hind legs against hard forewings. Most grasshoppers don't actually sing, but some of the few species that do can be very easy to find.",
     photoCredit: "Gilles San Martin",
     audioCredit: "Baudewijn Ode",
-    copyrightPhoto: "",
-    copyrightAudio: ""
+    copyrightPhoto: "CC BY-SA 4.0",
+    copyrightAudio: "CC BY-NC-SA 4.0"
   },
   {
     commonName: "European Field Cricket",
@@ -90,8 +89,8 @@ window.SONGS_DATA = [
     fact: "Field crickets dig simple burrows and sing from the entrance. Populations of European field crickets have rapidly declined due to habitat loss. Once they disappear from an area they rarely recover. They are now the most endangered cricket in Britain and conservation efforts are underway to reintroduce them to places they have gone extinct across Europe.",
     photoCredit: "Gilles San Martin",
     audioCredit: "Cedric Mroczko",
-    copyrightPhoto: "",
-    copyrightAudio: ""
+    copyrightPhoto: "CC BY-SA 4.0",
+    copyrightAudio: "CC BY-NC-SA 4.0"
   },
   {
     commonName: "European Mole Cricket",
@@ -103,8 +102,8 @@ window.SONGS_DATA = [
     fact: "Mole crickets are powerful diggers that build resonating burrows. These underground chambers act like acoustic amplifiers, greatly boosting the volume of their songs and showing how insects can use constructed spaces to enhance communication.",
     photoCredit: "Grzegorz Grzejszczak",
     audioCredit: "Cedric Mroczko",
-    copyrightPhoto: "",
-    copyrightAudio: ""
+    copyrightPhoto: "CC BY-SA 4.0",
+    copyrightAudio: "CC BY-NC-SA 4.0"
   },
   {
     commonName: "13-year Cicada",
@@ -116,8 +115,8 @@ window.SONGS_DATA = [
     fact: "Periodical cicadas spend 13 years underground feeding on tree roots before emerging in synchronized, spectacular numbers. Their unusual life cycle helps them avoid predators and overwhelm ecosystems with sheer abundance.",
     photoCredit: "Kirill Levchenko",
     audioCredit: "David Marshall",
-    copyrightPhoto: "",
-    copyrightAudio: ""
+    copyrightPhoto: "CC0",
+    copyrightAudio: "CC BY-NC-SA"
   },
   {
     commonName: "Sword-bearing Conehead",
@@ -129,8 +128,8 @@ window.SONGS_DATA = [
     fact: "Conehead katydids get their name from the pointed facial cone above their mouthparts. Females have a long, sword-like ovipositor used to insert eggs into plant stems, which is the origin of the “sword-bearing” name.",
     photoCredit: "Marlo Perdicas",
     audioCredit: "Molly Jacobson",
-    copyrightPhoto: "",
-    copyrightAudio: ""
+    copyrightPhoto: "CC BY 4.0",
+    copyrightAudio: "CC BY-NC-SA 4.0"
   }
 
   /*
