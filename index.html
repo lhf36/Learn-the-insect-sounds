@@ -12,50 +12,48 @@
 <body>
   <div class="game-shell">
     <!-- Header -->
-    <header class="game-header">
-      <div class="title-block">
-        <h1>Insect Song Learning Game</h1>
-        <p>Match insect sounds, images, and natural history facts to their owners.</p>
-      </div>
+<header class="game-header">
+  <div class="title-block">
+    <h1>Insect Song Learning Game</h1>
+    <p>Match insect sounds, images, and natural history facts to their owners.</p>
 
-      <div class="meta-block">
-        <div class="pill-row">
-          <!-- Mode label (updated by JS) -->
-          <span id="mode-label" class="spec-level">Mode: —</span>
+    <!-- Scientific names toggle under subtitle -->
+    <button
+      id="sci-toggle"
+      type="button"
+      class="mode-pill mode-off"
+      aria-pressed="false"
+      style="margin-top: 6px;"
+    >
+      Show scientific names: OFF
+    </button>
+  </div>
 
-          <!-- Mode bubble: click to change mode (opens confirm overlay) -->
-          <button
-            id="mode-bubble"
-            type="button"
-            class="meta-pill"
-            aria-label="Change game mode"
-          >
-            <span class="meta-dot"></span>
-            Change mode
-          </button>
+  <div class="meta-block">
+    <div class="pill-row">
+      <span id="mode-label" class="spec-level">Mode: —</span>
 
-          <!-- Region toggle with globe icon -->
-          <button
-            id="region-toggle"
-            type="button"
-            class="meta-pill region-toggle"
-            aria-label="Change region"
-          >
-            🌍 Region: All
-          </button>
-        </div>
+      <button
+        id="mode-bubble"
+        type="button"
+        class="meta-pill"
+        aria-label="Change game mode"
+      >
+        <span class="meta-dot"></span>
+        Change mode
+      </button>
 
-        <!-- Scientific names toggle -->
-        <button
-          id="sci-toggle"
-          type="button"
-          class="mode-pill mode-off"
-          aria-pressed="false"
-        >
-          Show scientific names: OFF
-        </button>
-      </div>
-    </header>
+      <button
+        id="region-toggle"
+        type="button"
+        class="meta-pill region-toggle"
+        aria-label="Change region"
+      >
+        🌍 Region: All
+      </button>
+    </div>
+  </div>
+</header>
 
     <!-- Main layout -->
     <main class="main-layout">
