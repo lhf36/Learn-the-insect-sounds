@@ -1034,15 +1034,16 @@ body {
   text-align: center;
 }
 
+/* About overlay image */
 .about-photo {
-  width: 120px;
-  height: 120px;
-  border-radius: 999px;
-  object-fit: cover;
   display: block;
-  margin: 0 auto 12px;
-  border: 2px solid #a7f3d0;
+  margin: 0 auto 12px;   /* keep it centered with a bit of space below */
+  max-width: 120px;      /* smaller than before so text is visible */
+  height: auto;          /* maintain aspect ratio */
+  border-radius: 999px;  /* same circular / rounded look as before */
+  object-fit: cover;
 }
+
 
 .about-text {
   font-size: 1rem;
