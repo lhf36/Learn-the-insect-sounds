@@ -661,31 +661,31 @@ if (aboutOpen && aboutClose && aboutOverlay) {
     const correct = selectedName === currentSong.commonName;
     const meta = buttonEl.querySelector(".answer-meta");
 
-     if (!correct) {
-    // Mark that this round had at least one wrong guess
-    hadWrongGuess = true;
+    // ----- WRONG ANSWER -----
+    if (!correct) {
+      // Mark that this round had at least one wrong guess
+      hadWrongGuess = true;
 
-    // Mark this button as wrong, but keep it clickable
-    if (meta) {
-      meta.textContent = "Try again";
-      meta.classList.add("guess");
+      // Mark this button as wrong, but keep others clickable
+      if (meta) {
+        meta.textContent = "Try again";
+        meta.classList.add("guess");
+      }
+      buttonEl.classList.add("wrong-choice");
+
+      // Simple, consistent feedback
+      feedbackLineEl.textContent = "Wrong answer, try again.";
+      feedbackLineEl.classList.remove("correct");
+      feedbackLineEl.classList.add("wrong");
+
+      // Show the hint overlay the first time they get it wrong
+      if (hintOverlayEl && hintOverlayEl.classList.contains("hidden")) {
+        showHintOverlay(currentSong);
+      }
+      return;
     }
-    buttonEl.classList.add("wrong-choice");
 
-    // Simple, consistent feedback
-    feedbackLineEl.textContent = "Wrong answer, try again.";
-    feedbackLineEl.classList.remove("correct");
-    feedbackLineEl.classList.add("wrong");
-
-    // Show the hint overlay the first time they get it wrong
-    if (hintOverlayEl.classList.contains("hidden")) {
-      showHintOverlay(currentSong);
-    }
-
-    return;
-  }
-
-    // Correct
+    // ----- CORRECT ANSWER -----
     hasAnswered = true;
     roundsAnswered++;
 
@@ -693,36 +693,22 @@ if (aboutOpen && aboutClose && aboutOverlay) {
     if (firstTry) {
       scoreCorrect++;
       feedbackLineEl.textContent = getModeCorrectMessage(true);
+      feedbackLineEl.classList.remove("wrong");
       feedbackLineEl.classList.add("correct");
       playDing();
     } else {
       feedbackLineEl.textContent = getModeCorrectMessage(false);
+      feedbackLineEl.classList.remove("wrong");
       feedbackLineEl.classList.add("correct");
     }
 
     specTaglineEl.textContent = currentSong.commonName;
 
+    // Still update the small fact box under the spectrogram, if you want
     factLabelEl.textContent = "Fun fact";
     factTextEl.textContent = currentSong.fact || "";
 
-// after you compute firstTry, update score, etc.
-
-revealTitleEl.textContent = getModeCorrectMessage(firstTry);
-
-// photo: show for spectrogram + facts modes, hide for pure-facts if you want
-if (currentMode === "spectrogram" || currentMode === "image") {
-  revealPhotoEl.src = currentSong.photo;
-  revealPhotoEl.alt = `Photo of ${currentSong.commonName}`;
-  revealPhotoEl.classList.remove("hidden");
-} else {
-  revealPhotoEl.classList.add("hidden");
-}
-
-revealFactTextEl.textContent = currentSong.fact || "";
-
-// show overlay and force user to dismiss before continuing
-revealOverlayEl.classList.remove("hidden");
-
+    // Lock in answers visually
     const buttons = answersListEl.querySelectorAll(".answer-btn");
     buttons.forEach(btn => {
       const m = btn.querySelector(".answer-meta");
@@ -740,7 +726,7 @@ revealOverlayEl.classList.remove("hidden");
 
     scoreTextEl.innerHTML = `Score this game: <strong>${scoreCorrect}</strong> of ${TOTAL_ROUNDS}`;
 
-    // Force them to see the reveal overlay (fact + image) before advancing
+    // Disable next until they close the reveal overlay
     nextBtnEl.disabled = true;
     showRevealOverlay(currentSong, firstTry);
   }
