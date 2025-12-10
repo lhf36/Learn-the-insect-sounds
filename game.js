@@ -296,12 +296,12 @@
     insectPhotoEl.src = "";
     insectPhotoEl.alt = "";
 
-    function buildCreditHTML(label, person, copyright) {
+function buildCreditHTML(label, person, copyright) {
   if (!person) return "";
 
-  // Only show icon if copyright text exists
+  // Show © only if copyright text exists
   const icon = copyright
-    ? `<span class="copy-icon" tabindex="0">ⓘ
+    ? `<span class="copy-icon" tabindex="0">©
          <span class="copy-tooltip">${copyright}</span>
        </span>`
     : "";
